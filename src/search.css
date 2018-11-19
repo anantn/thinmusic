@@ -1,3 +1,7 @@
+.search input {
+  margin-bottom: 25px;
+}
+
 .searchResults {
   width: auto;
 }

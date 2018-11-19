@@ -4,7 +4,8 @@ import {
   Spinner,
   NonIdealState,
   HTMLTable,
-  InputGroup
+  InputGroup,
+  Classes
 } from "@blueprintjs/core";
 import "./search.css";
 
@@ -29,6 +30,7 @@ class Search extends Component {
   };
 
   search = event => {
+    // TODO: Implement 100ms cooloff to avoid spamming search api.
     if (event.target.value.trim() === "") {
       this.setState({ results: [] });
       return;
@@ -65,7 +67,7 @@ class Search extends Component {
           if ("library-songs" in res[1]) {
             librarySongs = res[1]["library-songs"].data;
           }
-
+          // TODO: fix merging logic.
           let tracked = librarySongs.map(
             obj => obj.attributes.playParams.catalogId
           );
@@ -101,15 +103,17 @@ class Search extends Component {
           <tbody>
             {this.state.results.map(result => (
               <tr key={result.playParams.id}>
-                <td>
+                <td onClick={this.props.add.bind(this, result.playParams.id)}>
                   <img
                     src={this.icon(result.artwork)}
                     width={ICON_SIZE}
                     height={ICON_SIZE}
-                    onClick={this.props.add.bind(this, result.playParams.id)}
+                    className={Classes.SKELETON}
                   />
                 </td>
-                <td>{result.name}</td>
+                <td onClick={this.props.add.bind(this, result.playParams.id)}>
+                  {result.name}
+                </td>
                 <td>{result.artistName}</td>
                 <td>{result.albumName}</td>
               </tr>

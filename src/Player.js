@@ -8,7 +8,6 @@ import {
 } from "@blueprintjs/core";
 
 import "./player.css";
-const MusicKit = window.MusicKit;
 
 class Player extends Component {
   constructor(props) {
@@ -42,10 +41,19 @@ class Player extends Component {
     if (!this.state.isPlaying) return;
     let current = this.props.music.player.currentPlaybackTime;
     let total = this.props.music.player.currentPlaybackDuration;
+    if (total === Infinity) total = 0;
     this.setState({
       progress: current / total,
-      durationStart: MusicKit.formatMediaTime(current, ":"),
-      durationEnd: MusicKit.formatMediaTime(total, ":")
+      start:
+        Math.floor(current / 60) +
+        ":" +
+        (current % 60 < 10 ? "0" : "") +
+        (current % 60),
+      end:
+        Math.floor(total / 60) +
+        ":" +
+        (total % 60 < 10 ? "0" : "") +
+        (total % 60)
     });
   };
 
@@ -84,8 +92,8 @@ class Player extends Component {
       content = (
         <div>
           <div className="duration">
-            <span className="start">{this.state.durationStart}</span>
-            <span className="end">{this.state.durationEnd}</span>
+            <span className="start">{this.state.start || "-"}</span>
+            <span className="end">{this.state.end || "-"}</span>
           </div>
           <ProgressBar
             animate={false}
