@@ -9,6 +9,7 @@ import {
 import "./search.css";
 
 const MusicKit = window.MusicKit;
+const ICON_SIZE = 40;
 
 class Search extends Component {
   constructor(props) {
@@ -19,6 +20,13 @@ class Search extends Component {
       searching: false
     };
   }
+
+  icon = artwork => {
+    return MusicKit.formatArtworkURL(artwork, ICON_SIZE, ICON_SIZE).replace(
+      "{c}",
+      ""
+    );
+  };
 
   search = event => {
     if (event.target.value.trim() === "") {
@@ -95,9 +103,9 @@ class Search extends Component {
               <tr key={result.playParams.id}>
                 <td>
                   <img
-                    src={MusicKit.formatArtworkURL(result.artwork, 40, 40)}
-                    width="40"
-                    height="40"
+                    src={this.icon(result.artwork)}
+                    width={ICON_SIZE}
+                    height={ICON_SIZE}
                     onClick={this.props.add.bind(this, result.playParams.id)}
                   />
                 </td>

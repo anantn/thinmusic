@@ -1,0 +1,23 @@
+.player {
+  height: 200px;
+  margin-bottom: 20px;
+}
+
+.duration {
+  padding-bottom: 5px;
+}
+
+.duration span {
+  font-size: 10px;
+  padding-bottom: 5px;
+}
+
+.duration .start {
+  float: left;
+  margin-left: 5px;
+}
+
+.duration .end {
+  float: right;
+  margin-right: 5px;
+}
