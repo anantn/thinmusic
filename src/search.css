@@ -1,0 +1,27 @@
+.searchResults {
+  width: auto;
+}
+
+.searchResults table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.searchResults td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle !important;
+}
+
+.searchResults .col-0 {
+  width: 10%;
+}
+
+.searchResults .col-1 {
+  width: 40%;
+}
+
+.searchResults .col-2 {
+  width: 25%;
+}
