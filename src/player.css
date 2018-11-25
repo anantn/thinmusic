@@ -3,8 +3,12 @@
   margin-bottom: 20px;
 }
 
+.player .bp3-slider-label {
+  display: none;
+}
+
 .duration {
-  padding-bottom: 5px;
+  padding-bottom: 10px;
 }
 
 .duration span {

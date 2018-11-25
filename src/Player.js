@@ -4,7 +4,7 @@ import {
   Button,
   Card,
   Elevation,
-  ProgressBar
+  Slider
 } from "@blueprintjs/core";
 
 import "./player.css";
@@ -45,16 +45,14 @@ class Player extends Component {
 
   tick = () => {
     if (this.state.playbackState !== PS.playing) return;
-    let current = this.props.music.player.currentPlaybackTime;
-    let total = this.props.music.player.currentPlaybackDuration;
     this.setState({
-      progress: current / total,
-      start: this.tickLabel(current),
-      end: this.tickLabel(total)
+      current: this.props.music.player.currentPlaybackTime,
+      total: this.props.music.player.currentPlaybackDuration
     });
   };
 
   tickLabel = num => {
+    if (typeof num !== "number" || num === 0) return "-";
     return Math.floor(num / 60) + ":" + (num % 60 < 10 ? "0" : "") + (num % 60);
   };
 
@@ -68,16 +66,20 @@ class Player extends Component {
 
   render() {
     let content = <div>Nothing is playing.</div>;
-    let currentItem = this.props.music.player.nowPlayingItem;
-    if (!currentItem) {
-      currentItem = { title: "", artistName: "", albumName: "" };
-    }
+    let title = this.props.music.player.nowPlayingItem
+      ? this.props.music.player.nowPlayingItem.title
+      : "";
+    let subtitle = this.props.music.player.nowPlayingItem
+      ? this.props.music.player.nowPlayingItem.artistName +
+        " — " +
+        this.props.music.player.nowPlayingItem.albumName
+      : "";
+
     let currentState = this.state.playbackState;
     if (
       currentState === PS.loading ||
       currentState === PS.playing ||
       currentState === PS.paused ||
-      currentState === PS.stopped ||
       currentState === PS.waiting
     ) {
       let button = "play";
@@ -86,19 +88,23 @@ class Player extends Component {
       }
       content = (
         <div>
-          <div className="duration">
-            <span className="start">{this.state.start || "-"}</span>
-            <span className="end">{this.state.end || "-"}</span>
-          </div>
-          <ProgressBar
-            animate={false}
-            stripes={false}
-            value={this.state.progress}
+          {
+            <div className="duration">
+              <span className="start">
+                {this.tickLabel(this.state.current)}
+              </span>
+              <span className="end">{this.tickLabel(this.state.total)}</span>
+            </div>
+          }
+          <Slider
+            min={0}
+            max={this.state.total}
+            labelRenderer={() => ""}
+            labelStepSize={this.state.total || Infinity}
+            value={this.state.current}
           />
-          <h4>{currentItem.title}</h4>
-          <h5>
-            {currentItem.artistName} &mdash; {currentItem.albumName}
-          </h5>
+          <h4>{title}</h4>
+          <h5>{subtitle}</h5>
           <ButtonGroup large={true}>
             <Button icon="step-backward" />
             <Button icon={button} onClick={this.toggle} />
