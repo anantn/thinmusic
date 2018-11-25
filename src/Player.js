@@ -5,7 +5,8 @@ import {
   Card,
   Elevation,
   Slider,
-  Tooltip
+  Tooltip,
+  Spinner
 } from "@blueprintjs/core";
 
 import "./player.css";
@@ -38,6 +39,9 @@ class Player extends Component {
     this.props.music.addEventListener("playbackStateDidChange", event => {
       self.setState({ playbackState: event.state });
       switch (event.state) {
+        case PS.loading:
+          this.setState({ currentTime: null, totalTime: null });
+          break;
         case PS.playing:
           this.interval = setInterval(this.tick, 300);
           break;
@@ -117,21 +121,31 @@ class Player extends Component {
 
   render() {
     let content = <div>Nothing is playing.</div>;
-    let title = this.props.music.player.nowPlayingItem
-      ? this.props.music.player.nowPlayingItem.title
-      : "";
-    let subtitle = this.props.music.player.nowPlayingItem
-      ? this.props.music.player.nowPlayingItem.artistName +
-        " — " +
-        this.props.music.player.nowPlayingItem.albumName
-      : "";
-
+    let metadata = <Spinner />;
+    let button = "play";
     let currentState = this.state.playbackState;
+    if (currentState === PS.playing) {
+      button = "pause";
+    }
+
+    if (this.props.music.player.nowPlayingItem) {
+      metadata = (
+        <div>
+          <h4>{this.props.music.player.nowPlayingItem.title}</h4>
+          <h5>
+            {this.props.music.player.nowPlayingItem.artistName} &mdash;{" "}
+            {this.props.music.player.nowPlayingItem.albumName}
+          </h5>
+          <ButtonGroup large={true}>
+            <Button icon="step-backward" />
+            <Button icon={button} onClick={this.toggle} />
+            <Button icon="step-forward" />
+          </ButtonGroup>
+        </div>
+      );
+    }
+
     if (currentState >= PS.loading && currentState <= PS.waiting) {
-      let button = "play";
-      if (currentState === PS.playing) {
-        button = "pause";
-      }
       content = (
         <div>
           <div className="duration">
@@ -154,22 +168,16 @@ class Player extends Component {
             >
               <Slider
                 min={0}
-                max={this.state.totalTime}
+                max={this.state.totalTime || 100}
                 onChange={this.sliderChange}
                 onRelease={this.sliderRelease}
                 labelRenderer={() => ""}
                 labelStepSize={this.state.totalTime || Infinity}
-                value={this.state.currentTime}
+                value={this.state.currentTime || 0}
               />
             </Tooltip>
           </div>
-          <h4>{title}</h4>
-          <h5>{subtitle}</h5>
-          <ButtonGroup large={true}>
-            <Button icon="step-backward" />
-            <Button icon={button} onClick={this.toggle} />
-            <Button icon="step-forward" />
-          </ButtonGroup>
+          {metadata}
         </div>
       );
     }
