@@ -30,27 +30,33 @@ class Search extends Component {
   };
 
   search = event => {
-    // TODO: Implement 100ms cooloff to avoid spamming search api.
     if (event.target.value.trim() === "") {
       this.setState({ results: [] });
       return;
     }
     this.setState({ searching: true });
+    let idx = (this.counter += 1);
+    setTimeout(this.doSearch.bind(this, event.target.value, idx), 200);
+  };
+
+  doSearch = (value, idx) => {
+    if (idx < this.counter) {
+      return;
+    }
 
     let self = this;
-    let idx = (this.counter += 1);
     let all = this.props.music.api;
     let library = this.props.music.api.library;
     async.parallel(
       [
         async.asyncify(
-          all.search.bind(all, event.target.value, {
+          all.search.bind(all, value, {
             limit: 10,
             types: "songs"
           })
         ),
         async.asyncify(
-          library.search.bind(library, event.target.value, {
+          library.search.bind(library, value, {
             limit: 10,
             types: "library-songs"
           })
