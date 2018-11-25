@@ -30,16 +30,19 @@ class App extends Component {
     this.setState({ loggedIn: false });
   };
 
-  add = (id, event) => {
-    this.setState({ currentTrack: id });
+  playNow = (id, event) => {
+    let self = this;
+    this.state.music.setQueue({ song: id }).then(queue => {
+      self.state.music.player.play();
+    });
   };
 
   render() {
     if (this.state.loggedIn) {
       return (
         <div className="app">
-          <Player music={this.state.music} track={this.state.currentTrack} />
-          <Search music={this.state.music} add={this.add} />
+          <Player music={this.state.music} />
+          <Search music={this.state.music} playNow={this.playNow} />
         </div>
       );
     }

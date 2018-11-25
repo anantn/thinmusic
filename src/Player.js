@@ -9,19 +9,31 @@ import {
 
 import "./player.css";
 
+// none:      0
+// loading:   1
+// playing:   2
+// paused:    3
+// stopped:   4
+// ended:     5
+// seeking:   6
+// waiting:   8
+// stalled:   9
+// completed: 10
+const PS = window.MusicKit.PlaybackStates;
+
 class Player extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isPlaying: false
+      playbackState: null
     };
   }
 
   componentDidMount = () => {
+    let self = this;
     this.interval = setInterval(this.tick, 300);
-    this.props.music.addEventListener("playbackStateDidChange", function(
-      event
-    ) {
+    this.props.music.addEventListener("playbackStateDidChange", event => {
+      self.setState({ playbackState: event.state });
       console.log(event);
     });
   };
@@ -31,14 +43,8 @@ class Player extends Component {
     this.props.music.removeEventListener("playbackStateDidChange");
   };
 
-  componentDidUpdate = prevProps => {
-    if (prevProps.track !== this.props.track) {
-      this.play();
-    }
-  };
-
   tick = () => {
-    if (!this.state.isPlaying) return;
+    if (this.state.playbackState != PS.playing) return;
     let current = this.props.music.player.currentPlaybackTime;
     let total = this.props.music.player.currentPlaybackDuration;
     if (total === Infinity) total = 0;
@@ -57,36 +63,27 @@ class Player extends Component {
     });
   };
 
-  play = () => {
-    let self = this;
-    this.props.music.setQueue({ song: this.props.track }).then(queue => {
-      self.props.music.player.play().then(() => {
-        let track = queue.item(0);
-        self.setState({
-          name: track.attributes.name,
-          artist: track.attributes.artistName,
-          album: track.attributes.albumName,
-          isPlaying: true
-        });
-      });
-    });
-  };
-
   toggle = () => {
-    if (this.state.isPlaying) {
+    if (this.state.playbackState == PS.playing) {
       this.props.music.player.pause();
     } else {
       this.props.music.player.play();
     }
-    this.setState(state => ({ isPlaying: !state.isPlaying }));
   };
 
   render() {
     let content = <div>Nothing is playing.</div>;
-
-    if (this.props.track) {
+    let currentItem = this.props.music.player.nowPlayingItem;
+    let currentState = this.state.playbackState;
+    if (
+      currentState == PS.loading ||
+      currentState == PS.playing ||
+      currentState == PS.paused ||
+      currentState == PS.stopped ||
+      currentState == PS.waiting
+    ) {
       let button = "play";
-      if (this.state.isPlaying) {
+      if (currentState == PS.playing) {
         button = "pause";
       }
       content = (
@@ -100,9 +97,9 @@ class Player extends Component {
             stripes={false}
             value={this.state.progress}
           />
-          <h4>{this.state.name}</h4>
+          <h4>{currentItem.title}</h4>
           <h5>
-            {this.state.artist} &mdash; {this.state.album}
+            {currentItem.artistName} &mdash; {currentItem.albumName}
           </h5>
           <ButtonGroup large={true}>
             <Button icon="step-backward" />

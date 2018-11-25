@@ -109,7 +109,9 @@ class Search extends Component {
           <tbody>
             {this.state.results.map(result => (
               <tr key={result.playParams.id}>
-                <td onClick={this.props.add.bind(this, result.playParams.id)}>
+                <td
+                  onClick={this.props.playNow.bind(this, result.playParams.id)}
+                >
                   <img
                     src={this.icon(result.artwork)}
                     width={ICON_SIZE}
@@ -117,7 +119,9 @@ class Search extends Component {
                     className={Classes.SKELETON}
                   />
                 </td>
-                <td onClick={this.props.add.bind(this, result.playParams.id)}>
+                <td
+                  onClick={this.props.playNow.bind(this, result.playParams.id)}
+                >
                   {result.name}
                 </td>
                 <td>{result.artistName}</td>
