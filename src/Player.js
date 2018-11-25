@@ -44,27 +44,22 @@ class Player extends Component {
   };
 
   tick = () => {
-    if (this.state.playbackState != PS.playing) return;
+    if (this.state.playbackState !== PS.playing) return;
     let current = this.props.music.player.currentPlaybackTime;
     let total = this.props.music.player.currentPlaybackDuration;
-    if (total === Infinity) total = 0;
     this.setState({
       progress: current / total,
-      start:
-        Math.floor(current / 60) +
-        ":" +
-        (current % 60 < 10 ? "0" : "") +
-        (current % 60),
-      end:
-        Math.floor(total / 60) +
-        ":" +
-        (total % 60 < 10 ? "0" : "") +
-        (total % 60)
+      start: this.tickLabel(current),
+      end: this.tickLabel(total)
     });
   };
 
+  tickLabel = num => {
+    return Math.floor(num / 60) + ":" + (num % 60 < 10 ? "0" : "") + (num % 60);
+  };
+
   toggle = () => {
-    if (this.state.playbackState == PS.playing) {
+    if (this.state.playbackState === PS.playing) {
       this.props.music.player.pause();
     } else {
       this.props.music.player.play();
@@ -74,16 +69,19 @@ class Player extends Component {
   render() {
     let content = <div>Nothing is playing.</div>;
     let currentItem = this.props.music.player.nowPlayingItem;
+    if (!currentItem) {
+      currentItem = { title: "", artistName: "", albumName: "" };
+    }
     let currentState = this.state.playbackState;
     if (
-      currentState == PS.loading ||
-      currentState == PS.playing ||
-      currentState == PS.paused ||
-      currentState == PS.stopped ||
-      currentState == PS.waiting
+      currentState === PS.loading ||
+      currentState === PS.playing ||
+      currentState === PS.paused ||
+      currentState === PS.stopped ||
+      currentState === PS.waiting
     ) {
       let button = "play";
-      if (currentState == PS.playing) {
+      if (currentState === PS.playing) {
         button = "pause";
       }
       content = (

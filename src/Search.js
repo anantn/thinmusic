@@ -114,6 +114,7 @@ class Search extends Component {
                 >
                   <img
                     src={this.icon(result.artwork)}
+                    alt={result.name}
                     width={ICON_SIZE}
                     height={ICON_SIZE}
                     className={Classes.SKELETON}
