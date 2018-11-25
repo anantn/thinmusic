@@ -3,25 +3,32 @@
   margin-bottom: 20px;
 }
 
+.player .bp3-slider {
+  margin-bottom: -20px;
+}
+
 .player .bp3-slider-label {
   display: none;
 }
 
-.duration {
-  padding-bottom: 10px;
+.player .bp3-popover-target {
+  display: block;
 }
 
-.duration span {
+.player .duration {
+  padding-bottom: 15px;
+}
+
+.player .duration span {
   font-size: 10px;
-  padding-bottom: 5px;
 }
 
-.duration .start {
+.player .duration .start {
   float: left;
   margin-left: 5px;
 }
 
-.duration .end {
+.player .duration .end {
   float: right;
   margin-right: 5px;
 }
