@@ -10,7 +10,6 @@ import {
 } from "@blueprintjs/core";
 
 import "./player.css";
-import Visualizer from "./Visualizer";
 
 // none:      0
 // loading:   1
@@ -133,7 +132,6 @@ class Player extends Component {
       }
       content = (
         <div>
-          <Visualizer />
           <div className="duration">
             <span className="start">
               {this.tickLabel(this.state.currentTime)}

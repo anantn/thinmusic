@@ -3,15 +3,6 @@
   margin-bottom: 20px;
 }
 
-.player canvas {
-  height: 50px;
-  width: 500px;
-  position: absolute;
-  margin-left: 75px;
-  margin-top: -40px;
-  display: block;
-}
-
 .player .bp3-slider {
   height: 20px;
 }

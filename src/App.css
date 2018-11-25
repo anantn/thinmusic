@@ -2,6 +2,15 @@
   padding: 20px;
 }
 
+.app canvas {
+  height: 50px;
+  width: 500px;
+  position: absolute;
+  margin-left: 75px;
+  margin-top: -20px;
+  display: block;
+}
+
 .login {
   padding: 100px;
 }
