@@ -121,31 +121,36 @@ class Player extends Component {
 
   render() {
     let content = <div>Nothing is playing.</div>;
-    let metadata = <Spinner />;
-    let button = "play";
     let currentState = this.state.playbackState;
-    if (currentState === PS.playing) {
-      button = "pause";
-    }
 
-    if (this.props.music.player.nowPlayingItem) {
-      metadata = (
-        <div>
-          <h4>{this.props.music.player.nowPlayingItem.title}</h4>
-          <h5>
-            {this.props.music.player.nowPlayingItem.artistName} &mdash;{" "}
-            {this.props.music.player.nowPlayingItem.albumName}
-          </h5>
-          <ButtonGroup large={true}>
-            <Button icon="step-backward" />
-            <Button icon={button} onClick={this.toggle} />
-            <Button icon="step-forward" />
-          </ButtonGroup>
-        </div>
-      );
-    }
+    if (
+      currentState >= PS.loading &&
+      currentState <= PS.waiting &&
+      currentState !== PS.stopped
+    ) {
+      let metadata = <Spinner />;
+      if (this.props.music.player.nowPlayingItem) {
+        let button = "play";
+        if (currentState === PS.playing) {
+          button = "pause";
+        }
+        metadata = (
+          <div>
+            <h4>{this.props.music.player.nowPlayingItem.title}</h4>
+            <h5>
+              {this.props.music.player.nowPlayingItem.artistName}
+              &mdash;
+              {this.props.music.player.nowPlayingItem.albumName}
+            </h5>
+            <ButtonGroup large={true}>
+              <Button icon="step-backward" />
+              <Button icon={button} onClick={this.toggle} />
+              <Button icon="step-forward" />
+            </ButtonGroup>
+          </div>
+        );
+      }
 
-    if (currentState >= PS.loading && currentState <= PS.waiting) {
       content = (
         <div>
           <div className="duration">
