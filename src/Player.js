@@ -137,7 +137,9 @@ class Player extends Component {
       button = "pause";
     }
     if (this.props.music.player.nowPlayingItem) {
-      track = <Track item={this.props.music.player.nowPlayingItem} />;
+      track = (
+        <Track item={this.props.music.player.nowPlayingItem.attributes} />
+      );
     }
 
     let stime = this.tickLabel(this.state.currentTime);

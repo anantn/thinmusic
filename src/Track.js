@@ -7,14 +7,14 @@ import "./Track.css";
 class Track extends Component {
   render() {
     return (
-      <Card className="track">
+      <Card onClick={this.props.onClick} className="track">
         <img
-          alt={this.props.item.title}
+          alt={this.props.item.name}
           src={Utils.icon(this.props.item.artwork, 60, 60)}
           className={Classes.SKELETON}
         />
         <Text ellipsize={true}>
-          <b>{this.props.item.title}</b>
+          <b>{this.props.item.name}</b>
         </Text>
         <Text ellipsize={true}>{this.props.item.artistName}</Text>
         <Text ellipsize={true}>{this.props.item.albumName}</Text>

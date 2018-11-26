@@ -1,31 +1,20 @@
 .search input {
-  margin-bottom: 25px;
+  margin-bottom: 10px;
 }
 
-.searchResults {
-  width: auto;
+.searchResults .bp3-spinner {
+  margin-top: 40px;
 }
 
-.searchResults table {
-  width: 100%;
-  table-layout: fixed;
+.searchResults ol {
+  padding: 0;
+  margin-top: 0px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  list-style-type: none;
 }
 
-.searchResults td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle !important;
-}
-
-.searchResults .col-0 {
-  width: 10%;
-}
-
-.searchResults .col-1 {
-  width: 40%;
-}
-
-.searchResults .col-2 {
-  width: 25%;
+.searchResults ol li {
+  width: 340px;
+  padding: 10px;
 }

@@ -1,15 +1,9 @@
 import async from "async";
 import React, { Component } from "react";
-import {
-  Spinner,
-  NonIdealState,
-  HTMLTable,
-  InputGroup,
-  Classes
-} from "@blueprintjs/core";
+import { Spinner, NonIdealState, InputGroup } from "@blueprintjs/core";
 
 import "./Search.css";
-import * as Utils from "./Utils";
+import Track from "./Track";
 
 class Search extends Component {
   constructor(props) {
@@ -65,64 +59,76 @@ class Search extends Component {
           if ("library-songs" in res[1]) {
             librarySongs = res[1]["library-songs"].data;
           }
-          // TODO: fix merging logic.
-          let tracked = librarySongs.map(
+
+          // Merge global and library results.
+          let final = [];
+
+          // 1. If a song appears in both library and global, show first.
+          let inLibrary = librarySongs.map(
             obj => obj.attributes.playParams.catalogId
           );
-          let final = librarySongs.map(obj => obj.attributes);
-          allSongs.forEach(obj => {
-            if (!(obj.id in tracked)) {
-              final.push(obj.attributes);
+          for (let obj of allSongs) {
+            if (obj.id in inLibrary) {
+              final.push(obj);
             }
+          }
+
+          // 2. Show top 5 (upto 10 depending on library result set)
+          // global results not in library.
+          let added = 0;
+          let limit = librarySongs.length >= 5 ? 5 : 10 - librarySongs.length;
+          for (let obj of allSongs) {
+            if (added >= limit) break;
+            if (!(obj.id in inLibrary)) {
+              final.push(obj);
+              added += 1;
+            }
+          }
+
+          // 3. Show remaining library results not already in list.
+          added = 0;
+          let inFinal = final.map(obj => obj.id);
+          for (let obj of librarySongs) {
+            if (added >= 5) break;
+            if (!(obj.attributes.playParams.catalogId in inFinal)) {
+              final.push(obj);
+              added += 1;
+            }
+          }
+
+          // 4. Cap to 10 total results.
+          this.setState({
+            results: final.length < 10 ? final : final.slice(0, 10),
+            searching: false
           });
-          this.setState({ results: final, searching: false });
         }
       }
     );
   };
-
+  q;
   render() {
     let resultBox;
     if (!this.state.searching && this.state.results.length === 0) {
-      resultBox = <NonIdealState icon="search" title="Search for a song!" />;
+      resultBox = (
+        <NonIdealState
+          icon="search"
+          title="Search for songs, artists, albums, playlists..."
+        />
+      );
     } else if (this.state.searching) {
       resultBox = <Spinner />;
     } else {
       resultBox = (
-        <HTMLTable>
-          <thead>
-            <tr>
-              <th className="col-0" />
-              <th className="col-1">Song</th>
-              <th className="col-2">Artist</th>
-              <th className="col-2">Album</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.results.map(result => (
-              <tr key={result.playParams.id}>
-                <td
-                  onClick={this.props.playNow.bind(this, result.playParams.id)}
-                >
-                  <img
-                    src={Utils.icon(result.artwork)}
-                    alt={result.name}
-                    width={Utils.ICON_SIZE}
-                    height={Utils.ICON_SIZE}
-                    className={Classes.SKELETON}
-                  />
-                </td>
-                <td
-                  onClick={this.props.playNow.bind(this, result.playParams.id)}
-                >
-                  {result.name}
-                </td>
-                <td>{result.artistName}</td>
-                <td>{result.albumName}</td>
-              </tr>
-            ))}
-          </tbody>
-        </HTMLTable>
+        <ol>
+          {this.state.results.map(result => (
+            <li key={result.id}>
+              <Track
+                item={result.attributes}
+                onClick={this.props.playNow.bind(this, result.id)}
+              />
+            </li>
+          ))}
+        </ol>
       );
     }
 
