@@ -3,13 +3,17 @@ import {
   ButtonGroup,
   Button,
   Card,
+  Colors,
   Elevation,
   Slider,
+  Spinner,
   Tooltip,
-  Spinner
+  Position
 } from "@blueprintjs/core";
 
-import "./player.css";
+import Logo from "./Logo";
+import Track from "./Track";
+import "./Player.css";
 
 // none:      0
 // loading:   1
@@ -40,6 +44,7 @@ class Player extends Component {
       self.setState({ playbackState: event.state });
       switch (event.state) {
         case PS.loading:
+        case PS.stopped:
           this.setState({ currentTime: null, totalTime: null });
           break;
         case PS.playing:
@@ -70,7 +75,7 @@ class Player extends Component {
   };
 
   tickLabel = num => {
-    if (typeof num !== "number") return "-";
+    if (typeof num !== "number") return "";
     return Math.floor(num / 60) + ":" + (num % 60 < 10 ? "0" : "") + (num % 60);
   };
 
@@ -84,7 +89,11 @@ class Player extends Component {
 
   sliderHoverEnter = event => {
     this.setState({
-      sliderHover: true,
+      sliderHover:
+        this.state.playbackState === PS.playing ||
+        this.state.playbackState === PS.paused
+          ? true
+          : false,
       hoverTime: this.hoverTime(event)
     });
   };
@@ -120,67 +129,71 @@ class Player extends Component {
   };
 
   render() {
-    let content = <div>Nothing is playing.</div>;
+    let button = "play";
+    let track = "";
     let currentState = this.state.playbackState;
     if (currentState === PS.loading || currentState === PS.waiting) {
-      content = <Spinner />;
+      track = <Spinner />;
+    }
+    if (currentState === PS.playing) {
+      button = "pause";
     }
     if (this.props.music.player.nowPlayingItem) {
-      let button = "play";
-      if (currentState === PS.playing) {
-        button = "pause";
-      }
-      content = (
-        <div>
-          <div className="duration">
-            <span className="start">
-              {this.tickLabel(this.state.currentTime)}
-            </span>
-            <span className="end">{this.tickLabel(this.state.totalTime)}</span>
-          </div>
-          <div
-            ref={this.slider}
-            onPointerEnter={this.sliderHoverEnter}
-            onPointerLeave={this.sliderHoverLeave}
-            onPointerMove={this.sliderHoverMove}
-          >
-            <Tooltip
-              disabled={!this.state.sliderHover}
-              position={"top"}
-              content={this.tickLabel(this.state.hoverTime)}
-              wrapperTagName={"div"}
-            >
-              <Slider
-                min={0}
-                max={this.state.totalTime || 100}
-                onChange={this.sliderChange}
-                onRelease={this.sliderRelease}
-                labelRenderer={() => ""}
-                labelStepSize={this.state.totalTime || Infinity}
-                value={this.state.currentTime || 0}
-              />
-            </Tooltip>
-          </div>
-          <div>
-            <h4>{this.props.music.player.nowPlayingItem.title}</h4>
-            <h5>
-              {this.props.music.player.nowPlayingItem.artistName}
-              &mdash;
-              {this.props.music.player.nowPlayingItem.albumName}
-            </h5>
-            <ButtonGroup large={true}>
-              <Button icon="step-backward" />
-              <Button icon={button} onClick={this.toggle} />
-              <Button icon="step-forward" />
-            </ButtonGroup>
-          </div>
-        </div>
-      );
+      track = <Track item={this.props.music.player.nowPlayingItem} />;
     }
 
     return (
       <Card className="player" elevation={Elevation.TWO}>
-        {content}
+        <div className="duration">
+          <span className="start">
+            {this.tickLabel(this.state.currentTime)}
+          </span>
+          <span className="end">{this.tickLabel(this.state.totalTime)}</span>
+        </div>
+        <div
+          className="slider"
+          ref={this.slider}
+          onPointerEnter={this.sliderHoverEnter}
+          onPointerLeave={this.sliderHoverLeave}
+          onPointerMove={this.sliderHoverMove}
+        >
+          <Tooltip
+            disabled={!this.state.sliderHover}
+            position={Position.TOP}
+            content={this.tickLabel(this.state.hoverTime)}
+            wrapperTagName={"div"}
+          >
+            <Slider
+              min={0}
+              max={this.state.totalTime || 1}
+              disabled={
+                !(
+                  this.state.playbackState === PS.playing ||
+                  this.state.playbackState === PS.paused
+                )
+              }
+              onChange={this.sliderChange}
+              onRelease={this.sliderRelease}
+              labelRenderer={() => ""}
+              labelStepSize={this.state.totalTime || 1}
+              value={this.state.currentTime || 0}
+            />
+          </Tooltip>
+        </div>
+        <div className="content">
+          <ButtonGroup className="contentButtons" large={true}>
+            <Button icon="step-backward" />
+            <Button icon={button} onClick={this.toggle} />
+            <Button icon="step-forward" />
+          </ButtonGroup>
+          <div className="contentTrack">{track}</div>
+          <Logo
+            className="contentLogo"
+            thin={Colors.BLUE5}
+            music={Colors.BLUE5}
+            bar={Colors.BLUE1}
+          />
+        </div>
       </Card>
     );
   }

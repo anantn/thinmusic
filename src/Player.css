@@ -1,5 +1,7 @@
 .player {
-  height: 200px;
+  height: 140px;
+  position: relative;
+  padding: 10px;
   margin-bottom: 20px;
 }
 
@@ -31,4 +33,27 @@
 .player .duration .end {
   float: right;
   margin-right: 5px;
+}
+
+.player .content {
+  display: inline;
+}
+
+.player .content .contentButtons {
+  float: left;
+  width: 20%;
+  margin-top: 20px;
+}
+
+.player .content .contentTrack {
+  margin: 0 auto;
+  width: 300px;
+  height: 80px;
+  display: inline-block;
+}
+
+.player .content .contentLogo {
+  float: right;
+  width: 80px;
+  height: 80px;
 }

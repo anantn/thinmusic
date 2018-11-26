@@ -55,7 +55,7 @@ class Logo extends Component {
           <g
             id="music"
             style={{ fill: musicFill }}
-            clip-path="url(#clipPath4790)"
+            clipPath="url(#clipPath4790)"
             transform="translate(-13.666437,-24.135796)"
             aria-label="music"
           >

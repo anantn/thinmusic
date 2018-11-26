@@ -1,0 +1,15 @@
+.track {
+  padding: 10px;
+}
+
+.track div {
+  text-align: left;
+  padding-left: 10px;
+  padding-bottom: 2px;
+}
+
+.track img {
+  float: left;
+  height: 60px;
+  width: 60px;
+}

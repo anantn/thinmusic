@@ -7,10 +7,9 @@ import {
   InputGroup,
   Classes
 } from "@blueprintjs/core";
-import "./search.css";
 
-const MusicKit = window.MusicKit;
-const ICON_SIZE = 40;
+import "./Search.css";
+import * as Utils from "./Utils";
 
 class Search extends Component {
   constructor(props) {
@@ -21,13 +20,6 @@ class Search extends Component {
       searching: false
     };
   }
-
-  icon = artwork => {
-    return MusicKit.formatArtworkURL(artwork, ICON_SIZE, ICON_SIZE).replace(
-      "{c}",
-      ""
-    );
-  };
 
   search = event => {
     if (event.target.value.trim() === "") {
@@ -113,10 +105,10 @@ class Search extends Component {
                   onClick={this.props.playNow.bind(this, result.playParams.id)}
                 >
                   <img
-                    src={this.icon(result.artwork)}
+                    src={Utils.icon(result.artwork)}
                     alt={result.name}
-                    width={ICON_SIZE}
-                    height={ICON_SIZE}
+                    width={Utils.ICON_SIZE}
+                    height={Utils.ICON_SIZE}
                     className={Classes.SKELETON}
                   />
                 </td>

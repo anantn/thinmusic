@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import { Colors, Button } from "@blueprintjs/core";
+import { Button } from "@blueprintjs/core";
 
 import "./App.css";
 
-import Logo from "./Logo";
 import Search from "./Search";
 import Player from "./Player";
 
@@ -42,14 +41,6 @@ class App extends Component {
     if (this.state.loggedIn) {
       return (
         <div className="app">
-          <Logo
-            className="logo"
-            thin={Colors.BLUE5}
-            music={Colors.BLUE5}
-            bar={Colors.BLUE1}
-            width={100}
-            height={100}
-          />
           <Player music={this.state.music} />
           <Search music={this.state.music} playNow={this.playNow} />
         </div>
