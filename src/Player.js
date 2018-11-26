@@ -6,9 +6,7 @@ import {
   Colors,
   Elevation,
   Slider,
-  Spinner,
-  Tooltip,
-  Position
+  Spinner
 } from "@blueprintjs/core";
 
 import Logo from "./Logo";
@@ -142,12 +140,15 @@ class Player extends Component {
       track = <Track item={this.props.music.player.nowPlayingItem} />;
     }
 
+    let stime = this.tickLabel(this.state.currentTime);
+    if (this.state.sliderHover) {
+      stime = <b>{this.tickLabel(this.state.hoverTime)}</b>;
+    }
+
     return (
       <Card className="player" elevation={Elevation.TWO}>
         <div className="duration">
-          <span className="start">
-            {this.tickLabel(this.state.currentTime)}
-          </span>
+          <span className="start">{stime}</span>
           <span className="end">{this.tickLabel(this.state.totalTime)}</span>
         </div>
         <div
@@ -157,28 +158,21 @@ class Player extends Component {
           onPointerLeave={this.sliderHoverLeave}
           onPointerMove={this.sliderHoverMove}
         >
-          <Tooltip
-            disabled={!this.state.sliderHover}
-            position={Position.TOP}
-            content={this.tickLabel(this.state.hoverTime)}
-            wrapperTagName={"div"}
-          >
-            <Slider
-              min={0}
-              max={this.state.totalTime || 1}
-              disabled={
-                !(
-                  this.state.playbackState === PS.playing ||
-                  this.state.playbackState === PS.paused
-                )
-              }
-              onChange={this.sliderChange}
-              onRelease={this.sliderRelease}
-              labelRenderer={() => ""}
-              labelStepSize={this.state.totalTime || 1}
-              value={this.state.currentTime || 0}
-            />
-          </Tooltip>
+          <Slider
+            min={0}
+            max={this.state.totalTime || 1}
+            disabled={
+              !(
+                this.state.playbackState === PS.playing ||
+                this.state.playbackState === PS.paused
+              )
+            }
+            onChange={this.sliderChange}
+            onRelease={this.sliderRelease}
+            labelRenderer={() => ""}
+            labelStepSize={this.state.totalTime || 1}
+            value={this.state.currentTime || 0}
+          />
         </div>
         <div className="content">
           <ButtonGroup className="contentButtons" large={true}>
