@@ -2,13 +2,9 @@
   padding: 20px;
 }
 
-.app canvas {
-  height: 50px;
-  width: 500px;
-  position: absolute;
-  margin-left: 75px;
-  margin-top: -20px;
-  display: block;
+.app .logo {
+  width: 100px;
+  height: 110px;
 }
 
 .login {

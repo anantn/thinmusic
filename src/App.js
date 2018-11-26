@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import { Button } from "@blueprintjs/core";
+import { Colors, Button } from "@blueprintjs/core";
 
 import "./App.css";
+
+import Logo from "./Logo";
 import Search from "./Search";
 import Player from "./Player";
-import Visualizer from "./Visualizer";
 
 const MusicKit = window.MusicKit;
 
@@ -41,7 +42,14 @@ class App extends Component {
     if (this.state.loggedIn) {
       return (
         <div className="app">
-          <Visualizer />
+          <Logo
+            className="logo"
+            thin={Colors.BLUE5}
+            music={Colors.BLUE5}
+            bar={Colors.BLUE1}
+            width={100}
+            height={100}
+          />
           <Player music={this.state.music} />
           <Search music={this.state.music} playNow={this.playNow} />
         </div>
