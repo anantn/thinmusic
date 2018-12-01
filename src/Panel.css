@@ -1,12 +1,12 @@
-.search input {
-  margin-bottom: 10px;
+.panel .searchBar {
+  width: 400px;
 }
 
-.searchResults .bp3-spinner {
+.panel .searchResults .bp3-spinner {
   margin-top: 40px;
 }
 
-.searchResults ol {
+.panel .searchResults ol {
   padding: 0;
   margin-top: 0px;
   display: grid;
@@ -14,7 +14,7 @@
   list-style-type: none;
 }
 
-.searchResults ol li {
+.panel .searchResults ol li {
   width: 340px;
   padding: 10px;
 }

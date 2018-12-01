@@ -1,23 +1,24 @@
 import async from "async";
 import React, { Component } from "react";
-import { Spinner, NonIdealState, InputGroup } from "@blueprintjs/core";
+import { Spinner, InputGroup, Tabs, Tab } from "@blueprintjs/core";
 
-import "./Search.css";
+import "./Panel.css";
 import Track from "./Track";
 
-class Search extends Component {
+class Panel extends Component {
   constructor(props) {
     super(props);
     this.counter = 0;
     this.state = {
       results: [],
+      selected: "playing",
       searching: false
     };
   }
 
   search = event => {
     if (event.target.value.trim() === "") {
-      this.setState({ results: [] });
+      this.setState({ selected: "playing", searching: false, results: [] });
       return;
     }
     this.setState({ searching: true });
@@ -25,7 +26,12 @@ class Search extends Component {
     setTimeout(this.doSearch.bind(this, event.target.value, idx), 200);
   };
 
+  tab = event => {
+    this.setState({ selected: event });
+  };
+
   doSearch = (value, idx) => {
+    this.setState({ selected: "search" });
     if (idx < this.counter) {
       return;
     }
@@ -49,6 +55,7 @@ class Search extends Component {
         )
       ],
       (err, res) => {
+        // TODO: Remove log and handle errors.
         console.log(res);
         if (idx >= self.counter && err === null) {
           let allSongs = [];
@@ -105,19 +112,10 @@ class Search extends Component {
       }
     );
   };
-  q;
+
   render() {
-    let resultBox;
-    if (!this.state.searching && this.state.results.length === 0) {
-      resultBox = (
-        <NonIdealState
-          icon="search"
-          title="Search for songs, artists, albums, playlists..."
-        />
-      );
-    } else if (this.state.searching) {
-      resultBox = <Spinner />;
-    } else {
+    let resultBox = <Spinner />;
+    if (this.state.results.length !== 0) {
       resultBox = (
         <ol>
           {this.state.results.map(result => (
@@ -133,18 +131,34 @@ class Search extends Component {
     }
 
     return (
-      <div className="search">
-        <InputGroup
-          type="search"
-          large="true"
-          leftIcon="search"
-          placeholder="Search"
-          onChange={this.search}
-        />
-        <div className="searchResults">{resultBox}</div>
+      <div className="panel">
+        <Tabs
+          className="tabs"
+          large={true}
+          onChange={this.tab}
+          selectedTabId={this.state.selected}
+        >
+          <Tab id="playing" title="Playing" />
+          <Tab id="discover" />
+          <Tab
+            id="search"
+            title="Search"
+            disabled={!this.state.searching && this.state.results.length === 0}
+            panel={<div className="searchResults">{resultBox}</div>}
+          />
+          <Tabs.Expander />
+          <InputGroup
+            className="searchBar"
+            type="search"
+            large={true}
+            leftIcon="search"
+            placeholder="Find songs, artists, albums, or playlists..."
+            onChange={this.search}
+          />
+        </Tabs>
       </div>
     );
   }
 }
 
-export default Search;
+export default Panel;
