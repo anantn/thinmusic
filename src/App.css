@@ -5,3 +5,28 @@
 .login {
   padding: 100px;
 }
+
+.login .logo {
+  height: 250px;
+  width: 250px;
+}
+
+.login img {
+  margin: 20px;
+  height: 60px;
+  cursor: pointer;
+}
+
+.footer {
+  margin-bottom: 50px;
+}
+
+.footer div {
+  margin-left: 5px;
+  margin-top: 5px;
+  float: left;
+}
+
+.footer button {
+  float: right;
+}
