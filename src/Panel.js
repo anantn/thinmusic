@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { Spinner, InputGroup, Tabs, Tab } from "@blueprintjs/core";
 
 import "./Panel.css";
+import Browse from "./Browse";
 import Playlist from "./Playlist";
 import Results from "./Results";
 
@@ -38,8 +39,8 @@ class Panel extends Component {
     }
 
     let self = this;
-    let all = this.props.music.api;
-    let library = this.props.music.api.library;
+    let all = self.props.music.api;
+    let library = self.props.music.api.library;
     async.parallel(
       [
         async.asyncify(
@@ -148,6 +149,17 @@ class Panel extends Component {
     }
   };
 
+  playCollectionNow = (item, event) => {
+    let q = {};
+    let self = this;
+    q[item.attributes.playParams.kind] = item.id;
+    this.props.music.setQueue(q).then(() => {
+      self.props.music.player.play().then(() => {
+        self.setState(self.state);
+      });
+    });
+  };
+
   render() {
     let resultBox = <Spinner className="spinner" />;
     if (!this.state.searching && this.state.results.length !== 0) {
@@ -169,7 +181,16 @@ class Panel extends Component {
           onChange={this.tab}
           selectedTabId={this.state.selected}
         >
-          <Tab id="browse" title="Browse" />
+          <Tab
+            id="browse"
+            title="Browse"
+            panel={
+              <Browse
+                music={this.props.music}
+                playCollectionNow={this.playCollectionNow}
+              />
+            }
+          />
           <Tab
             id="playing"
             title="Playing"
@@ -188,7 +209,7 @@ class Panel extends Component {
             type="search"
             large={true}
             leftIcon="search"
-            placeholder="Find songs, artists, albums, or playlists..."
+            placeholder="Find songs by name..."
             onChange={this.search}
           />
         </Tabs>

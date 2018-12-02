@@ -24,6 +24,7 @@
 .track .trackImage .overlay svg {
   height: 60px;
   width: 60px;
+  background-color: rgb(0, 0, 0, 0.5);
 }
 
 .track .trackImage:hover > .overlay {

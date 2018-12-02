@@ -5,7 +5,7 @@ ol.playlist {
 }
 
 ol.playlist li {
-  margin: 1px;
+  margin-bottom: 5px;
 }
 
 ol.playlist li .item {
@@ -21,7 +21,7 @@ ol.playlist li .item {
 
 ol.playlist li .active {
   border-style: solid;
-  border-width: 0.5px;
+  border-width: 1px;
   border-color: rgb(19, 124, 189);
 }
 
@@ -34,6 +34,7 @@ ol.playlist li .item img {
 ol.playlist li .item .overlay {
   display: none;
   position: absolute;
+  background-color: rgb(0, 0, 0, 0.5);
 }
 
 ol.playlist li .item .overlay svg {

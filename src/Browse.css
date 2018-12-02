@@ -1,0 +1,51 @@
+ol.browse {
+  padding: 0;
+  margin-top: 0px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  list-style-type: none;
+}
+
+ol.browse .item {
+  padding: 0px;
+  width: 160px;
+}
+
+ol.browse .item .image {
+  position: relative;
+  height: 160px;
+  width: 160px;
+}
+
+ol.browse .item .image img {
+  position: absolute;
+  left: 0;
+}
+
+ol.browse .item .image .overlay {
+  display: none;
+  position: absolute;
+  background-color: rgb(0, 0, 0, 0.5);
+}
+
+ol.browse .item .image .overlay svg {
+  height: 160px;
+  width: 160px;
+}
+
+ol.browse .item .image:hover > .overlay {
+  display: block;
+  cursor: pointer;
+}
+
+ol.browse .item .title {
+  padding: 5px;
+  height: 50px;
+}
+
+ol.browse .item .title span {
+  font-weight: bold;
+  vertical-align: middle;
+}
