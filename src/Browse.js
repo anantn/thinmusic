@@ -102,7 +102,13 @@ class Browse extends Component {
                 </div>
               </div>
               <Text className="title">
-                <span>{o.attributes.name}</span>
+                <span
+                  title={o.attributes.name.length > 32 ? o.attributes.name : ""}
+                >
+                  {o.attributes.name.length > 32
+                    ? o.attributes.name.slice(0, 32) + "..."
+                    : o.attributes.name}
+                </span>
               </Text>
             </Card>
           </li>
