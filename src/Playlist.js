@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Text, Card, Classes, Icon } from "@blueprintjs/core";
 
 import * as Utils from "./Utils";
@@ -39,6 +40,26 @@ class Playlist extends Component {
     }
   };
 
+  dragEnd = event => {
+    // Redo queue for event.source.index -> event.destination.index
+    if (!event.source || !event.destination) {
+      return;
+    }
+    if (event.source.index === event.destination.index) {
+      return;
+    }
+
+    let queue = this.props.music.player.queue;
+    let items = Array.from(queue.items);
+    let [moved] = items.splice(event.source.index, 1);
+    items.splice(event.destination.index, 0, moved);
+    // TODO: Using private API, might break.
+    queue._items = items;
+    queue._reindex(); // Sets queue._itemIDs
+    queue.dispatchEvent("queueItemsDidChange", queue._items);
+    queue.position = queue.indexForItem(this.props.music.player.nowPlayingItem);
+  };
+
   renderItem = (item, idx) => {
     let isActive = idx === this.props.music.player.nowPlayingItemIndex;
     return (
@@ -72,11 +93,31 @@ class Playlist extends Component {
 
   render() {
     return (
-      <ol className="playlist">
-        {this.state.items.map((item, idx) => (
-          <li key={idx}>{this.renderItem(item, idx)}</li>
-        ))}
-      </ol>
+      <DragDropContext onDragEnd={this.dragEnd}>
+        <Droppable droppableId="playlist">
+          {(provided, snapshot) => (
+            <ol className="playlist" ref={provided.innerRef}>
+              {this.state.items.map((item, idx) => (
+                <Draggable
+                  key={"key-" + idx}
+                  draggableId={"item-" + idx}
+                  index={idx}
+                >
+                  {(provided, snapshot) => (
+                    <li
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      {this.renderItem(item, idx)}
+                    </li>
+                  )}
+                </Draggable>
+              ))}
+            </ol>
+          )}
+        </Droppable>
+      </DragDropContext>
     );
   }
 }
