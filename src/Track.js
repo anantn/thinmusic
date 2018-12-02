@@ -14,6 +14,7 @@ import "./Track.css";
 class Track extends Component {
   render() {
     let rhs = "";
+    let overlay = "";
     if (this.props.rhs) {
       rhs = (
         <ButtonGroup minimal={true} vertical={true}>
@@ -24,6 +25,11 @@ class Track extends Component {
           />
           <Button onClick={this.props.playLast} icon="sort" title="Play Last" />
         </ButtonGroup>
+      );
+      overlay = (
+        <div className="overlay" title="Play Now">
+          <Icon icon="play" />
+        </div>
       );
     }
 
@@ -37,9 +43,7 @@ class Track extends Component {
               className={Classes.SKELETON}
             />
           </div>
-          <div className="overlay">
-            <Icon icon="play" />
-          </div>
+          {overlay}
         </div>
         <div className={`trackInfo ${this.props.rhs ? "trackInfoSmall" : ""}`}>
           <Text ellipsize={true}>

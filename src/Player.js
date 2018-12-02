@@ -9,6 +9,7 @@ import {
   Spinner
 } from "@blueprintjs/core";
 
+import * as Utils from "./Utils";
 import Logo from "./Logo";
 import Track from "./Track";
 import "./Player.css";
@@ -72,10 +73,7 @@ class Player extends Component {
     });
   };
 
-  tickLabel = num => {
-    if (typeof num !== "number") return "";
-    return Math.floor(num / 60) + ":" + (num % 60 < 10 ? "0" : "") + (num % 60);
-  };
+  tickLabel = Utils.durationSeconds;
 
   hoverTime = event => {
     var rect = this.slider.current.getBoundingClientRect();

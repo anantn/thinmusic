@@ -170,7 +170,6 @@ class Panel extends Component {
             title="Playing"
             panel={<Playlist music={this.props.music} />}
           />
-          <Tab id="discover" title="Discover" />
           <Tab
             id="search"
             title="Search"

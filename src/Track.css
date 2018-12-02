@@ -28,6 +28,7 @@
 
 .track .trackImage:hover > .overlay {
   display: block;
+  cursor: pointer;
 }
 
 .track .trackInfo {

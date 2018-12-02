@@ -1,0 +1,51 @@
+ol.playlist {
+  padding: 0;
+  margin-top: 0px;
+  list-style-type: none;
+}
+
+ol.playlist li {
+  margin: 1px;
+}
+
+ol.playlist li .item {
+  padding: 2px;
+  height: 35px;
+  width: 100%;
+  text-align: left;
+  display: grid;
+  position: relative;
+  grid-template-columns: 0.5fr 4fr 3fr 3fr 0.6fr;
+  grid-column-gap: 10px;
+}
+
+ol.playlist li .active {
+  border-style: solid;
+  border-width: 0.5px;
+  border-color: rgb(19, 124, 189);
+}
+
+ol.playlist li .item img {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+}
+
+ol.playlist li .item .overlay {
+  display: none;
+  position: absolute;
+}
+
+ol.playlist li .item .overlay svg {
+  height: 30px;
+  width: 30px;
+}
+
+ol.playlist li .item .image:hover > .overlay {
+  display: block;
+  cursor: pointer;
+}
+
+ol.playlist li .item div.bp3-text-overflow-ellipsis {
+  padding-top: 6px;
+}

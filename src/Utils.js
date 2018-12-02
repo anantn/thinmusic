@@ -15,3 +15,17 @@ export function icon(artwork, width, height) {
     height ? height : ICON_SIZE
   ).replace("{c}", "");
 }
+
+export function durationSeconds(num) {
+  if (typeof num !== "number") return "";
+  return (
+    Math.floor(num / 60) +
+    ":" +
+    (num % 60 < 10 ? "0" : "") +
+    Math.floor(num % 60)
+  );
+}
+
+export function durationMilliseconds(num) {
+  return durationSeconds(num / 1000);
+}
