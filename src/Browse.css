@@ -22,6 +22,8 @@ ol.browse .item .image {
 ol.browse .item .image img {
   position: absolute;
   left: 0;
+  height: 160px;
+  width: 160px;
 }
 
 ol.browse .item .image .overlay {

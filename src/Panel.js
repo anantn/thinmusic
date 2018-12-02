@@ -1,6 +1,6 @@
 import async from "async";
 import React, { Component } from "react";
-import { Spinner, InputGroup, Tabs, Tab } from "@blueprintjs/core";
+import { Spinner, InputGroup, Tabs, Tab, Text } from "@blueprintjs/core";
 
 import "./Panel.css";
 import Browse from "./Browse";
@@ -43,30 +43,33 @@ class Panel extends Component {
     let library = self.props.music.api.library;
     async.parallel(
       [
-        async.asyncify(
-          all.search.bind(all, value, {
-            limit: 10,
-            types: "songs"
-          })
+        async.reflect(
+          async.asyncify(
+            all.search.bind(all, value, {
+              limit: 10,
+              types: "songs"
+            })
+          )
         ),
-        async.asyncify(
-          library.search.bind(library, value, {
-            limit: 10,
-            types: "library-songs"
-          })
+        async.reflect(
+          async.asyncify(
+            library.search.bind(library, value, {
+              limit: 10,
+              types: "library-songs"
+            })
+          )
         )
       ],
       (err, res) => {
         // TODO: Remove log and handle errors.
-        console.log(res);
         if (idx >= self.counter && err === null) {
           let allSongs = [];
           let librarySongs = [];
-          if ("songs" in res[0]) {
-            allSongs = res[0]["songs"].data;
+          if (res[0] && res[0].value && "songs" in res[0].value) {
+            allSongs = res[0].value["songs"].data;
           }
-          if ("library-songs" in res[1]) {
-            librarySongs = res[1]["library-songs"].data;
+          if (res[1] && res[1].value && "library-songs" in res[1].value) {
+            librarySongs = res[1].value["library-songs"].data;
           }
 
           // Merge global and library results.
@@ -110,6 +113,8 @@ class Panel extends Component {
             results: final.length < 10 ? final : final.slice(0, 10),
             searching: false
           });
+        } else {
+          this.setState({ searching: false });
         }
       }
     );
@@ -162,15 +167,19 @@ class Panel extends Component {
 
   render() {
     let resultBox = <Spinner className="spinner" />;
-    if (!this.state.searching && this.state.results.length !== 0) {
-      resultBox = (
-        <Results
-          items={this.state.results}
-          playNow={this.playNow}
-          playNext={this.playNext}
-          playLast={this.playLast}
-        />
-      );
+    if (!this.state.searching) {
+      if (this.state.results.length === 0) {
+        resultBox = <Text>Sorry, no results found.</Text>;
+      } else {
+        resultBox = (
+          <Results
+            items={this.state.results}
+            playNow={this.playNow}
+            playNext={this.playNext}
+            playLast={this.playLast}
+          />
+        );
+      }
     }
 
     return (
