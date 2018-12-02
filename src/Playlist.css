@@ -1,3 +1,14 @@
+.metadata {
+  padding: 10px;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.metadata button {
+  margin-top: -24px;
+  float: right;
+}
+
 ol.playlist {
   padding: 0;
   margin-top: 0px;

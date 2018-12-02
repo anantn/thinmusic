@@ -89,6 +89,7 @@ class Browse extends Component {
                 onClick={this.props.playCollectionNow.bind(this, o)}
               >
                 <img
+                  alt={o.attributes.name}
                   className={Classes.SKELETON}
                   src={Utils.icon(o.attributes.artwork, 160, 160)}
                 />

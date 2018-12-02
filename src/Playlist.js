@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Text, Card, Classes, Icon } from "@blueprintjs/core";
+import { Button, Text, Card, Classes, Icon } from "@blueprintjs/core";
 
 import * as Utils from "./Utils";
 import "./Playlist.css";
@@ -25,6 +25,16 @@ class Playlist extends Component {
 
   change = () => {
     this.setState({ items: this.props.music.player.queue.items });
+  };
+
+  clear = () => {
+    let self = this;
+    try {
+      this.props.music.player.stop();
+    } catch (e) {}
+    this.props.music.setQueue({}).then(() => {
+      self.setState(self.state);
+    });
   };
 
   click = (isActive, idx) => {
@@ -92,8 +102,18 @@ class Playlist extends Component {
   };
 
   render() {
+    let total = this.state.items.reduce((s, o) => s + o.playbackDuration, 0);
     return (
       <DragDropContext onDragEnd={this.dragEnd}>
+        <Card className="metadata">
+          <Text>
+            {this.state.items.length} songs, {Math.round(total / 60000)} minutes
+            long.
+          </Text>
+          <Button icon="trash" onClick={this.clear}>
+            Clear
+          </Button>
+        </Card>
         <Droppable droppableId="playlist">
           {(provided, snapshot) => (
             <ol className="playlist" ref={provided.innerRef}>
