@@ -72,6 +72,8 @@ class Panel extends Component {
             librarySongs = res[1].value["library-songs"].data;
           }
 
+          // TODO: Remove any results without playParams.
+
           // Merge global and library results.
           let final = [];
 
@@ -155,10 +157,14 @@ class Panel extends Component {
   };
 
   playCollectionNow = (item, event) => {
-    let q = {};
     let self = this;
-    q[item.attributes.playParams.kind] = item.id;
-    this.props.music.setQueue(q).then(() => {
+    this.props.music.setQueue({ url: item.attributes.url }).then(() => {
+      // Queue may contain things without playParams, remove.
+      // TODO: Figure out better way to handle grayed out tracks as displayed.
+      let queue = self.props.music.player.queue;
+      queue._items = queue._items.filter(e => e.attributes.playParams);
+      queue._reindex();
+      queue.dispatchEvent("queueItemsDidChange", queue._items);
       self.props.music.player.play().then(() => {
         self.setState(self.state);
       });
