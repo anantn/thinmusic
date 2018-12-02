@@ -12,14 +12,14 @@ class Panel extends Component {
     this.counter = 0;
     this.state = {
       results: [],
-      selected: "playing",
+      selected: "browse",
       searching: false
     };
   }
 
   search = event => {
     if (event.target.value.trim() === "") {
-      this.setState({ selected: "playing", searching: false, results: [] });
+      this.setState({ selected: "browse", searching: false, results: [] });
       return;
     }
     this.setState({ searching: true });
@@ -115,16 +115,20 @@ class Panel extends Component {
   };
 
   playNow = (item, event) => {
+    let self = this;
     if (this.props.music.player.queue.isEmpty) {
-      let self = this;
       this.props.music.setQueue(item).then(() => {
-        self.props.music.player.play();
+        self.props.music.player.play().then(() => {
+          self.setState(self.state);
+        });
       });
     } else {
       this.props.music.player.queue.prepend(item);
-      this.props.music.player.changeToMediaAtIndex(
-        this.props.music.player.nowPlayingItemIndex + 1
-      );
+      this.props.music.player
+        .changeToMediaAtIndex(this.props.music.player.nowPlayingItemIndex + 1)
+        .then(() => {
+          self.setState(self.state);
+        });
     }
   };
 
@@ -145,7 +149,7 @@ class Panel extends Component {
   };
 
   render() {
-    let resultBox = <Spinner />;
+    let resultBox = <Spinner className="spinner" />;
     if (!this.state.searching && this.state.results.length !== 0) {
       resultBox = (
         <Results
@@ -165,9 +169,11 @@ class Panel extends Component {
           onChange={this.tab}
           selectedTabId={this.state.selected}
         >
+          <Tab id="browse" title="Browse" />
           <Tab
             id="playing"
             title="Playing"
+            disabled={this.props.music.player.queue.length === 0}
             panel={<Playlist music={this.props.music} />}
           />
           <Tab

@@ -1,3 +1,7 @@
 .panel .searchBar {
   width: 400px;
 }
+
+.panel .spinner {
+  padding-top: 150px;
+}
