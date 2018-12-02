@@ -3,7 +3,8 @@ import React, { Component } from "react";
 import { Spinner, InputGroup, Tabs, Tab } from "@blueprintjs/core";
 
 import "./Panel.css";
-import Track from "./Track";
+import Playlist from "./Playlist";
+import Results from "./Results";
 
 class Panel extends Component {
   constructor(props) {
@@ -113,20 +114,46 @@ class Panel extends Component {
     );
   };
 
+  playNow = (item, event) => {
+    if (this.props.music.player.queue.isEmpty) {
+      let self = this;
+      this.props.music.setQueue(item).then(() => {
+        self.props.music.player.play();
+      });
+    } else {
+      this.props.music.player.queue.prepend(item);
+      this.props.music.player.changeToMediaAtIndex(
+        this.props.music.player.nowPlayingItemIndex + 1
+      );
+    }
+  };
+
+  playNext = (item, event) => {
+    if (this.props.music.player.queue.isEmpty) {
+      this.playNow(item, event);
+    } else {
+      this.props.music.player.queue.prepend(item);
+    }
+  };
+
+  playLast = (item, event) => {
+    if (this.props.music.player.queue.isEmpty) {
+      this.playNow(item, event);
+    } else {
+      this.props.music.player.queue.append(item);
+    }
+  };
+
   render() {
     let resultBox = <Spinner />;
-    if (this.state.results.length !== 0) {
+    if (!this.state.searching && this.state.results.length !== 0) {
       resultBox = (
-        <ol>
-          {this.state.results.map(result => (
-            <li key={result.id}>
-              <Track
-                item={result.attributes}
-                onClick={this.props.playNow.bind(this, result.id)}
-              />
-            </li>
-          ))}
-        </ol>
+        <Results
+          items={this.state.results}
+          playNow={this.playNow}
+          playNext={this.playNext}
+          playLast={this.playLast}
+        />
       );
     }
 
@@ -138,13 +165,17 @@ class Panel extends Component {
           onChange={this.tab}
           selectedTabId={this.state.selected}
         >
-          <Tab id="playing" title="Playing" />
-          <Tab id="discover" />
+          <Tab
+            id="playing"
+            title="Playing"
+            panel={<Playlist music={this.props.music} />}
+          />
+          <Tab id="discover" title="Discover" />
           <Tab
             id="search"
             title="Search"
             disabled={!this.state.searching && this.state.results.length === 0}
-            panel={<div className="searchResults">{resultBox}</div>}
+            panel={resultBox}
           />
           <Tabs.Expander />
           <InputGroup

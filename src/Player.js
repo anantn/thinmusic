@@ -126,6 +126,18 @@ class Player extends Component {
     }
   };
 
+  backward = () => {
+    this.props.music.player.changeToMediaAtIndex(
+      this.props.music.player.nowPlayingItemIndex - 1
+    );
+  };
+
+  forward = () => {
+    this.props.music.player.changeToMediaAtIndex(
+      this.props.music.player.nowPlayingItemIndex + 1
+    );
+  };
+
   render() {
     let button = "play";
     let track = "";
@@ -178,9 +190,20 @@ class Player extends Component {
         </div>
         <div className="content">
           <ButtonGroup className="contentButtons" large={true}>
-            <Button icon="step-backward" />
+            <Button
+              icon="step-backward"
+              disabled={this.props.music.player.nowPlayingItemIndex <= 0}
+              onClick={this.backward}
+            />
             <Button icon={button} onClick={this.toggle} />
-            <Button icon="step-forward" />
+            <Button
+              icon="step-forward"
+              disabled={
+                this.props.music.player.nowPlayingItemIndex ===
+                this.props.music.player.queue.length - 1
+              }
+              onClick={this.forward}
+            />
           </ButtonGroup>
           <div className="contentTrack">{track}</div>
           <Logo

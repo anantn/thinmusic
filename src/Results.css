@@ -1,0 +1,16 @@
+.results .bp3-spinner {
+  margin-top: 40px;
+}
+
+.results ol {
+  padding: 0;
+  margin-top: 0px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  list-style-type: none;
+}
+
+.results ol li {
+  width: 340px;
+  padding: 10px;
+}

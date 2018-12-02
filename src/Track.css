@@ -2,14 +2,49 @@
   padding: 10px;
 }
 
-.track div {
+.track .trackImage {
+  float: left;
+  position: relative;
+}
+
+.track .trackImage .image {
+  position: absolute;
+}
+
+.track .trackImage .image img {
+  height: 60px;
+  width: 60px;
+}
+
+.track .trackImage .overlay {
+  display: none;
+  position: absolute;
+}
+
+.track .trackImage .overlay svg {
+  height: 60px;
+  width: 60px;
+}
+
+.track .trackImage:hover > .overlay {
+  display: block;
+}
+
+.track .trackInfo {
+  margin-left: 60px;
+}
+
+.track .trackInfoSmall {
+  width: 70%;
+}
+
+.track .trackInfo div {
   text-align: left;
   padding-left: 10px;
   padding-bottom: 2px;
 }
 
-.track img {
-  float: left;
-  height: 60px;
-  width: 60px;
+.track .trackRhs {
+  float: right;
+  margin-top: -60px;
 }
