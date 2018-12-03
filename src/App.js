@@ -61,9 +61,8 @@ class App extends Component {
         </div>
         <img onClick={this.doLogin} alt="Listen on Apple Music" src={Login} />
         <Text>
-          Sign in using your Apple ID to listen to over 45 million songs,
-          <br />
-          right here in your web browser!
+          Sign in using your Apple ID to listen to over 45 million songs, right
+          here in your web browser!
         </Text>
       </div>
     );
