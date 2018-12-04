@@ -34,7 +34,7 @@ class Panel extends Component {
     }
     this.setState({ query: term, selected: "search", searching: true });
     let idx = (this.counter += 1);
-    setTimeout(this.doSearch.bind(this, term, idx), 300);
+    setTimeout(this.doSearch.bind(this, term, idx), 250);
   };
 
   doSearch = (value, idx) => {
@@ -196,6 +196,11 @@ class Panel extends Component {
       }
     }
 
+    let search = "";
+    if (this.state.searching || this.state.results.length !== 0) {
+      search = <Tab id="search" title="Search" panel={resultBox} />;
+    }
+
     return (
       <div className="panel">
         <Tabs
@@ -217,15 +222,9 @@ class Panel extends Component {
           <Tab
             id="playing"
             title="Playing"
-            disabled={this.props.music.player.queue.length === 0}
             panel={<Playlist music={this.props.music} />}
           />
-          <Tab
-            id="search"
-            title="Search"
-            disabled={!this.state.searching && this.state.results.length === 0}
-            panel={resultBox}
-          />
+          {search}
           <Tabs.Expander />
           <InputGroup
             className="searchBar"
