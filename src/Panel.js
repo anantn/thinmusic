@@ -12,28 +12,32 @@ class Panel extends Component {
     super(props);
     this.counter = 0;
     this.state = {
+      query: "",
       results: [],
       selected: "browse",
       searching: false
     };
   }
 
-  search = event => {
-    if (event.target.value.trim() === "") {
-      this.setState({ selected: "browse", searching: false, results: [] });
-      return;
-    }
-    this.setState({ searching: true });
-    let idx = (this.counter += 1);
-    setTimeout(this.doSearch.bind(this, event.target.value, idx), 200);
-  };
-
   tab = event => {
     this.setState({ selected: event });
   };
 
+  search = event => {
+    let term = event.target.value.trim();
+    if (term === "") {
+      this.setState({ selected: "browse", searching: false, results: [] });
+      return;
+    }
+    if (term === this.state.query && this.state.searching) {
+      return;
+    }
+    this.setState({ query: term, selected: "search", searching: true });
+    let idx = (this.counter += 1);
+    setTimeout(this.doSearch.bind(this, term, idx), 300);
+  };
+
   doSearch = (value, idx) => {
-    this.setState({ selected: "search" });
     if (idx < this.counter) {
       return;
     }
@@ -62,62 +66,66 @@ class Panel extends Component {
       ],
       (err, res) => {
         // TODO: Remove log and handle errors.
-        if (idx >= self.counter && err === null) {
-          let allSongs = [];
-          let librarySongs = [];
-          if (res[0] && res[0].value && "songs" in res[0].value) {
-            allSongs = res[0].value["songs"].data;
-          }
-          if (res[1] && res[1].value && "library-songs" in res[1].value) {
-            librarySongs = res[1].value["library-songs"].data;
-          }
-
-          // TODO: Remove any results without playParams.
-
-          // Merge global and library results.
-          let final = [];
-
-          // 1. If a song appears in both library and global, show first.
-          let inLibrary = librarySongs.map(
-            obj => obj.attributes.playParams.catalogId
-          );
-          for (let obj of allSongs) {
-            if (obj.id in inLibrary) {
-              final.push(obj);
-            }
-          }
-
-          // 2. Show top 5 (upto 10 depending on library result set)
-          // global results not in library.
-          let added = 0;
-          let limit = librarySongs.length >= 5 ? 5 : 10 - librarySongs.length;
-          for (let obj of allSongs) {
-            if (added >= limit) break;
-            if (!(obj.id in inLibrary)) {
-              final.push(obj);
-              added += 1;
-            }
-          }
-
-          // 3. Show remaining library results not already in list.
-          added = 0;
-          let inFinal = final.map(obj => obj.id);
-          for (let obj of librarySongs) {
-            if (added >= 5) break;
-            if (!(obj.attributes.playParams.catalogId in inFinal)) {
-              final.push(obj);
-              added += 1;
-            }
-          }
-
-          // 4. Cap to 10 total results.
-          this.setState({
-            results: final.length < 10 ? final : final.slice(0, 10),
-            searching: false
-          });
-        } else {
-          this.setState({ searching: false });
+        if (idx < self.counter) {
+          return;
         }
+        if (err !== null) {
+          self.setState({ searching: false });
+          return;
+        }
+
+        let allSongs = [];
+        let librarySongs = [];
+        if (res[0] && res[0].value && "songs" in res[0].value) {
+          allSongs = res[0].value["songs"].data;
+        }
+        if (res[1] && res[1].value && "library-songs" in res[1].value) {
+          librarySongs = res[1].value["library-songs"].data;
+        }
+
+        // TODO: Remove any results without playParams.
+
+        // Merge global and library results.
+        let final = [];
+
+        // 1. If a song appears in both library and global, show first.
+        let inLibrary = librarySongs.map(
+          obj => obj.attributes.playParams.catalogId
+        );
+        for (let obj of allSongs) {
+          if (obj.id in inLibrary) {
+            final.push(obj);
+          }
+        }
+
+        // 2. Show top 5 (upto 10 depending on library result set)
+        // global results not in library.
+        let added = 0;
+        let limit = librarySongs.length >= 5 ? 5 : 10 - librarySongs.length;
+        for (let obj of allSongs) {
+          if (added >= limit) break;
+          if (!(obj.id in inLibrary)) {
+            final.push(obj);
+            added += 1;
+          }
+        }
+
+        // 3. Show remaining library results not already in list.
+        added = 0;
+        let inFinal = final.map(obj => obj.id);
+        for (let obj of librarySongs) {
+          if (added >= 5) break;
+          if (!(obj.attributes.playParams.catalogId in inFinal)) {
+            final.push(obj);
+            added += 1;
+          }
+        }
+
+        // 4. Cap to 10 total results.
+        self.setState({
+          results: final.length < 10 ? final : final.slice(0, 10),
+          searching: false
+        });
       }
     );
   };
