@@ -26,6 +26,14 @@ ol.browse .item .image img {
   width: 160px;
 }
 
+ol.browse .item .image .icon {
+  width: 50px;
+  height: 18px;
+  padding: 2px;
+  margin-left: 110px;
+  background-color: rgba(255, 0, 0, 0.5);
+}
+
 ol.browse .item .image .overlay {
   display: none;
   position: absolute;

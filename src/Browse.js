@@ -2,8 +2,9 @@ import async from "async";
 import React, { Component } from "react";
 import { Card, Classes, Icon, Spinner, Text } from "@blueprintjs/core";
 
-import * as Utils from "./Utils";
 import "./Browse.css";
+import * as Utils from "./Utils";
+import Explicit from "./Explicit.svg";
 
 class Browse extends Component {
   constructor(props) {
@@ -76,6 +77,44 @@ class Browse extends Component {
     );
   }
 
+  renderCard(item) {
+    let icon = "";
+    let title = "";
+    let name = item.attributes.name;
+    if (name.length > 32) {
+      title = name;
+      name = item.attributes.name.slice(0, 32) + "...";
+    }
+    if (
+      "contentRating" in item.attributes &&
+      item.attributes.contentRating === "explicit"
+    ) {
+      icon = <img className="icon" alt="Explicit" src={Explicit} />;
+    }
+
+    return (
+      <Card className="item">
+        <div
+          className="image"
+          onClick={this.props.playCollectionNow.bind(this, item)}
+        >
+          <img
+            alt={name}
+            className={Classes.SKELETON}
+            src={Utils.icon(item.attributes.artwork, 160, 160)}
+          />
+          {icon}
+          <div className="overlay">
+            <Icon icon="play" />
+          </div>
+        </div>
+        <Text className="title">
+          <span title={title}>{name}</span>
+        </Text>
+      </Card>
+    );
+  }
+
   render() {
     if (this.state.loading) {
       return <Spinner className="spinner" />;
@@ -83,35 +122,11 @@ class Browse extends Component {
     if (this.state.results.length === 0) {
       return <Text>Try searching for a song using the search box.</Text>;
     }
+
     return (
       <ol className="browse">
         {this.state.results.map((o, i) => (
-          <li key={"key-" + i}>
-            <Card className="item">
-              <div
-                className="image"
-                onClick={this.props.playCollectionNow.bind(this, o)}
-              >
-                <img
-                  alt={o.attributes.name}
-                  className={Classes.SKELETON}
-                  src={Utils.icon(o.attributes.artwork, 160, 160)}
-                />
-                <div className="overlay">
-                  <Icon icon="play" />
-                </div>
-              </div>
-              <Text className="title">
-                <span
-                  title={o.attributes.name.length > 32 ? o.attributes.name : ""}
-                >
-                  {o.attributes.name.length > 32
-                    ? o.attributes.name.slice(0, 32) + "..."
-                    : o.attributes.name}
-                </span>
-              </Text>
-            </Card>
-          </li>
+          <li key={"key-" + i}>{this.renderCard(o)}</li>
         ))}
       </ol>
     );
