@@ -21,6 +21,14 @@ class App extends Component {
     };
   }
 
+  componentWillMount() {
+    this.context = new (window.AudioContext || window.webkitAudioContext)();
+    this.source = this.context.createMediaElementSource(
+      window.document.getElementById("apple-music-player")
+    );
+    this.source.connect(this.context.destination);
+  }
+
   doLogin = () => {
     this.state.music.authorize().then(token => {
       this.setState({ loggedIn: true });
@@ -37,7 +45,11 @@ class App extends Component {
     if (this.state.loggedIn) {
       return (
         <div className="app">
-          <Player music={this.state.music} />
+          <Player
+            music={this.state.music}
+            context={this.context}
+            source={this.source}
+          />
           <Panel music={this.state.music} />
           <Divider />
           <div className="footer">

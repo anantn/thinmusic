@@ -1,43 +1,41 @@
 import React, { Component } from "react";
+import { Colors } from "@blueprintjs/core";
+
+import Logo from "./Logo";
 
 class Visualizer extends Component {
   constructor(props) {
     super(props);
 
-    this.bars = true;
-    this.context = new (window.AudioContext || window.webkitAudioContext)();
-    this.player = window.document.getElementById("apple-music-player");
-    this.analyzer = this.context.createAnalyser();
+    this.analyzer = this.props.context.createAnalyser();
     this.analyzer.fftSize = 256;
-    //this.analyzer.smoothingTimeConstant = 0.0;
+    this.analyzer.smoothingTimeConstant = 0.0;
     this.bufferSize = this.analyzer.frequencyBinCount;
     this.buffer = new Uint8Array(this.bufferSize);
 
-    this.source = this.context.createMediaElementSource(this.player);
-    this.source.connect(this.analyzer);
-    this.source.connect(this.context.destination);
-
+    this.props.source.connect(this.analyzer);
     this.canvas = React.createRef();
-  }
 
-  componentDidMount() {
-    this.drawing = true;
-    this.draw();
+    this.state = {
+      logo: true
+    };
   }
 
   componentWillUnmount() {
-    this.drawing = false;
-    this.source.disconnect();
+    this.props.source.disconnect();
   }
 
   toggle = () => {
-    this.bars = !this.bars;
+    this.setState({ logo: !this.state.logo });
   };
 
   draw = () => {
-    if (this.drawing) {
+    if (this.state.logo) {
+      return;
+    } else {
       window.requestAnimationFrame(this.draw);
     }
+
     let canvas = this.canvas.current;
     if (!canvas) {
       return;
@@ -48,11 +46,7 @@ class Visualizer extends Component {
     //ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     this.analyzer.getByteTimeDomainData(this.buffer);
-    if (this.bars) {
-      this.drawBars(canvas, ctx);
-    } else {
-      this.drawOscilloscope(canvas, ctx);
-    }
+    this.drawBars(canvas, ctx);
   };
 
   drawBars = (canvas, ctx) => {
@@ -67,31 +61,15 @@ class Visualizer extends Component {
     }
   };
 
-  drawOscilloscope = (canvas, ctx) => {
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "rgb(19, 124, 189)";
-
-    ctx.beginPath();
-    let sliceWidth = (canvas.width * 1.0) / this.bufferSize;
-    let x = 0;
-
-    for (var i = 0; i < this.bufferSize; i++) {
-      var v = this.buffer[i] / 128.0;
-      var y = (v * canvas.height) / 2;
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-      x += sliceWidth;
-    }
-
-    ctx.lineTo(canvas.width, canvas.height / 2);
-    ctx.stroke();
-  };
-
   render() {
-    return <canvas onClick={this.toggle} ref={this.canvas} />;
+    let content = (
+      <Logo thin={Colors.BLUE5} music={Colors.BLUE5} bar={Colors.BLUE1} />
+    );
+    if (!this.state.logo) {
+      this.draw();
+      content = <canvas ref={this.canvas} />;
+    }
+    return <div onClick={this.toggle}>{content}</div>;
   }
 }
 

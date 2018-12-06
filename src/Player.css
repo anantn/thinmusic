@@ -43,7 +43,6 @@
 
 .player .content .contentButtons {
   float: left;
-  width: 20%;
   margin-top: 20px;
 }
 
@@ -58,8 +57,20 @@
   margin-top: 10px;
 }
 
-.player .content .contentLogo {
+.player .content .contentViz {
+  float: right;
+  width: 100px;
+}
+
+.player .content .contentViz svg {
   float: right;
   width: 80px;
   height: 80px;
+}
+
+.player .content .contentViz canvas {
+  float: right;
+  width: 120px;
+  height: 80px;
+  padding-bottom: 5px;
 }

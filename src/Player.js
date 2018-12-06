@@ -3,15 +3,14 @@ import {
   ButtonGroup,
   Button,
   Card,
-  Colors,
   Elevation,
   Slider,
   Spinner
 } from "@blueprintjs/core";
 
 import * as Utils from "./Utils";
-import Logo from "./Logo";
 import Track from "./Track";
+import Visualizer from "./Visualizer";
 import "./Player.css";
 
 // none:      0
@@ -252,12 +251,12 @@ class Player extends Component {
             />
           </ButtonGroup>
           <div className="contentTrack">{track}</div>
-          <Logo
-            className="contentLogo"
-            thin={Colors.BLUE5}
-            music={Colors.BLUE5}
-            bar={Colors.BLUE1}
-          />
+          <div className="contentViz">
+            <Visualizer
+              context={this.props.context}
+              source={this.props.source}
+            />
+          </div>
         </div>
       </Card>
     );
