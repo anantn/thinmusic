@@ -131,6 +131,15 @@ class Player extends Component {
     }
   };
 
+  beginning = () => {
+    let self = this;
+    this.props.music.player.seekToTime(0).then(() => {
+      if (self.state.playbackState === PS.paused) {
+        self.props.music.player.play();
+      }
+    });
+  };
+
   backward = () => {
     let self = this;
     // Don't wait until promise for UI feedback (spinner).
@@ -211,19 +220,30 @@ class Player extends Component {
         <div className="content">
           <ButtonGroup className="contentButtons" large={true}>
             <Button
-              icon="step-backward"
+              icon="fast-backward"
+              title="Previous Track"
               disabled={this.props.music.player.nowPlayingItemIndex <= 0}
               onClick={this.backward}
             />
             <Button
+              icon="step-backward"
+              title="Seek to Beginning"
               disabled={
                 currentState !== PS.playing && currentState !== PS.paused
               }
+              onClick={this.beginning}
+            />
+            <Button
               icon={button}
+              title={currentState === PS.playing ? "Pause" : "Play"}
+              disabled={
+                currentState !== PS.playing && currentState !== PS.paused
+              }
               onClick={this.toggle}
             />
             <Button
-              icon="step-forward"
+              icon="fast-forward"
+              title="Next Track"
               disabled={
                 this.props.music.player.nowPlayingItemIndex ===
                 this.props.music.player.queue.length - 1
