@@ -13,7 +13,7 @@ class Results extends Component {
               <Track
                 rhs={true}
                 item={item.attributes}
-                playNow={this.props.playNow.bind(this, item)}
+                click={this.props.playNow.bind(this, item)}
                 playNext={this.props.playNext.bind(this, item)}
                 playLast={this.props.playLast.bind(this, item)}
               />

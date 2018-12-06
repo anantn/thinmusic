@@ -9,6 +9,7 @@ import {
 } from "@blueprintjs/core";
 
 import * as Utils from "./Utils";
+import Visualizer from "./Visualizer";
 import "./Track.css";
 
 class Track extends Component {
@@ -33,16 +34,30 @@ class Track extends Component {
       );
     }
 
+    let content = (
+      <div className="image">
+        <img
+          alt={this.props.item.name}
+          src={Utils.icon(this.props.item.artwork, 80, 80)}
+          className={Classes.SKELETON}
+        />
+      </div>
+    );
+    if (this.props.visualize) {
+      content = (
+        <Visualizer
+          width={80}
+          height={80}
+          context={this.props.context}
+          source={this.props.source}
+        />
+      );
+    }
+
     return (
       <Card className="track">
-        <div className="trackImage" onClick={this.props.playNow}>
-          <div className="image">
-            <img
-              alt={this.props.item.name}
-              src={Utils.icon(this.props.item.artwork, 80, 80)}
-              className={Classes.SKELETON}
-            />
-          </div>
+        <div className="trackImage" onClick={this.props.click}>
+          {content}
           {overlay}
         </div>
         <div className={`trackInfo ${this.props.rhs ? "trackInfoSmall" : ""}`}>

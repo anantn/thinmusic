@@ -45,8 +45,15 @@ class Playlist extends Component {
         this.props.music.player.play().then(this.change);
       }
     } else {
-      // TODO: Some kind of bug in pause icon state update?
-      this.props.music.player.changeToMediaAtIndex(idx);
+      let self = this;
+      let next = () => {
+        self.props.music.player.changeToMediaAtIndex(idx);
+      };
+      if (this.props.music.player.isPlaying) {
+        this.props.music.player.stop().then(next);
+      } else {
+        next();
+      }
     }
   };
 

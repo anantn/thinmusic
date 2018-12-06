@@ -11,6 +11,14 @@
   position: absolute;
 }
 
+.track .trackImage canvas {
+  height: 80px;
+  width: 80px;
+  margin-left: -10px;
+  margin-top: -10px;
+  border-right: 0.5px solid rgb(32, 42, 54);
+}
+
 .track .trackImage .image img {
   height: 80px;
   width: 80px;

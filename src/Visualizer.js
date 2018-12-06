@@ -64,7 +64,7 @@ class Visualizer extends Component {
 
   componentWillUnmount() {
     this.drawing = false;
-    this.props.source.disconnect();
+    this.props.source.disconnect(this.analyzer);
   }
 
   toggle = () => {
@@ -81,10 +81,10 @@ class Visualizer extends Component {
     }
     let ctx = canvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
-    this.drawBars(ctx);
+    this.drawBars(canvas, ctx);
   };
 
-  drawBars = ctx => {
+  drawBars = (canvas, ctx) => {
     this.analyzer.getByteFrequencyData(this.buffer);
     const heightMultiplier = this._renderHeight() / 256;
     const barWidth = this._barWidth();
@@ -221,6 +221,7 @@ class Visualizer extends Component {
   }
 
   render() {
+    const { width, height } = this.props;
     return (
       <canvas
         ref={this.canvas}

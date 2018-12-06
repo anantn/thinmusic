@@ -32,7 +32,8 @@ class Player extends Component {
     this.interval = 0;
     this.state = {
       playbackState: null,
-      sliderHover: false
+      sliderHover: false,
+      visualize: false
     };
     this.slider = React.createRef();
   }
@@ -40,8 +41,6 @@ class Player extends Component {
   componentDidMount = () => {
     let self = this;
     this.props.music.addEventListener("playbackStateDidChange", event => {
-      // console.log(self.props.music.player.nowPlayingItem);
-      // console.log(event.state);
       switch (event.state) {
         case PS.loading:
         case PS.stopped:
@@ -131,6 +130,10 @@ class Player extends Component {
     }
   };
 
+  toggleViz = () => {
+    this.setState({ visualize: !this.state.visualize });
+  };
+
   beginning = () => {
     let self = this;
     this.props.music.player.seekToTime(0).then(() => {
@@ -191,7 +194,13 @@ class Player extends Component {
       track = <Spinner />;
     } else if (this.props.music.player.nowPlayingItem) {
       track = (
-        <Track item={this.props.music.player.nowPlayingItem.attributes} />
+        <Track
+          item={this.props.music.player.nowPlayingItem.attributes}
+          context={this.props.context}
+          source={this.props.source}
+          visualize={this.state.visualize}
+          click={this.toggleViz.bind(this)}
+        />
       );
     }
 
