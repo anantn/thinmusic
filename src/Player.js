@@ -40,16 +40,23 @@ class Player extends Component {
   componentDidMount = () => {
     let self = this;
     this.props.music.addEventListener("playbackStateDidChange", event => {
-      self.setState({ playbackState: event.state });
+      // console.log(self.props.music.player.nowPlayingItem);
+      // console.log(event.state);
       switch (event.state) {
         case PS.loading:
         case PS.stopped:
-          this.setState({ currentTime: null, totalTime: null });
+          this.setState({
+            playbackState: event.state,
+            currentTime: null,
+            totalTime: null
+          });
           break;
         case PS.playing:
+          self.setState({ playbackState: event.state });
           this.interval = setInterval(this.tick, 300);
           break;
         default:
+          self.setState({ playbackState: event.state });
           if (this.interval !== 0) {
             clearInterval(this.interval);
             this.interval = 0;
@@ -125,31 +132,46 @@ class Player extends Component {
   };
 
   backward = () => {
-    this.props.music.player.changeToMediaAtIndex(
-      this.props.music.player.nowPlayingItemIndex - 1
-    );
+    let self = this;
+    // Don't wait until promise for UI feedback (spinner).
+    this.setState({ playbackState: PS.stopped });
+    this.props.music.player.stop().then(() => {
+      // Bug in MusicKit, at index 1, back doesn't work?
+      if (self.props.music.player.nowPlayingItemIndex === 1) {
+        self.props.music.player.changeToMediaAtIndex(0);
+      } else {
+        self.props.music.player.skipToPreviousItem();
+      }
+    });
   };
 
   forward = () => {
-    this.props.music.player.changeToMediaAtIndex(
-      this.props.music.player.nowPlayingItemIndex + 1
-    );
+    // Don't wait until promise for UI feedback (spinner).
+    this.setState({ playbackState: PS.stopped });
+    let self = this;
+    this.props.music.player.stop().then(() => {
+      self.props.music.player.skipToNextItem();
+    });
   };
 
   render() {
     let button = "play";
     let track = "";
     let currentState = this.state.playbackState;
-    if (currentState === PS.loading || currentState === PS.waiting) {
+    if (
+      currentState === PS.loading ||
+      currentState === PS.waiting ||
+      currentState === PS.stalled
+    ) {
       track = <Spinner />;
-    }
-    if (currentState === PS.playing) {
-      button = "pause";
-    }
-    if (this.props.music.player.nowPlayingItem) {
+    } else if (this.props.music.player.nowPlayingItem) {
       track = (
         <Track item={this.props.music.player.nowPlayingItem.attributes} />
       );
+    }
+
+    if (currentState === PS.playing) {
+      button = "pause";
     }
 
     let stime = this.tickLabel(this.state.currentTime);
@@ -193,7 +215,13 @@ class Player extends Component {
               disabled={this.props.music.player.nowPlayingItemIndex <= 0}
               onClick={this.backward}
             />
-            <Button icon={button} onClick={this.toggle} />
+            <Button
+              disabled={
+                currentState !== PS.playing && currentState !== PS.paused
+              }
+              icon={button}
+              onClick={this.toggle}
+            />
             <Button
               icon="step-forward"
               disabled={

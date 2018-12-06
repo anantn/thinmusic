@@ -1,5 +1,6 @@
 .player {
   height: 140px;
+  min-width: 680px;
   position: relative;
   padding: 10px;
   margin-bottom: 20px;
@@ -51,6 +52,10 @@
   width: 300px;
   height: 80px;
   display: inline-block;
+}
+
+.player .content .contentTrack .bp3-spinner {
+  margin-top: 10px;
 }
 
 .player .content .contentLogo {
