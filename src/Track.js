@@ -56,7 +56,11 @@ class Track extends Component {
 
     return (
       <Card className="track">
-        <div className="trackImage" onClick={this.props.click}>
+        <div
+          className="trackImage"
+          style={this.props.click ? { cursor: "pointer" } : {}}
+          onClick={this.props.click}
+        >
           {content}
           {overlay}
         </div>

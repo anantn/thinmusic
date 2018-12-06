@@ -23,9 +23,8 @@ class App extends Component {
 
   componentWillMount() {
     this.context = new (window.AudioContext || window.webkitAudioContext)();
-    this.source = this.context.createMediaElementSource(
-      window.document.getElementById("apple-music-player")
-    );
+    this.audio = window.document.getElementById("apple-music-player");
+    this.source = this.context.createMediaElementSource(this.audio);
     this.source.connect(this.context.destination);
   }
 
@@ -49,6 +48,7 @@ class App extends Component {
             music={this.state.music}
             context={this.context}
             source={this.source}
+            audio={this.audio}
           />
           <Panel music={this.state.music} />
           <Divider />

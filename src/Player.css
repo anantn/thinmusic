@@ -41,9 +41,40 @@
   display: inline;
 }
 
+.player .content .contentControls {
+  display: block;
+}
+
 .player .content .contentButtons {
   float: left;
-  margin-top: 20px;
+  margin-top: 10px;
+}
+
+.player .content .contentControls .contentVolumeIcon {
+  position: absolute;
+  left: 0;
+  margin-top: 60px;
+  margin-left: 25px;
+  cursor: pointer;
+}
+
+.player .content .contentVolume {
+  float: left;
+  position: absolute;
+  margin-top: 60px;
+  margin-left: 40px;
+  width: 100px;
+  min-width: 100px;
+}
+
+.player .content .contentVolume .bp3-slider-handle {
+  margin-top: 3px;
+  width: 10px;
+  height: 10px;
+}
+
+.player .content .contentVolume .bp3-slider-progress {
+  background-color: #8a9ba8;
 }
 
 .player .content .contentTrack {

@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Colors,
+  Icon,
   Elevation,
   Slider,
   Spinner
@@ -33,7 +34,8 @@ class Player extends Component {
     this.state = {
       playbackState: null,
       sliderHover: false,
-      visualize: false
+      visualize: false,
+      volume: 1
     };
     this.slider = React.createRef();
   }
@@ -108,6 +110,21 @@ class Player extends Component {
 
   sliderHoverLeave = event => {
     this.setState({ sliderHover: false });
+  };
+
+  volumeChange = num => {
+    this.props.audio.volume = num;
+    this.setState({ volume: this.props.audio.volume });
+  };
+
+  volumeToggle = num => {
+    if (this.props.audio.volume === 0) {
+      this.props.audio.volume = this.state.volume;
+      this.setState({ volume: this.props.audio.volume });
+    } else {
+      this.props.audio.volume = 0;
+      this.setState({});
+    }
   };
 
   sliderChange = num => {
@@ -243,39 +260,62 @@ class Player extends Component {
           />
         </div>
         <div className="content">
-          <ButtonGroup className="contentButtons" large={true}>
-            <Button
-              icon="fast-backward"
-              title="Previous Track"
-              disabled={this.props.music.player.nowPlayingItemIndex <= 0}
-              onClick={this.backward}
-            />
-            <Button
-              icon="step-backward"
-              title="Seek to Beginning"
-              disabled={
-                currentState !== PS.playing && currentState !== PS.paused
+          <div className="contentControls">
+            <ButtonGroup className="contentButtons" large={true}>
+              <Button
+                icon="fast-backward"
+                title="Previous Track"
+                disabled={this.props.music.player.nowPlayingItemIndex <= 0}
+                onClick={this.backward}
+              />
+              <Button
+                icon="step-backward"
+                title="Seek to Beginning"
+                disabled={
+                  currentState !== PS.playing && currentState !== PS.paused
+                }
+                onClick={this.beginning}
+              />
+              <Button
+                icon={button}
+                title={currentState === PS.playing ? "Pause" : "Play"}
+                disabled={
+                  currentState !== PS.playing && currentState !== PS.paused
+                }
+                onClick={this.toggle}
+              />
+              <Button
+                icon="fast-forward"
+                title="Next Track"
+                disabled={
+                  this.props.music.player.nowPlayingItemIndex ===
+                  this.props.music.player.queue.length - 1
+                }
+                onClick={this.forward}
+              />
+            </ButtonGroup>
+            <Icon
+              size={10}
+              color={Colors.GRAY1}
+              className="contentVolumeIcon"
+              onClick={this.volumeToggle}
+              icon={
+                this.props.audio.volume === 0
+                  ? "volume-off"
+                  : this.props.audio.volume >= 0.5
+                  ? "volume-up"
+                  : "volume-down"
               }
-              onClick={this.beginning}
             />
-            <Button
-              icon={button}
-              title={currentState === PS.playing ? "Pause" : "Play"}
-              disabled={
-                currentState !== PS.playing && currentState !== PS.paused
-              }
-              onClick={this.toggle}
+            <Slider
+              min={0}
+              max={1}
+              className="contentVolume"
+              onChange={this.volumeChange}
+              value={this.props.audio.volume}
+              stepSize={0.05}
             />
-            <Button
-              icon="fast-forward"
-              title="Next Track"
-              disabled={
-                this.props.music.player.nowPlayingItemIndex ===
-                this.props.music.player.queue.length - 1
-              }
-              onClick={this.forward}
-            />
-          </ButtonGroup>
+          </div>
           <div className="contentTrack">{track}</div>
           <Logo
             className="contentLogo"

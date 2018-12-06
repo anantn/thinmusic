@@ -26,7 +26,12 @@ class Panel extends Component {
   search = event => {
     let term = event.target.value.trim();
     if (term === "") {
-      this.setState({ selected: "browse", searching: false, results: [] });
+      this.setState({
+        selected:
+          this.state.selected !== "search" ? this.state.selected : "browse",
+        searching: false,
+        results: []
+      });
       return;
     }
     if (term === this.state.query && this.state.searching) {
