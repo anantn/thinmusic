@@ -48,7 +48,7 @@
 
 .player .content .contentTrack {
   margin: 0 auto;
-  width: 300px;
+  width: 340px;
   height: 80px;
   display: inline-block;
 }
@@ -57,20 +57,8 @@
   margin-top: 10px;
 }
 
-.player .content .contentViz {
-  float: right;
-  width: 100px;
-}
-
-.player .content .contentViz svg {
+.player .content .contentLogo {
   float: right;
   width: 80px;
   height: 80px;
-}
-
-.player .content .contentViz canvas {
-  float: right;
-  width: 120px;
-  height: 80px;
-  padding-bottom: 5px;
 }

@@ -3,6 +3,7 @@ import {
   ButtonGroup,
   Button,
   Card,
+  Colors,
   Elevation,
   Slider,
   Spinner
@@ -10,7 +11,7 @@ import {
 
 import * as Utils from "./Utils";
 import Track from "./Track";
-import Visualizer from "./Visualizer";
+import Logo from "./Logo";
 import "./Player.css";
 
 // none:      0
@@ -267,12 +268,12 @@ class Player extends Component {
             />
           </ButtonGroup>
           <div className="contentTrack">{track}</div>
-          <div className="contentViz">
-            <Visualizer
-              context={this.props.context}
-              source={this.props.source}
-            />
-          </div>
+          <Logo
+            className="contentLogo"
+            thin={Colors.BLUE5}
+            music={Colors.BLUE5}
+            bar={Colors.BLUE1}
+          />
         </div>
       </Card>
     );
