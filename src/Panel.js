@@ -90,7 +90,8 @@ class Panel extends Component {
 
         // 1. If a song appears in both library and global, show first.
         let inLibrary = librarySongs.map(
-          obj => obj.attributes.playParams.catalogId
+          obj =>
+            obj.attributes.playParams && obj.attributes.playParams.catalogId
         );
         for (let obj of allSongs) {
           if (obj.id in inLibrary) {
@@ -139,12 +140,19 @@ class Panel extends Component {
         });
       });
     } else {
-      this.props.music.player.queue.prepend(item);
-      this.props.music.player
-        .changeToMediaAtIndex(this.props.music.player.nowPlayingItemIndex + 1)
-        .then(() => {
-          self.setState(self.state);
-        });
+      let next = () => {
+        self.props.music.player.queue.prepend(item);
+        self.props.music.player
+          .changeToMediaAtIndex(self.props.music.player.nowPlayingItemIndex + 1)
+          .then(() => {
+            self.setState(self.state);
+          });
+      };
+      if (this.props.music.player.isPlaying) {
+        this.props.music.player.stop().then(next);
+      } else {
+        next();
+      }
     }
   };
 

@@ -39,7 +39,7 @@ class Track extends Component {
           <div className="image">
             <img
               alt={this.props.item.name}
-              src={Utils.icon(this.props.item.artwork, 60, 60)}
+              src={Utils.icon(this.props.item.artwork, 80, 80)}
               className={Classes.SKELETON}
             />
           </div>
