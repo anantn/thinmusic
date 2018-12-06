@@ -141,25 +141,41 @@ class Player extends Component {
 
   backward = () => {
     let self = this;
-    // Don't wait until promise for UI feedback (spinner).
-    this.setState({ playbackState: PS.stopped });
-    this.props.music.player.stop().then(() => {
+    let next = () => {
       // Bug in MusicKit, at index 1, back doesn't work?
       if (self.props.music.player.nowPlayingItemIndex === 1) {
         self.props.music.player.changeToMediaAtIndex(0);
       } else {
         self.props.music.player.skipToPreviousItem();
       }
-    });
+    };
+
+    // Don't wait until promise for UI feedback (spinner).
+    this.setState({ playbackState: PS.stopped });
+
+    // Why do this? There's a state glitch we're trying to avoid which we
+    // just eat if track happends to be paused.
+    if (this.props.music.player.isPlaying) {
+      this.props.music.player.stop().then(next);
+    } else {
+      next();
+    }
   };
 
   forward = () => {
+    let self = this;
+    let next = () => {
+      self.props.music.player.skipToNextItem();
+    };
+
     // Don't wait until promise for UI feedback (spinner).
     this.setState({ playbackState: PS.stopped });
-    let self = this;
-    this.props.music.player.stop().then(() => {
-      self.props.music.player.skipToNextItem();
-    });
+
+    if (this.props.music.player.isPlaying) {
+      this.props.music.player.stop().then(next);
+    } else {
+      next();
+    }
   };
 
   render() {
