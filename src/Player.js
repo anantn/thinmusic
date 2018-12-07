@@ -200,8 +200,8 @@ class Player extends Component {
   };
 
   render() {
-    let button = "play";
     let track = "";
+    let button = "play";
     let currentState = this.state.playbackState;
     if (
       currentState === PS.loading ||
@@ -209,7 +209,8 @@ class Player extends Component {
       currentState === PS.stalled
     ) {
       track = <Spinner />;
-    } else if (this.props.music.player.nowPlayingItem) {
+    }
+    if (this.props.music.player.nowPlayingItem) {
       track = (
         <Track
           item={this.props.music.player.nowPlayingItem.attributes}
