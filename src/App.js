@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Button, Colors, Divider, Text } from "@blueprintjs/core";
+import { isChrome } from "react-device-detect";
 
 import "./App.css";
 import Logo from "./Logo";
@@ -19,13 +20,22 @@ class App extends Component {
       loggedIn: instance.isAuthorized,
       currentTrack: null
     };
+    this.audioElement = null;
+    this.audioContext = null;
+    this.audioSource = null;
   }
 
   componentWillMount() {
-    this.context = new (window.AudioContext || window.webkitAudioContext)();
-    this.audio = window.document.getElementById("apple-music-player");
-    this.source = this.context.createMediaElementSource(this.audio);
-    this.source.connect(this.context.destination);
+    this.audioElement = window.document.getElementById("apple-music-player");
+    // TODO: Maybe support Safari?
+    if (isChrome) {
+      this.audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
+      this.audioSource = this.audioContext.createMediaElementSource(
+        this.audioElement
+      );
+      this.audioSource.connect(this.audioContext.destination);
+    }
   }
 
   doLogin = () => {
@@ -46,9 +56,9 @@ class App extends Component {
         <div className="app">
           <Player
             music={this.state.music}
-            context={this.context}
-            source={this.source}
-            audio={this.audio}
+            audioElement={this.audioElement}
+            audioContext={this.audioContext}
+            audioSource={this.audioSource}
           />
           <Panel music={this.state.music} />
           <Divider />

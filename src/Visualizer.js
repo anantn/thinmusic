@@ -36,7 +36,7 @@ class Visualizer extends Component {
   constructor(props) {
     super(props);
 
-    this.analyzer = this.props.context.createAnalyser();
+    this.analyzer = this.props.audioContext.createAnalyser();
     this.analyzer.fftSize = 2048;
     this.bufferSize = this.analyzer.frequencyBinCount;
     this.buffer = new Uint8Array(this.bufferSize);
@@ -44,7 +44,7 @@ class Visualizer extends Component {
     this.barPeaks = new Array(NUM_BARS).fill(0);
     this.barPeakFrames = new Array(NUM_BARS).fill(0);
 
-    this.props.source.connect(this.analyzer);
+    this.props.audioSource.connect(this.analyzer);
     this.canvas = React.createRef();
   }
 
@@ -64,7 +64,7 @@ class Visualizer extends Component {
 
   componentWillUnmount() {
     this.drawing = false;
-    this.props.source.disconnect(this.analyzer);
+    this.props.audioSource.disconnect(this.analyzer);
   }
 
   toggle = () => {

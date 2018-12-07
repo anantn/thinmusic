@@ -113,16 +113,16 @@ class Player extends Component {
   };
 
   volumeChange = num => {
-    this.props.audio.volume = num;
-    this.setState({ volume: this.props.audio.volume });
+    this.props.audioElement.volume = num;
+    this.setState({ volume: this.props.audioElement.volume });
   };
 
   volumeToggle = num => {
-    if (this.props.audio.volume === 0) {
-      this.props.audio.volume = this.state.volume;
-      this.setState({ volume: this.props.audio.volume });
+    if (this.props.audioElement.volume === 0) {
+      this.props.audioElement.volume = this.state.volume;
+      this.setState({ volume: this.props.audioElement.volume });
     } else {
-      this.props.audio.volume = 0;
+      this.props.audioElement.volume = 0;
       this.setState({});
     }
   };
@@ -213,10 +213,10 @@ class Player extends Component {
       track = (
         <Track
           item={this.props.music.player.nowPlayingItem.attributes}
-          context={this.props.context}
-          source={this.props.source}
+          audioContext={this.props.audioContext}
+          audioSource={this.props.audioSource}
           visualize={this.state.visualize}
-          click={this.toggleViz.bind(this)}
+          click={this.props.audioContext ? this.toggleViz.bind(this) : null}
         />
       );
     }
@@ -300,9 +300,9 @@ class Player extends Component {
               className="contentVolumeIcon"
               onClick={this.volumeToggle}
               icon={
-                this.props.audio.volume === 0
+                this.props.audioElement.volume === 0
                   ? "volume-off"
-                  : this.props.audio.volume >= 0.5
+                  : this.props.audioElement.volume >= 0.5
                   ? "volume-up"
                   : "volume-down"
               }
@@ -312,7 +312,7 @@ class Player extends Component {
               max={1}
               className="contentVolume"
               onChange={this.volumeChange}
-              value={this.props.audio.volume}
+              value={this.props.audioElement.volume}
               stepSize={0.05}
             />
           </div>

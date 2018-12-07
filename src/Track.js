@@ -48,8 +48,8 @@ class Track extends Component {
         <Visualizer
           width={80}
           height={80}
-          context={this.props.context}
-          source={this.props.source}
+          audioContext={this.props.audioContext}
+          audioSource={this.props.audioSource}
         />
       );
     }
