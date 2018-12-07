@@ -36,6 +36,7 @@ class Visualizer extends Component {
   constructor(props) {
     super(props);
 
+    this.props.audioContext.resume();
     this.analyzer = this.props.audioContext.createAnalyser();
     this.analyzer.fftSize = 2048;
     this.bufferSize = this.analyzer.frequencyBinCount;
