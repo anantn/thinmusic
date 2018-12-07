@@ -225,6 +225,7 @@ class Visualizer extends Component {
     return (
       <canvas
         ref={this.canvas}
+        title="It really whips the llama's ass!"
         style={{ width, height }}
         width={width * PIXEL_DENSITY}
         height={height * PIXEL_DENSITY}
