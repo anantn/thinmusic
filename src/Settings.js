@@ -2,14 +2,22 @@ import React, { Component } from "react";
 import firebase from "firebase";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 
-import "./Settings.css";
-
 class Settings extends Component {
   constructor(props) {
     super(props);
     this.uiConfig = {
       signInFlow: "popup",
-      signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
+      signInOptions: [
+        {
+          provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+          scopes: ["profile", "email"]
+        },
+        {
+          provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+          scopes: ["public_profile", "email"]
+        },
+        firebase.auth.TwitterAuthProvider.PROVIDER_ID
+      ],
       callbacks: {
         signInSuccessWithAuthResult: () => false
       }

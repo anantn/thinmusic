@@ -60,8 +60,7 @@ class App extends Component {
           You are using ThinMusic in anonymous mode, track playback will be
           limited to 30 seconds.
           <br />
-          Sign in, or sign up and connect your Apple Music account for the full
-          experience!
+          Sign in and connect your Apple Music account for the full experience!
         </Callout>
       );
     }
