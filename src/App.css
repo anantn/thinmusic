@@ -2,6 +2,10 @@
   padding: 20px;
 }
 
+.mainSpinner {
+  padding-top: 200px;
+}
+
 .login {
   padding: 100px;
 }
@@ -27,6 +31,15 @@
   float: left;
 }
 
-.footer button {
+.footer .right {
   float: right;
+}
+
+span.link {
+  color: #48aff0;
+  cursor: pointer;
+}
+
+span.link:hover {
+  text-decoration: underline;
 }
