@@ -7,11 +7,13 @@
     "@types/react": "^16.7.5",
     "@types/react-dom": "^16.0.9",
     "async-es": "^2.6.1",
+    "firebase": "^5.7.0",
     "normalize.css": "^8.0.1",
     "react": "^16.6.0",
     "react-beautiful-dnd": "^10.0.2",
     "react-device-detect": "^1.6.1",
     "react-dom": "^16.6.0",
+    "react-firebaseui": "^3.1.2",
     "react-scripts": "2.1.0",
     "source-map-explorer": "^1.6.0"
   },

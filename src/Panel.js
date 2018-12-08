@@ -1,11 +1,12 @@
 import async from "async";
 import React, { Component } from "react";
-import { Spinner, InputGroup, Tabs, Tab, Text } from "@blueprintjs/core";
+import { Spinner, Icon, InputGroup, Tabs, Tab, Text } from "@blueprintjs/core";
 
 import "./Panel.css";
 import Browse from "./Browse";
 import Playlist from "./Playlist";
 import Results from "./Results";
+import Settings from "./Settings";
 
 class Panel extends Component {
   constructor(props) {
@@ -14,7 +15,7 @@ class Panel extends Component {
     this.state = {
       query: "",
       results: [],
-      selected: "browse",
+      selected: this.props.user ? "browse" : "settings",
       searching: false
     };
   }
@@ -247,6 +248,9 @@ class Panel extends Component {
             placeholder="Find songs by name..."
             onChange={this.search}
           />
+          <Tab id="settings" panel={<Settings user={this.props.user} />}>
+            <Icon icon="cog" title="Settings" />
+          </Tab>
         </Tabs>
       </div>
     );

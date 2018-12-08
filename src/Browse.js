@@ -1,6 +1,13 @@
 import async from "async";
 import React, { Component } from "react";
-import { Card, Classes, Icon, Spinner, Text } from "@blueprintjs/core";
+import {
+  Card,
+  Classes,
+  Icon,
+  NonIdealState,
+  Spinner,
+  Text
+} from "@blueprintjs/core";
 
 import "./Browse.css";
 import * as Utils from "./Utils";
@@ -120,7 +127,15 @@ class Browse extends Component {
       return <Spinner className="spinner" />;
     }
     if (this.state.results.length === 0) {
-      return <Text>Try searching for a song using the search box.</Text>;
+      return (
+        <NonIdealState
+          className="browseNull"
+          icon="zoom-out"
+          title="No favorites loaded"
+        >
+          Try finding a song using the search box!
+        </NonIdealState>
+      );
     }
 
     return (
