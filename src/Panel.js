@@ -226,6 +226,7 @@ class Panel extends Component {
           <Tab
             id="browse"
             title="Browse"
+            disabled={this.props.user ? false : true}
             panel={
               <Browse
                 music={this.props.music}
