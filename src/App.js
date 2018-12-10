@@ -24,31 +24,42 @@ class App extends Component {
   constructor(props) {
     super(props);
     let instance = MusicKit.getInstance();
-    instance.player.prepareToPlay();
     this.state = {
       authState: AUTH_UNKNOWN,
       user: null,
       music: instance,
-      currentTrack: null
+      currentTrack: null,
+      audioElement: null,
+      audioContext: null,
+      audioSource: null
     };
     this.panel = React.createRef();
-    this.audioElement = null;
-    this.audioContext = null;
-    this.audioSource = null;
     this.authObserver = null;
   }
 
   componentWillMount() {
-    this.audioElement = window.document.getElementById("apple-music-player");
-    // TODO: Maybe support Safari?
-    if (isChrome) {
-      this.audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
-      this.audioSource = this.audioContext.createMediaElementSource(
-        this.audioElement
-      );
-      this.audioSource.connect(this.audioContext.destination);
-    }
+    let self = this;
+    this.state.music.addEventListener("mediaCanPlay", () => {
+      if (self.state.audioElement) {
+        return;
+      }
+
+      let element = window.document.getElementById("apple-music-player");
+      let context = null;
+      let source = null;
+      // TODO: Support Safari?
+      if (isChrome) {
+        context = new (window.AudioContext || window.webkitAudioContext)();
+        source = context.createMediaElementSource(element);
+        source.connect(context.destination);
+      }
+      self.setState({
+        audioElement: element,
+        audioContext: context,
+        audioSource: source
+      });
+    });
+
     this.authObserver = firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.setState({ authState: AUTH_LOGGED_IN, user });
@@ -109,9 +120,9 @@ class App extends Component {
         {callout}
         <Player
           music={this.state.music}
-          audioElement={this.audioElement}
-          audioContext={this.audioContext}
-          audioSource={this.audioSource}
+          audioElement={this.state.audioElement}
+          audioContext={this.state.audioContext}
+          audioSource={this.state.audioSource}
         />
         <Panel
           ref={this.panel}

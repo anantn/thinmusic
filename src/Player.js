@@ -201,6 +201,7 @@ class Player extends Component {
 
   render() {
     let track = "";
+    let volume = "";
     let button = "play";
     let currentState = this.state.playbackState;
     if (
@@ -229,6 +230,34 @@ class Player extends Component {
     let stime = this.tickLabel(this.state.currentTime);
     if (this.state.sliderHover) {
       stime = <b>{this.tickLabel(this.state.hoverTime)}</b>;
+    }
+
+    if (this.props.audioElement) {
+      volume = (
+        <div>
+          <Icon
+            size={10}
+            color={Colors.GRAY1}
+            className="contentVolumeIcon"
+            onClick={this.volumeToggle}
+            icon={
+              this.props.audioElement.volume === 0
+                ? "volume-off"
+                : this.props.audioElement.volume >= 0.5
+                ? "volume-up"
+                : "volume-down"
+            }
+          />
+          <Slider
+            min={0}
+            max={1}
+            className="contentVolume"
+            onChange={this.volumeChange}
+            value={this.props.audioElement.volume}
+            stepSize={0.05}
+          />
+        </div>
+      );
     }
 
     return (
@@ -295,27 +324,7 @@ class Player extends Component {
                 onClick={this.forward}
               />
             </ButtonGroup>
-            <Icon
-              size={10}
-              color={Colors.GRAY1}
-              className="contentVolumeIcon"
-              onClick={this.volumeToggle}
-              icon={
-                this.props.audioElement.volume === 0
-                  ? "volume-off"
-                  : this.props.audioElement.volume >= 0.5
-                  ? "volume-up"
-                  : "volume-down"
-              }
-            />
-            <Slider
-              min={0}
-              max={1}
-              className="contentVolume"
-              onChange={this.volumeChange}
-              value={this.props.audioElement.volume}
-              stepSize={0.05}
-            />
+            {volume}
           </div>
           <div className="contentTrack">{track}</div>
           <Logo
