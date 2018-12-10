@@ -49,92 +49,95 @@ class Panel extends Component {
     }
 
     let self = this;
-    let all = self.props.music.api;
-    let library = self.props.music.api.library;
-    async.parallel(
-      [
+    let methods = [
+      async.reflect(
+        async.asyncify(
+          self.props.music.api.search.bind(self.props.music.api, value, {
+            limit: 10,
+            types: "songs"
+          })
+        )
+      )
+    ];
+    if (this.props.user) {
+      methods.push(
         async.reflect(
           async.asyncify(
-            all.search.bind(all, value, {
-              limit: 10,
-              types: "songs"
-            })
-          )
-        ),
-        async.reflect(
-          async.asyncify(
-            library.search.bind(library, value, {
-              limit: 10,
-              types: "library-songs"
-            })
+            self.props.music.api.library.search.bind(
+              self.props.music.api.library,
+              value,
+              {
+                limit: 10,
+                types: "library-songs"
+              }
+            )
           )
         )
-      ],
-      (err, res) => {
-        // TODO: Remove log and handle errors.
-        if (idx < self.counter) {
-          return;
-        }
-        if (err !== null) {
-          self.setState({ searching: false });
-          return;
-        }
-
-        let allSongs = [];
-        let librarySongs = [];
-        if (res[0] && res[0].value && "songs" in res[0].value) {
-          allSongs = res[0].value["songs"].data;
-        }
-        if (res[1] && res[1].value && "library-songs" in res[1].value) {
-          librarySongs = res[1].value["library-songs"].data;
-        }
-
-        // TODO: Remove any results without playParams.
-
-        // Merge global and library results.
-        let final = [];
-
-        // 1. If a song appears in both library and global, show first.
-        let inLibrary = librarySongs.map(
-          obj =>
-            obj.attributes.playParams && obj.attributes.playParams.catalogId
-        );
-        for (let obj of allSongs) {
-          if (obj.id in inLibrary) {
-            final.push(obj);
-          }
-        }
-
-        // 2. Show top 5 (upto 10 depending on library result set)
-        // global results not in library.
-        let added = 0;
-        let limit = librarySongs.length >= 5 ? 5 : 10 - librarySongs.length;
-        for (let obj of allSongs) {
-          if (added >= limit) break;
-          if (!(obj.id in inLibrary)) {
-            final.push(obj);
-            added += 1;
-          }
-        }
-
-        // 3. Show remaining library results not already in list.
-        added = 0;
-        let inFinal = final.map(obj => obj.id);
-        for (let obj of librarySongs) {
-          if (added >= 5) break;
-          if (!(obj.attributes.playParams.catalogId in inFinal)) {
-            final.push(obj);
-            added += 1;
-          }
-        }
-
-        // 4. Cap to 10 total results.
-        self.setState({
-          results: final.length < 10 ? final : final.slice(0, 10),
-          searching: false
-        });
+      );
+    }
+    async.parallel(methods, (err, res) => {
+      // TODO: Remove log and handle errors.
+      if (idx < self.counter) {
+        return;
       }
-    );
+      if (err !== null) {
+        self.setState({ searching: false });
+        return;
+      }
+
+      let allSongs = [];
+      let librarySongs = [];
+      if (res[0] && res[0].value && "songs" in res[0].value) {
+        allSongs = res[0].value["songs"].data;
+      }
+      if (res[1] && res[1].value && "library-songs" in res[1].value) {
+        librarySongs = res[1].value["library-songs"].data;
+      }
+
+      // TODO: Remove any results without playParams.
+
+      // Merge global and library results.
+      let final = [];
+
+      // 1. If a song appears in both library and global, show first.
+      let inLibrary = librarySongs.map(
+        obj => obj.attributes.playParams && obj.attributes.playParams.catalogId
+      );
+      for (let obj of allSongs) {
+        if (obj.id in inLibrary) {
+          final.push(obj);
+        }
+      }
+
+      // 2. Show top 5 (upto 10 depending on library result set)
+      // global results not in library.
+      let added = 0;
+      let limit = librarySongs.length >= 5 ? 5 : 10 - librarySongs.length;
+      for (let obj of allSongs) {
+        if (added >= limit) break;
+        if (!(obj.id in inLibrary)) {
+          final.push(obj);
+          added += 1;
+        }
+      }
+
+      // 3. Show remaining library results not already in list.
+      added = 0;
+      let inFinal = final.map(obj => obj.id);
+      for (let obj of librarySongs) {
+        if (added >= 5) break;
+        if (!(obj.attributes.playParams.catalogId in inFinal)) {
+          final.push(obj);
+          added += 1;
+        }
+      }
+
+      // 4. Cap to 10 total results.
+      self.setState({
+        results: final.length < 10 ? final : final.slice(0, 10),
+        searching: false
+      });
+    });
   };
 
   playNow = (item, event) => {
@@ -229,6 +232,7 @@ class Panel extends Component {
             disabled={this.props.user ? false : true}
             panel={
               <Browse
+                user={this.props.user}
                 music={this.props.music}
                 playCollectionNow={this.playCollectionNow}
               />

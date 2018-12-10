@@ -26,6 +26,12 @@ class Browse extends Component {
     let self = this;
     let api = self.props.music.api;
     let order = ["heavyRotation", "recentPlayed", "recommendations"];
+
+    if (!this.props.user) {
+      this.setState({ loading: false });
+      return;
+    }
+
     async.parallel(
       [
         async.reflect(async.asyncify(api.historyHeavyRotation.bind(api))),
