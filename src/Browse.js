@@ -10,7 +10,7 @@ import {
 } from "@blueprintjs/core";
 
 import "./Browse.css";
-import * as Utils from "./Utils";
+import Utils from "./Utils";
 import Explicit from "./Explicit.svg";
 
 class Browse extends Component {
@@ -23,15 +23,33 @@ class Browse extends Component {
   }
 
   componentDidMount() {
-    let self = this;
-    let api = self.props.music.api;
-    let order = ["heavyRotation", "recentPlayed", "recommendations"];
-
-    if (!this.props.user) {
+    if (!this.props.user || !this.props.user.apple) {
       this.setState({ loading: false });
       return;
     }
+    this.load();
+  }
 
+  componentDidUpdate = prevProps => {
+    let now =
+      this.props.user && this.props.user.apple ? this.props.user.apple : "";
+    let prev =
+      prevProps.user && prevProps.user.apple ? prevProps.user.apple : "";
+    if (now === prev) {
+      return;
+    }
+    if (now !== "") {
+      this.setState({ loading: true });
+      this.load();
+    } else if (prev !== "") {
+      this.setState({ loading: false, results: [] });
+    }
+  };
+
+  load = () => {
+    let self = this;
+    let api = self.props.music.api;
+    let order = ["heavyRotation", "recentPlayed", "recommendations"];
     async.parallel(
       [
         async.reflect(async.asyncify(api.historyHeavyRotation.bind(api))),
@@ -88,7 +106,7 @@ class Browse extends Component {
         });
       }
     );
-  }
+  };
 
   renderCard(item) {
     let icon = "";

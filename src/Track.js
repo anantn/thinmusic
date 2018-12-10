@@ -8,7 +8,7 @@ import {
   Icon
 } from "@blueprintjs/core";
 
-import * as Utils from "./Utils";
+import Utils from "./Utils";
 import Visualizer from "./Visualizer";
 import "./Track.css";
 

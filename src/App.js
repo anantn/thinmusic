@@ -13,6 +13,7 @@ import firebase from "firebase";
 import "./App.css";
 import Panel from "./Panel";
 import Player from "./Player";
+import Utils from "./Utils";
 
 const MusicKit = window.MusicKit;
 
@@ -39,7 +40,7 @@ class App extends Component {
 
   componentWillMount() {
     let self = this;
-    this.state.music.addEventListener("mediaCanPlay", () => {
+    self.state.music.addEventListener("mediaCanPlay", () => {
       if (self.state.audioElement) {
         return;
       }
@@ -59,19 +60,52 @@ class App extends Component {
         audioSource: source
       });
     });
-
-    this.authObserver = firebase.auth().onAuthStateChanged(user => {
+    self.state.music.addEventListener(
+      "authorizationStatusDidChange",
+      status => {
+        if (status.authorizationStatus === 0 && Utils.userRef()) {
+          Utils.userRef()
+            .update({
+              apple: firebase.firestore.FieldValue.delete()
+            })
+            .then(self.userUpdate);
+        }
+      }
+    );
+    self.authObserver = firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        this.setState({ authState: AUTH_LOGGED_IN, user });
+        self.userUpdate();
       } else {
-        this.setState({ authState: AUTH_LOGGED_OUT });
+        self.setState({ authState: AUTH_LOGGED_OUT, user: null });
       }
     });
   }
 
   componentWillUnmount() {
     this.authObserver();
+    this.state.music.removeEventListener("mediaCanPlay");
+    this.state.music.removeEventListener("authorizationStatusDidChange");
   }
+
+  userUpdate = () => {
+    let self = this;
+    Utils.userRef()
+      .get()
+      .then(doc => {
+        let data = {};
+        if (doc.exists) {
+          data = doc.data();
+        }
+        // TODO: Fix logic to sync to localStorage and bounce musickit.
+        if (data && data.apple) {
+          self.state.music.authorize().then(() => {
+            self.setState({ authState: AUTH_LOGGED_IN, user: data });
+          });
+        } else {
+          self.setState({ authState: AUTH_LOGGED_IN, user: data });
+        }
+      });
+  };
 
   open = path => {
     window.open(path, "window", "toolbar=no, menubar=no, resizable=yes");
@@ -82,14 +116,23 @@ class App extends Component {
   };
 
   signOut = () => {
+    let self = this;
+    if (self.state.music.player.isPlaying) {
+      self.state.music.player.stop();
+    }
     firebase
       .auth()
       .signOut()
-      .then(window.localStorage.clear);
+      .then(() => {
+        // TODO: Fix logic to sync to localStorage and bounce musickit.
+        //window.localStorage.clear();
+        self.setState({ authState: AUTH_LOGGED_OUT, user: null });
+        self.signIn();
+      });
   };
 
   render() {
-    if (this.state.authState === AUTH_UNKNOWN || this.state.tab === "") {
+    if (this.state.authState === AUTH_UNKNOWN) {
       return <Spinner className="mainSpinner" size="200" />;
     }
 
@@ -101,6 +144,19 @@ class App extends Component {
           Logout
         </Button>
       );
+      if (!this.state.user.apple) {
+        callout = (
+          <Callout style={{ marginBottom: "10px" }} intent="warning">
+            You haven't connected your Apple Music account yet, track playback
+            will be limited to 30 seconds.
+            <br />
+            <span className="link" onClick={this.signIn}>
+              Click here
+            </span>
+            &nbsp;to connect your Apple Music account.
+          </Callout>
+        );
+      }
     } else {
       callout = (
         <Callout style={{ marginBottom: "10px" }} intent="warning">
@@ -128,7 +184,7 @@ class App extends Component {
           ref={this.panel}
           music={this.state.music}
           user={this.state.user}
-          active={this.state.tab}
+          userUpdate={this.userUpdate}
         />
         <Divider />
         <div className="footer">
@@ -136,19 +192,7 @@ class App extends Component {
             Made with <Icon icon="heart" /> by{" "}
             <a href="https://www.kix.in/">kix</a>. © 2018
           </Text>
-          <div className="right">
-            <span
-              className="link"
-              onClick={this.open.bind(this, "/privacy.html")}
-            >
-              Privacy Policy
-            </span>
-            &nbsp;|&nbsp;
-            <span className="link" onClick={this.open.bind(this, "/tos.html")}>
-              Terms of Service
-            </span>
-            {logout}
-          </div>
+          <div className="right">{logout}</div>
         </div>
       </div>
     );

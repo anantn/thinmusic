@@ -10,7 +10,7 @@ import {
   Spinner
 } from "@blueprintjs/core";
 
-import * as Utils from "./Utils";
+import Utils from "./Utils";
 import Track from "./Track";
 import Logo from "./Logo";
 import "./Player.css";

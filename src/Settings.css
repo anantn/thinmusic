@@ -1,3 +1,29 @@
 .settings .bp3-running-text {
   text-align: left;
 }
+
+.settings .bp3-spinner {
+  padding-top: 150px;
+  padding-bottom: 20px;
+}
+
+.settings table {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.settings table td {
+  min-height: 40px;
+  width: 50%;
+  vertical-align: middle;
+  box-shadow: none !important;
+}
+
+.settings table td.right {
+  text-align: right;
+}
+
+.settings table img {
+  height: 40px;
+  cursor: pointer;
+}
