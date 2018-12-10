@@ -102,7 +102,9 @@ class App extends Component {
             self.setState({ authState: AUTH_LOGGED_IN, user: data });
           });
         } else {
-          self.setState({ authState: AUTH_LOGGED_IN, user: data });
+          self.state.music.unauthorize().then(() => {
+            self.setState({ authState: AUTH_LOGGED_IN, user: data });
+          });
         }
       });
   };
