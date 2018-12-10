@@ -8,7 +8,7 @@ import {
   Spinner
 } from "@blueprintjs/core";
 import { isChrome } from "react-device-detect";
-import firebase from "firebase";
+import firebase from "firebase/app";
 
 import "./App.css";
 import Panel from "./Panel";
