@@ -52,9 +52,9 @@ class Settings extends Component {
             <li>
               <b>Why do I need to sign in to ThinMusic?</b>
               <br />
-              Signing into ThinMusic lets us securely store your Apple Music
-              (and/or last.fm) account information. You won't need to re-connect
-              to these services if you sign in to ThinMusic on a new computer.
+              Signing into ThinMusic lets us securely store Apple Music and
+              last.fm account information. You won't need to re-connect these
+              services if you sign in to ThinMusic on a new computer.
             </li>
             <li>
               <b>What data do you receive?</b>
