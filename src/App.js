@@ -93,20 +93,32 @@ class App extends Component {
         if (doc.exists) {
           data = doc.data();
         }
-        // If data.apple is set, ensure local instance is authorized.
-        if (data && data.apple && !self.state.music.isAuthorized) {
-          let count = LS.getItem("sync-count") || "0";
-          LS.setItem("sync-count", Number(count) + 1);
-          LS.setItem(data.apple + ".r", "");
-          LS.setItem(data.apple + ".s", "");
-          LS.setItem("music.6fl6vvxxeh.u", data.apple);
-          if (Number(count) > 3) {
-            // TODO: Log exception, this is really bad.
-            Utils.disconnectApple(self.userUpdate);
-          } else {
-            self.state.music.authorize().then(() => {
-              window.location.reload();
+        if (data && data.apple) {
+          if (self.state.music.isAuthorized) {
+            // Clear stale credentials.
+            Utils.isReallyLoggedIn(self.state.music).then(yes => {
+              if (yes) {
+                LS.setItem("sync-count", "0");
+                self.setState({ authState: AUTH_LOGGED_IN, user: data });
+              } else {
+                LS.clear();
+                window.location.reload();
+              }
             });
+          } else {
+            let count = LS.getItem("sync-count") || "0";
+            LS.setItem("sync-count", Number(count) + 1);
+            LS.setItem(data.apple + ".r", "");
+            LS.setItem(data.apple + ".s", "");
+            LS.setItem("music.6fl6vvxxeh.u", data.apple);
+            if (Number(count) > 3) {
+              // TODO: Log exception, this is really bad.
+              Utils.disconnectApple(self.userUpdate);
+            } else {
+              self.state.music.authorize().then(() => {
+                window.location.reload();
+              });
+            }
           }
         } else {
           self.setState({ authState: AUTH_LOGGED_IN, user: data });

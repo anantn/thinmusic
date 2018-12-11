@@ -144,6 +144,14 @@ class _Utils {
   addAuthObserver = cb => {
     return firebase.auth().onAuthStateChanged(cb);
   };
+
+  // Verify token by trying to fetch one.
+  isReallyLoggedIn = music => {
+    return music.api
+      .recentPlayed({ limit: 1 })
+      .then(() => true)
+      .catch(() => false);
+  };
 }
 
 let Utils = new _Utils();
