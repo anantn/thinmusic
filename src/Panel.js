@@ -128,7 +128,7 @@ class Panel extends Component {
         obj => obj.attributes.playParams && obj.attributes.playParams.catalogId
       );
       for (let obj of allSongs) {
-        if (obj.id in inLibrary) {
+        if (inLibrary.includes(obj.id)) {
           final.push(obj);
         }
       }
@@ -139,7 +139,7 @@ class Panel extends Component {
       let limit = librarySongs.length >= 6 ? 6 : 12 - librarySongs.length;
       for (let obj of allSongs) {
         if (added >= limit) break;
-        if (!(obj.id in inLibrary)) {
+        if (!inLibrary.includes(obj.id)) {
           final.push(obj);
           added += 1;
         }
@@ -150,7 +150,7 @@ class Panel extends Component {
       let inFinal = final.map(obj => obj.id);
       for (let obj of librarySongs) {
         if (added >= 6) break;
-        if (!(obj.attributes.playParams.catalogId in inFinal)) {
+        if (!inFinal.includes(obj.attributes.playParams.catalogId)) {
           final.push(obj);
           added += 1;
         }
