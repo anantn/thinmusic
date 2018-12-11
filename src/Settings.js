@@ -123,7 +123,7 @@ class Settings extends Component {
           <h2>ThinMusic is a web player for Apple Music.</h2>
           <img
             alt="ThinMusic Preview"
-            style={{ height: "300px", marginBottom: "20px" }}
+            style={{ height: "400px", marginBottom: "20px" }}
             src={Preview}
           />
           <p>

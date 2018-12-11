@@ -15,7 +15,7 @@ import Player from "./Player";
 import Utils from "./Utils";
 
 const MusicKit = window.MusicKit;
-
+const LS = window.localStorage;
 const AUTH_UNKNOWN = 0;
 const AUTH_LOGGED_OUT = 1;
 const AUTH_LOGGED_IN = 2;
@@ -93,7 +93,24 @@ class App extends Component {
         if (doc.exists) {
           data = doc.data();
         }
-        self.setState({ authState: AUTH_LOGGED_IN, user: data });
+        // If data.apple is set, ensure local instance is authorized.
+        if (data && data.apple && !self.state.music.isAuthorized) {
+          let count = LS.getItem("sync-count") || "0";
+          LS.setItem("sync-count", Number(count) + 1);
+          LS.setItem(data.apple + ".r", "");
+          LS.setItem(data.apple + ".s", "");
+          LS.setItem("music.6fl6vvxxeh.u", data.apple);
+          if (Number(count) > 3) {
+            // TODO: Log exception, this is really bad.
+            Utils.disconnectApple(self.userUpdate);
+          } else {
+            self.state.music.authorize().then(() => {
+              window.location.reload();
+            });
+          }
+        } else {
+          self.setState({ authState: AUTH_LOGGED_IN, user: data });
+        }
       });
   };
 
@@ -112,7 +129,7 @@ class App extends Component {
     }
     self.state.music.setQueue({});
     Utils.logout(() => {
-      // TODO: Need to clear LS here or not?
+      LS.clear();
       self.setState({ authState: AUTH_LOGGED_OUT, user: null });
       self.signIn();
     });
