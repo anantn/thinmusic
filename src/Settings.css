@@ -1,5 +1,5 @@
-.settings .bp3-running-text {
-  text-align: left;
+.settings {
+  min-height: 555px;
 }
 
 .settings .bp3-spinner {

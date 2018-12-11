@@ -4,12 +4,6 @@ import "firebase/auth";
 
 const MusicKit = window.MusicKit;
 
-const PROVIDERS = {
-  "facebook.com": "Facebook",
-  "google.com": "Google",
-  "twitter.com": "Twitter"
-};
-
 class _Utils {
   constructor() {
     this.ICON_SIZE = 40;
@@ -53,13 +47,35 @@ class _Utils {
     return this.durationSeconds(num / 1000);
   }
 
-  providerName(user) {
-    return user.providerData &&
-      user.providerData[0] &&
-      user.providerData[0].providerId in PROVIDERS
-      ? PROVIDERS[user.providerData[0].providerId]
-      : "Login Provider";
-  }
+  login = cb => {
+    let provider = new firebase.auth.FacebookAuthProvider();
+    provider.addScope("public_profile");
+    provider.addScope("email");
+    provider.setCustomParameters({ display: "popup" });
+    firebase
+      .auth()
+      .signInWithPopup(provider)
+      .then(result => {
+        if (cb) cb(result, null);
+        return false;
+      })
+      .catch(error => {
+        if (cb) cb(null, error);
+        return false;
+      });
+  };
+
+  logout = cb => {
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        if (cb) cb();
+      })
+      .catch(error => {
+        if (cb) cb(null, error);
+      });
+  };
 
   connectApple = (music, cb) => {
     let self = this;
@@ -93,12 +109,40 @@ class _Utils {
     });
   };
 
+  disconnectApple = cb => {
+    let ref = Utils.userRef();
+    if (ref) {
+      ref
+        .update({
+          apple: firebase.firestore.FieldValue.delete()
+        })
+        .then(() => {
+          if (cb) cb();
+        });
+    }
+    if (cb) {
+      process.nextTick(cb);
+    }
+  };
+
   userRef = () => {
     let user = firebase.auth().currentUser;
     if (!user) {
       return null;
     }
     return this.db.collection("users").doc(user.uid);
+  };
+
+  userName = () => {
+    let user = firebase.auth().currentUser;
+    if (!user) {
+      return null;
+    }
+    return user.displayName.split(" ")[0];
+  };
+
+  addAuthObserver = cb => {
+    return firebase.auth().onAuthStateChanged(cb);
   };
 }
 

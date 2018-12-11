@@ -8,7 +8,6 @@ import {
   Spinner
 } from "@blueprintjs/core";
 import { isChrome } from "react-device-detect";
-import firebase from "firebase/app";
 
 import "./App.css";
 import Panel from "./Panel";
@@ -60,19 +59,17 @@ class App extends Component {
         audioSource: source
       });
     });
+
     self.state.music.addEventListener(
       "authorizationStatusDidChange",
       status => {
         if (status.authorizationStatus === 0 && Utils.userRef()) {
-          Utils.userRef()
-            .update({
-              apple: firebase.firestore.FieldValue.delete()
-            })
-            .then(self.userUpdate);
+          Utils.disconnectApple(self.userUpdate);
         }
       }
     );
-    self.authObserver = firebase.auth().onAuthStateChanged(user => {
+
+    self.authObserver = Utils.addAuthObserver(user => {
       if (user) {
         self.userUpdate();
       } else {
@@ -82,7 +79,7 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    this.authObserver();
+    if (this.authObserver) this.authObserver();
     this.state.music.removeEventListener("mediaCanPlay");
     this.state.music.removeEventListener("authorizationStatusDidChange");
   }
@@ -96,16 +93,7 @@ class App extends Component {
         if (doc.exists) {
           data = doc.data();
         }
-        // TODO: Fix logic to sync to localStorage and bounce musickit.
-        if (data && data.apple) {
-          self.state.music.authorize().then(() => {
-            self.setState({ authState: AUTH_LOGGED_IN, user: data });
-          });
-        } else {
-          self.state.music.unauthorize().then(() => {
-            self.setState({ authState: AUTH_LOGGED_IN, user: data });
-          });
-        }
+        self.setState({ authState: AUTH_LOGGED_IN, user: data });
       });
   };
 
@@ -122,15 +110,12 @@ class App extends Component {
     if (self.state.music.player.isPlaying) {
       self.state.music.player.stop();
     }
-    firebase
-      .auth()
-      .signOut()
-      .then(() => {
-        // TODO: Fix logic to sync to localStorage and bounce musickit.
-        //window.localStorage.clear();
-        self.setState({ authState: AUTH_LOGGED_OUT, user: null });
-        self.signIn();
-      });
+    self.state.music.setQueue({});
+    Utils.logout(() => {
+      // TODO: Need to clear LS here or not?
+      self.setState({ authState: AUTH_LOGGED_OUT, user: null });
+      self.signIn();
+    });
   };
 
   render() {
@@ -166,9 +151,9 @@ class App extends Component {
           limited to 30 seconds.
           <br />
           <span className="link" onClick={this.signIn}>
-            Sign in
+            Log in
           </span>
-          &nbsp;and connect your Apple Music account for the full experience!
+          &nbsp;to unlock the the full experience!
         </Callout>
       );
     }
@@ -190,7 +175,7 @@ class App extends Component {
         />
         <Divider />
         <div className="footer">
-          <Text>
+          <Text className="left">
             Made with <Icon icon="heart" /> by{" "}
             <a href="https://www.kix.in/">kix</a>. © 2018
           </Text>
