@@ -9,7 +9,7 @@ import {
 } from "@blueprintjs/core";
 import { isChrome } from "react-device-detect";
 
-import "./App.css";
+import "./s/App.css";
 import Panel from "./Panel";
 import Player from "./Player";
 import Utils from "./Utils";

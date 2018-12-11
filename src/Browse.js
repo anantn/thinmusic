@@ -9,9 +9,9 @@ import {
   Text
 } from "@blueprintjs/core";
 
-import "./Browse.css";
+import "./s/Browse.css";
+import Explicit from "./i/Explicit.svg";
 import Utils from "./Utils";
-import Explicit from "./Explicit.svg";
 
 class Browse extends Component {
   constructor(props) {

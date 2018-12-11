@@ -8,9 +8,9 @@ import {
   Icon
 } from "@blueprintjs/core";
 
+import "./s/Track.css";
 import Utils from "./Utils";
 import Visualizer from "./Visualizer";
-import "./Track.css";
 
 class Track extends Component {
   render() {

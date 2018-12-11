@@ -10,10 +10,10 @@ import {
   Spinner
 } from "@blueprintjs/core";
 
+import "./s/Player.css";
 import Utils from "./Utils";
 import Track from "./Track";
 import Logo from "./Logo";
-import "./Player.css";
 
 // none:      0
 // loading:   1

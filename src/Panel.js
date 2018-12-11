@@ -2,7 +2,7 @@ import async from "async";
 import React, { Component } from "react";
 import { Spinner, Icon, InputGroup, Tabs, Tab, Text } from "@blueprintjs/core";
 
-import "./Panel.css";
+import "./s/Panel.css";
 import Browse from "./Browse";
 import Playlist from "./Playlist";
 import Results from "./Results";

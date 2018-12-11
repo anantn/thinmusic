@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Button, Text, Card, Classes, Icon } from "@blueprintjs/core";
 
+import "./s/Playlist.css";
 import Utils from "./Utils";
-import "./Playlist.css";
 
 class Playlist extends Component {
   constructor(props) {

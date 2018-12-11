@@ -9,11 +9,11 @@ import {
   Spinner
 } from "@blueprintjs/core";
 
-import "./Settings.css";
+import "./s/Settings.css";
+import Login from "./i/Login.svg";
+import Facebook from "./i/Facebook.png";
+import Preview from "./i/Preview.png";
 import Utils from "./Utils";
-import Login from "./Login.svg";
-import Facebook from "./Facebook.png";
-import Preview from "./Preview.png";
 
 class Settings extends Component {
   constructor(props) {
