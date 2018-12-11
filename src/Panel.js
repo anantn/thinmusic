@@ -113,8 +113,12 @@ class Panel extends Component {
       if (res[1] && res[1].value && "library-songs" in res[1].value) {
         librarySongs = res[1].value["library-songs"].data;
       }
-
-      // TODO: Remove any results without playParams.
+      allSongs = allSongs.filter(
+        obj => obj.attributes && obj.attributes.playParams
+      );
+      librarySongs = librarySongs.filter(
+        obj => obj.attributes && obj.attributes.playParams
+      );
 
       // Merge global and library results.
       let final = [];
@@ -129,10 +133,10 @@ class Panel extends Component {
         }
       }
 
-      // 2. Show top 5 (upto 10 depending on library result set)
+      // 2. Show top 6 (upto 12 depending on library result set)
       // global results not in library.
       let added = 0;
-      let limit = librarySongs.length >= 5 ? 5 : 10 - librarySongs.length;
+      let limit = librarySongs.length >= 6 ? 6 : 12 - librarySongs.length;
       for (let obj of allSongs) {
         if (added >= limit) break;
         if (!(obj.id in inLibrary)) {
@@ -145,7 +149,7 @@ class Panel extends Component {
       added = 0;
       let inFinal = final.map(obj => obj.id);
       for (let obj of librarySongs) {
-        if (added >= 5) break;
+        if (added >= 6) break;
         if (!(obj.attributes.playParams.catalogId in inFinal)) {
           final.push(obj);
           added += 1;
@@ -154,7 +158,7 @@ class Panel extends Component {
 
       // 4. Cap to 10 total results.
       self.setState({
-        results: final.length < 10 ? final : final.slice(0, 10),
+        results: final.length < 12 ? final : final.slice(0, 12),
         searching: false
       });
     });
