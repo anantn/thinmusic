@@ -3,6 +3,7 @@ import "firebase/firestore";
 import "firebase/auth";
 
 const MusicKit = window.MusicKit;
+const Fetch = window.fetch;
 
 class _Utils {
   constructor() {
@@ -77,36 +78,91 @@ class _Utils {
       });
   };
 
-  connectApple = (music, cb) => {
+  connectLastFMToken = cb => {
+    Fetch("https://us-central1-thin-music.cloudfunctions.net/tmlfm/token")
+      .then(resp => {
+        if (!resp.ok || resp.status !== 200) {
+          throw resp;
+        }
+        return resp.json();
+      })
+      .then(json => {
+        window.open(
+          json.url,
+          "window",
+          "toolbar=no, menubar=no, resizable=yes, width=600, height=600"
+        );
+        if (cb) {
+          cb(json.token, null);
+        }
+      })
+      .catch(err => {
+        if (cb) {
+          cb(null, err);
+        }
+      });
+  };
+
+  connectLastFMSession = (token, cb) => {
     let self = this;
-    music.authorize().then(token => {
-      if (token) {
+    Fetch(
+      "https://us-central1-thin-music.cloudfunctions.net/tmlfm/session?token=" +
+        token
+    )
+      .then(resp => {
+        if (!resp.ok || resp.status !== 200) {
+          throw resp;
+        }
+        return resp.json();
+      })
+      .then(json => {
         self
-          .userRef()
-          .get()
-          .then(doc => {
-            if (doc.exists) {
-              self
-                .userRef()
-                .update({
-                  apple: token
-                })
-                .then(() => {
-                  if (cb) cb();
-                });
-            } else {
-              self
-                .userRef()
-                .set({
-                  apple: token
-                })
-                .then(() => {
-                  if (cb) cb();
-                });
+          .setOrUpdate({ lastfm: json.session })
+          .then(() => {
+            if (cb) {
+              cb(json, null);
+            }
+          })
+          .catch(err => {
+            if (cb) {
+              cb(null, err);
             }
           });
-      }
-    });
+      })
+      .catch(err => {
+        if (cb) {
+          cb(null, err);
+        }
+      });
+  };
+
+  connectApple = (music, cb) => {
+    let self = this;
+    music
+      .authorize()
+      .then(token => {
+        if (!token) {
+          if (cb) cb(null, "Could not authorize Apple Music!");
+        } else {
+          self
+            .setOrUpdate({
+              apple: token
+            })
+            .then(() => {
+              if (cb) {
+                cb(token, null);
+              }
+            })
+            .catch(err => {
+              if (cb) {
+                cb(null, err);
+              }
+            });
+        }
+      })
+      .catch(error => {
+        if (cb) cb(null, error);
+      });
   };
 
   disconnectApple = cb => {
@@ -143,6 +199,19 @@ class _Utils {
 
   addAuthObserver = cb => {
     return firebase.auth().onAuthStateChanged(cb);
+  };
+
+  setOrUpdate = obj => {
+    let self = this;
+    return this.userRef()
+      .get()
+      .then(doc => {
+        if (doc.exists) {
+          return self.userRef().update(obj);
+        } else {
+          return self.userRef().set(obj);
+        }
+      });
   };
 
   // Verify token by trying to fetch one.

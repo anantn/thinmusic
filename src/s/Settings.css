@@ -27,3 +27,7 @@
   height: 40px;
   cursor: pointer;
 }
+
+.settings table img.rounded {
+  border-radius: 5px;
+}
