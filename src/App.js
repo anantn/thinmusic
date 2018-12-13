@@ -136,7 +136,9 @@ class App extends Component {
             Utils.isReallyLoggedIn(self.state.music).then(yes => {
               if (yes) {
                 LS.setItem("sync-count", "0");
-                self.setState({ authState: AUTH_LOGGED_IN, user: data });
+                self.state.music.authorize().then(() => {
+                  self.setState({ authState: AUTH_LOGGED_IN, user: data });
+                });
               } else {
                 LS.clear();
                 window.location.reload();
