@@ -4,6 +4,7 @@ import "firebase/auth";
 
 const MusicKit = window.MusicKit;
 const Fetch = window.fetch;
+const EUC = window.encodeURIComponent;
 
 class _Utils {
   constructor() {
@@ -76,6 +77,36 @@ class _Utils {
       .catch(error => {
         if (cb) cb(null, error);
       });
+  };
+
+  scrobble = (key, now, item, start) => {
+    if (!key || !item || !item.attributes) {
+      return;
+    }
+
+    let path = "scrobble";
+    if (now) {
+      path = "now";
+    }
+    let url =
+      "https://us-central1-thin-music.cloudfunctions.net/tmlfm/" +
+      path +
+      "?sk=" +
+      EUC(key) +
+      "&track=" +
+      EUC(item.attributes.name) +
+      "&artist=" +
+      EUC(item.attributes.artistName) +
+      "&album=" +
+      EUC(item.attributes.albumName);
+    if (item.attributes.durationInMillis) {
+      url +=
+        "&duration=" + EUC(Math.floor(item.attributes.durationInMillis / 1000));
+    }
+    if (start) {
+      url += "&timestamp=" + EUC(start);
+    }
+    Fetch(url);
   };
 
   connectLastFMToken = cb => {

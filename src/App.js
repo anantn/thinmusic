@@ -33,6 +33,7 @@ class App extends Component {
       audioContext: null,
       audioSource: null
     };
+    this.itemId = null;
     this.panel = React.createRef();
     this.authObserver = null;
   }
@@ -69,6 +70,41 @@ class App extends Component {
       }
     );
 
+    self.state.music.addEventListener("mediaItemWillChange", event => {
+      let item = event.item;
+      if (
+        !self.state.user ||
+        !self.state.user.lastfm ||
+        !self.state.user.lastfm.key
+      ) {
+        return;
+      }
+
+      // If item is same in next 5 seconds, send to nowPlaying.
+      let key = self.state.user.lastfm.key;
+      window.setTimeout(() => {
+        if (item.id === self.itemId) {
+          Utils.scrobble(key, true, item);
+        }
+      }, 5000);
+
+      // To scrobble:
+      // - Track must be longer than 30 seconds.
+      // - Track has played for half its duration (we are stricter: 75% counts),
+      // or 4 minutes, whichever is earlier.
+      let now = Math.floor(Date.now() / 1000);
+      let total = Math.floor(item.attributes.durationInMillis / 1000);
+      if (total > 30) {
+        window.setTimeout(() => {
+          if (item.id === self.itemId) {
+            Utils.scrobble(key, false, item, now);
+          }
+        }, Math.round(500 * total < 240000 ? 750 * total : 240000));
+      }
+
+      self.itemId = item.id;
+    });
+
     self.authObserver = Utils.addAuthObserver(user => {
       if (user) {
         self.userUpdate();
@@ -81,6 +117,7 @@ class App extends Component {
   componentWillUnmount() {
     if (this.authObserver) this.authObserver();
     this.state.music.removeEventListener("mediaCanPlay");
+    this.state.music.removeEventListener("mediaItemWillChange");
     this.state.music.removeEventListener("authorizationStatusDidChange");
   }
 
