@@ -110,6 +110,12 @@ class _Utils {
   };
 
   connectLastFMToken = cb => {
+    // Open popup now so it is on main thread.
+    let win = window.open(
+      "https://auth.thinmusic.com/blank.html",
+      "window",
+      "toolbar=no, menubar=no, resizable=yes, width=600, height=600"
+    );
     Fetch("https://us-central1-thin-music.cloudfunctions.net/tmlfm/token")
       .then(resp => {
         if (!resp.ok || resp.status !== 200) {
@@ -118,11 +124,7 @@ class _Utils {
         return resp.json();
       })
       .then(json => {
-        window.open(
-          json.url,
-          "window",
-          "toolbar=no, menubar=no, resizable=yes, width=600, height=600"
-        );
+        win.location = json.url;
         if (cb) {
           cb(json.token, null);
         }
