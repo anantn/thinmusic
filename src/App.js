@@ -216,8 +216,7 @@ class App extends Component {
     } else {
       callout = (
         <Callout style={{ marginBottom: "10px" }} intent="warning">
-          You are using ThinMusic in anonymous mode, track playback will be
-          limited to 30 seconds.
+          You can search for songs and play 30-second previews.
           <br />
           <span className="link" onClick={this.signIn}>
             Log in

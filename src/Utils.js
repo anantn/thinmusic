@@ -64,7 +64,16 @@ class _Utils {
   }
 
   durationListFormat(count, total) {
-    return count + " songs • " + Math.round(total / 60000) + " minutes long";
+    let s = "songs";
+    if (count === 1) {
+      s = "song";
+    }
+    let m = "minutes";
+    let v = Math.round(total / 60000);
+    if (v === 1) {
+      m = "minute";
+    }
+    return count + " " + s + " • " + v + " " + m + " long";
   }
 
   formatDate(iso) {

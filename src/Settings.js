@@ -226,8 +226,7 @@ class Settings extends Component {
         <div>
           <h2>ThinMusic is a web player for Apple Music.</h2>
           <p>
-            You can search for songs and play 30 second previews right away!
-            <br /> Log in with Facebook&nbsp;
+            Log in with Facebook&nbsp;
             <Popover isOpen={this.state.explain}>
               <Icon className="help" icon="help" onClick={this.toggleExplain} />
               <div>
@@ -262,8 +261,8 @@ class Settings extends Component {
                 </Card>
               </div>
             </Popover>
-            &nbsp; to begin connecting your Apple Music account and unlock full
-            playback:
+            &nbsp; to begin connecting your Apple Music account and scrobble to
+            last.fm:
           </p>
           <img
             alt="Log in with Facebook"
@@ -275,7 +274,7 @@ class Settings extends Component {
             <img
               alt="ThinMusic Preview"
               style={{
-                height: "360px",
+                height: "380px",
                 marginTop: "20px",
                 marginBottom: "20px"
               }}
