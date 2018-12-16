@@ -1,17 +1,9 @@
 import async from "async";
 import React, { Component } from "react";
-import {
-  Card,
-  Classes,
-  Icon,
-  NonIdealState,
-  Spinner,
-  Text
-} from "@blueprintjs/core";
+import { Card, NonIdealState, Spinner, Text } from "@blueprintjs/core";
 
 import "./s/Browse.css";
-import Explicit from "./i/Explicit.svg";
-import Utils from "./Utils";
+import BrowseIcon from "./BrowseIcon";
 
 class Browse extends Component {
   constructor(props) {
@@ -109,38 +101,27 @@ class Browse extends Component {
   };
 
   renderCard(item) {
-    let icon = "";
     let title = "";
     let name = item.attributes.name;
     if (name.length > 32) {
       title = name;
       name = item.attributes.name.slice(0, 32) + "...";
     }
-    if (
-      "contentRating" in item.attributes &&
-      item.attributes.contentRating === "explicit"
-    ) {
-      icon = <img className="icon" alt="Explicit" src={Explicit} />;
-    }
 
     return (
       <Card className="item">
-        <div
-          className="image"
-          onClick={this.props.playCollectionNow.bind(this, item)}
-        >
-          <img
-            alt={name}
-            className={Classes.SKELETON}
-            src={Utils.icon(item.attributes.artwork, 160, 160)}
-          />
-          {icon}
-          <div className="overlay">
-            <Icon icon="play" />
-          </div>
-        </div>
+        <BrowseIcon
+          name={name}
+          item={item}
+          click={this.props.playCollectionNow.bind(this, item)}
+        />
         <Text className="title">
-          <span title={title}>{name}</span>
+          <span
+            title={title}
+            onClick={this.props.showCollection.bind(this, item)}
+          >
+            {name}
+          </span>
         </Text>
       </Card>
     );

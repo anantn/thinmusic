@@ -7,6 +7,7 @@ import Browse from "./Browse";
 import Playlist from "./Playlist";
 import Results from "./Results";
 import Settings from "./Settings";
+import Collection from "./Collection";
 
 class Panel extends Component {
   constructor(props) {
@@ -17,7 +18,8 @@ class Panel extends Component {
       results: [],
       selected:
         this.props.user && this.props.user.apple ? "browse" : "settings",
-      searching: false
+      searching: false,
+      collection: null
     };
   }
 
@@ -220,6 +222,10 @@ class Panel extends Component {
     });
   };
 
+  showCollection = (item, event) => {
+    this.setState({ collection: item });
+  };
+
   render() {
     let resultBox = <Spinner className="spinner" />;
     if (!this.state.searching) {
@@ -232,6 +238,7 @@ class Panel extends Component {
             playNow={this.playNow}
             playNext={this.playNext}
             playLast={this.playLast}
+            showCollection={this.showCollection}
           />
         );
       }
@@ -244,6 +251,18 @@ class Panel extends Component {
 
     return (
       <div className="panel">
+        <Collection
+          music={this.props.music}
+          playNow={this.playNow}
+          playNext={this.playNext}
+          playLast={this.playLast}
+          playCollectionNow={this.playCollectionNow}
+          item={this.state.collection}
+          isOpen={this.state.collection !== null}
+          onClose={() => {
+            this.setState({ collection: null });
+          }}
+        />
         <Tabs
           className="tabs"
           large={true}
@@ -258,6 +277,7 @@ class Panel extends Component {
               <Browse
                 user={this.props.user}
                 music={this.props.music}
+                showCollection={this.showCollection}
                 playCollectionNow={this.playCollectionNow}
               />
             }

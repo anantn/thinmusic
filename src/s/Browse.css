@@ -17,43 +17,6 @@ ol.browse .item {
   width: 160px;
 }
 
-ol.browse .item .image {
-  position: relative;
-  height: 160px;
-  width: 160px;
-}
-
-ol.browse .item .image img {
-  position: absolute;
-  left: 0;
-  height: 160px;
-  width: 160px;
-}
-
-ol.browse .item .image .icon {
-  width: 50px;
-  height: 18px;
-  padding: 2px;
-  margin-left: 110px;
-  background-color: rgba(255, 0, 0, 0.5);
-}
-
-ol.browse .item .image .overlay {
-  display: none;
-  position: absolute;
-  background-color: rgb(0, 0, 0, 0.5);
-}
-
-ol.browse .item .image .overlay svg {
-  height: 160px;
-  width: 160px;
-}
-
-ol.browse .item .image:hover > .overlay {
-  display: block;
-  cursor: pointer;
-}
-
 ol.browse .item .title {
   padding: 5px;
   height: 50px;
@@ -62,4 +25,8 @@ ol.browse .item .title {
 ol.browse .item .title span {
   font-weight: bold;
   vertical-align: middle;
+}
+
+ol.browse .item .title span:hover {
+  cursor: pointer;
 }

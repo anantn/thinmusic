@@ -9,6 +9,20 @@ const EUC = window.encodeURIComponent;
 class _Utils {
   constructor() {
     this.ICON_SIZE = 40;
+    this.MONTHS = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
     firebase.initializeApp({
       apiKey: "AIzaSyC7nu8-o3v1calJe35PtMUBmlMohchf5lE",
       authDomain: "auth.thinmusic.com",
@@ -47,6 +61,21 @@ class _Utils {
 
   durationMilliseconds(num) {
     return this.durationSeconds(num / 1000);
+  }
+
+  durationListFormat(count, total) {
+    return count + " songs • " + Math.round(total / 60000) + " minutes long";
+  }
+
+  formatDate(iso) {
+    let d = new Date(iso);
+    return (
+      this.MONTHS[d.getMonth()].slice(0, 3) +
+      " " +
+      d.getDate() +
+      ", " +
+      d.getFullYear()
+    );
   }
 
   login = cb => {

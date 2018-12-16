@@ -1,0 +1,37 @@
+.browseIcon {
+  position: relative;
+  height: 160px;
+  width: 160px;
+}
+
+.browseIcon img {
+  position: absolute;
+  left: 0;
+  height: 160px;
+  width: 160px;
+}
+
+.browseIcon .icon {
+  width: 50px;
+  height: 18px;
+  padding: 2px;
+  margin-left: 110px;
+  background-color: rgba(255, 0, 0, 0.5);
+}
+
+.browseIcon .overlay {
+  display: none;
+  height: 160px;
+  position: absolute;
+  background-color: rgb(0, 0, 0, 0.5);
+}
+
+.browseIcon .overlay svg {
+  height: 160px;
+  width: 160px;
+}
+
+.browseIcon:hover > .overlay {
+  display: block;
+  cursor: pointer;
+}

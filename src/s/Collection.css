@@ -1,0 +1,46 @@
+.collection.bp3-dialog {
+  width: 680px;
+  min-height: 600px;
+}
+
+.collection.bp3-dialog .bp3-dialog-body .bp3-spinner {
+  margin-top: 250px;
+}
+
+.collection.bp3-dialog .bp3-dialog-body .header {
+  line-height: 1.8em;
+  text-align: center;
+  height: 180px;
+  padding-bottom: 20px;
+}
+
+.collection.bp3-dialog .bp3-dialog-body .header .browseIcon {
+  float: left;
+}
+
+.collection.bp3-dialog .bp3-dialog-body .header .metadata {
+  padding-top: 0px;
+  padding-left: 180px;
+}
+
+.collection.bp3-dialog .bp3-dialog-body .header .metadata .subtitle {
+  font-size: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.collection.bp3-dialog .bp3-dialog-body .header .metadata .description {
+  margin-top: 3px;
+  font-size: 13px;
+  line-height: 1.3em;
+  overflow-y: auto;
+  height: 85px;
+}
+
+.collection.bp3-dialog ol.playlist li .item {
+  grid-template-columns: 0.5fr 3fr 2fr 2fr 0.5fr 1fr;
+}
+
+.collection.bp3-dialog ol.playlist.album li .item {
+  grid-template-columns: 0.5fr 4fr 3fr 0.5fr 1fr;
+}

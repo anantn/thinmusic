@@ -48,7 +48,8 @@ class App extends Component {
       let element = window.document.getElementById("apple-music-player");
       let context = null;
       let source = null;
-      // TODO: Support Safari?
+      // Nobody except Chrome can support this.
+      // More info at https://stackoverflow.com/questions/13958158/why-arent-safari-or-firefox-able-to-process-audio-data-from-mediaelementsource
       if (isChrome) {
         context = new (window.AudioContext || window.webkitAudioContext)();
         source = context.createMediaElementSource(element);

@@ -114,8 +114,7 @@ class Playlist extends Component {
       <DragDropContext onDragEnd={this.dragEnd}>
         <Card className="metadata">
           <Text>
-            {this.state.items.length} songs, {Math.round(total / 60000)} minutes
-            long.
+            {Utils.durationListFormat(this.state.items.length, total)}
           </Text>
           <Button icon="trash" onClick={this.clear}>
             Clear
