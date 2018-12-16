@@ -46,6 +46,10 @@ class Settings extends Component {
     this.setState({ loginInProgress: false });
   };
 
+  open = path => {
+    window.open(path, "window", "toolbar=no, menubar=no, resizable=yes");
+  };
+
   errorToast = provider => {
     Toaster.create().show({
       icon: "error",
@@ -208,6 +212,13 @@ class Settings extends Component {
               </tr>
             </tbody>
           </HTMLTable>
+          <Divider />
+          <h2>Need help or have feedback?</h2>
+          <p>
+            Send us an email:&nbsp;
+            <a href="mailto:support@thinmusic.com">support@thinmusic.com</a>,
+            we're eager to hear from you.
+          </p>
         </div>
       );
     } else {
@@ -216,26 +227,9 @@ class Settings extends Component {
           <h2>ThinMusic is a web player for Apple Music.</h2>
           <p>
             You can search for songs and play 30 second previews right away!
-            <br /> Log in with Facebook to begin connecting your Apple Music
-            account and unlock full playback.
-          </p>
-          <img
-            alt="Log in with Facebook"
-            style={{ cursor: "pointer" }}
-            onClick={this.connectFacebook}
-            src={Facebook}
-          />
-          <div>
-            <img
-              alt="ThinMusic Preview"
-              style={{ height: "400px", marginTop: "20px" }}
-              src={Preview}
-            />
-          </div>
-
-          <div style={{ marginTop: "20px" }}>
+            <br /> Log in with Facebook&nbsp;
             <Popover isOpen={this.state.explain}>
-              <Button onClick={this.toggleExplain}>Why should I log in?</Button>
+              <Icon className="help" icon="help" onClick={this.toggleExplain} />
               <div>
                 <Card style={{ maxWidth: "400px" }}>
                   <p>
@@ -268,12 +262,47 @@ class Settings extends Component {
                 </Card>
               </div>
             </Popover>
+            &nbsp; to begin connecting your Apple Music account and unlock full
+            playback:
+          </p>
+          <img
+            alt="Log in with Facebook"
+            style={{ cursor: "pointer" }}
+            onClick={this.connectFacebook}
+            src={Facebook}
+          />
+          <div>
+            <img
+              alt="ThinMusic Preview"
+              style={{
+                height: "360px",
+                marginTop: "20px",
+                marginBottom: "20px"
+              }}
+              src={Preview}
+            />
           </div>
         </div>
       );
     }
 
-    return <Card className="settings">{content}</Card>;
+    return (
+      <Card className="settings">
+        {content}
+        <div className="footer">
+          <span
+            className="link"
+            onClick={this.open.bind(this, "/privacy.html")}
+          >
+            Privacy Policy
+          </span>
+          &nbsp;|&nbsp;
+          <span className="link" onClick={this.open.bind(this, "/tos.html")}>
+            Terms of Service
+          </span>
+        </div>
+      </Card>
+    );
   }
 }
 

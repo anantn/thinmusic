@@ -1,5 +1,10 @@
 .settings {
-  min-height: 555px;
+  position: relative;
+  min-height: 600px;
+}
+
+.settings .help {
+  cursor: pointer;
 }
 
 .settings .bp3-spinner {
@@ -30,4 +35,11 @@
 
 .settings table img.rounded {
   border-radius: 5px;
+}
+
+.settings .footer {
+  position: absolute;
+  bottom: 0;
+  width: 95%;
+  margin-bottom: 10px;
 }
