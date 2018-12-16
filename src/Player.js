@@ -65,6 +65,7 @@ class Player extends Component {
             let title = attrs.name ? attrs.name : "";
             title += " by ";
             title += attrs.artistName ? attrs.artistName : "";
+            title += ", on ThinMusic";
             window.document.title = title;
           }
           break;

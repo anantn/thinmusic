@@ -55,7 +55,6 @@ class Collection extends Component {
     let self = this;
     this.props.music.api[this.props.item.type.slice(0, -1)](this.props.item.id)
       .then(res => {
-        console.log(res);
         if (
           res.relationships &&
           res.relationships.tracks &&
