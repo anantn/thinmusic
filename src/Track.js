@@ -13,6 +13,16 @@ import Utils from "./Utils";
 import Visualizer from "./Visualizer";
 
 class Track extends Component {
+  clickAlbum = () => {
+    this.props.item._subSelect = "album";
+    this.props.showCollection(this.props.item);
+  };
+
+  clickArtist = () => {
+    this.props.item._subSelect = "artist";
+    this.props.showCollection(this.props.item);
+  };
+
   render() {
     let rhs = "";
     let overlay = "";
@@ -37,8 +47,8 @@ class Track extends Component {
     let content = (
       <div className="image">
         <img
-          alt={this.props.item.name}
-          src={Utils.icon(this.props.item.artwork, 80, 80)}
+          alt={this.props.item.attributes.name}
+          src={Utils.icon(this.props.item.attributes.artwork, 80, 80)}
           className={Classes.SKELETON}
         />
       </div>
@@ -66,10 +76,14 @@ class Track extends Component {
         </div>
         <div className={`trackInfo ${this.props.rhs ? "trackInfoSmall" : ""}`}>
           <Text ellipsize={true}>
-            <b>{this.props.item.name}</b>
+            <b>{this.props.item.attributes.name}</b>
           </Text>
-          <Text ellipsize={true}>{this.props.item.artistName}</Text>
-          <Text ellipsize={true}>{this.props.item.albumName}</Text>
+          <Text ellipsize={true}>{this.props.item.attributes.artistName}</Text>
+          <Text ellipsize={true}>
+            <span onClick={this.clickAlbum}>
+              {this.props.item.attributes.albumName}
+            </span>
+          </Text>
         </div>
         <div className="trackRhs">{rhs}</div>
       </Card>

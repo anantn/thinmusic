@@ -187,6 +187,12 @@ class App extends Component {
     });
   };
 
+  showCollection = (item, event) => {
+    if (this.panel && this.panel.current) {
+      this.panel.current.showCollection(item, event);
+    }
+  };
+
   render() {
     if (this.state.authState === AUTH_UNKNOWN) {
       return <Spinner className="mainSpinner" size="200" />;
@@ -234,6 +240,7 @@ class App extends Component {
           audioElement={this.state.audioElement}
           audioContext={this.state.audioContext}
           audioSource={this.state.audioSource}
+          showCollection={this.showCollection}
         />
         <Panel
           ref={this.panel}

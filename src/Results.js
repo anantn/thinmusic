@@ -12,10 +12,11 @@ class Results extends Component {
             <li key={idx}>
               <Track
                 rhs={true}
-                item={item.attributes}
+                item={item}
                 click={this.props.playNow.bind(this, item)}
                 playNext={this.props.playNext.bind(this, item)}
                 playLast={this.props.playLast.bind(this, item)}
+                showCollection={this.props.showCollection}
               />
             </li>
           ))}

@@ -58,6 +58,10 @@
   padding-bottom: 2px;
 }
 
+.track .trackInfo div span {
+  cursor: pointer;
+}
+
 .track .trackRhs {
   float: right;
   margin-top: -60px;

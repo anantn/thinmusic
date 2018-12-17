@@ -228,10 +228,11 @@ class Player extends Component {
     if (this.props.music.player.nowPlayingItem) {
       track = (
         <Track
-          item={this.props.music.player.nowPlayingItem.attributes}
+          item={this.props.music.player.nowPlayingItem}
           audioContext={this.props.audioContext}
           audioSource={this.props.audioSource}
           visualize={this.state.visualize}
+          showCollection={this.props.showCollection}
           click={this.props.audioContext ? this.toggleViz.bind(this) : null}
         />
       );

@@ -20,7 +20,8 @@ class Collection extends Component {
     super(props);
     this.state = {
       item: null,
-      error: false
+      error: false,
+      library: false
     };
     this.parser = new window.DOMParser();
   }
@@ -43,17 +44,64 @@ class Collection extends Component {
 
   fetch = () => {
     if (
-      this.props.item.type !== "albums" &&
-      this.props.item.type !== "playlists"
+      this.props.item.type.startsWith("song") ||
+      this.props.item.type.startsWith("library-song")
     ) {
-      this.setState({
-        error: true
-      });
-      return;
-    }
+      // TODO: implement artist collection view.
+      if (this.props.item._subSelect !== "album") {
+        return this.setState({ error: true });
+      }
 
+      // Hmm, we can only really support library songs that are matched.
+      // TODO: More elegant user experience here? (Change in Results component).
+      let isLibrary = false;
+      let id = this.props.item.id;
+      if (this.props.item.type.startsWith("library-song")) {
+        if (
+          this.props.item.attributes.playParams &&
+          this.props.item.attributes.playParams.catalogId
+        ) {
+          id = this.props.item.attributes.playParams.catalogId;
+          isLibrary = true;
+        } else {
+          return this.setState({ item: null, error: true, library: isLibrary });
+        }
+      }
+
+      let self = this;
+      this.props.music.api
+        .song(id)
+        .then(res => {
+          let select = self.props.item._subSelect + "s";
+          if (
+            res.relationships &&
+            res.relationships[select] &&
+            res.relationships[select].data &&
+            res.relationships[select].data.length > 0
+          ) {
+            let item = res.relationships[select].data[0];
+            self.fetchReal(item.id, item.type, isLibrary);
+          } else {
+            self.setState({ item: null, error: true, library: isLibrary });
+          }
+        })
+        .catch(() => {
+          self.setState({ item: null, error: true, library: isLibrary });
+        });
+    } else {
+      if (
+        this.props.item.type !== "albums" &&
+        this.props.item.type !== "playlists"
+      ) {
+        return this.setState({ item: null, error: true, library: false });
+      }
+      this.fetchReal(this.props.item.id, this.props.item.type, false);
+    }
+  };
+
+  fetchReal = (id, type, isLibrary) => {
     let self = this;
-    this.props.music.api[this.props.item.type.slice(0, -1)](this.props.item.id)
+    this.props.music.api[type.slice(0, -1)](id)
       .then(res => {
         if (
           res.relationships &&
@@ -66,10 +114,10 @@ class Collection extends Component {
             }
           );
         }
-        self.setState({ item: res, error: false });
+        self.setState({ item: res, error: false, library: isLibrary });
       })
       .catch(() => {
-        self.setState({ item: null, error: true });
+        self.setState({ item: null, error: true, library: isLibrary });
       });
   };
 
@@ -92,31 +140,32 @@ class Collection extends Component {
   };
 
   renderCollectionPlaylist = (item, count, total) => {
-    let subtitles = [];
-    if (item.attributes.curatorName) {
-      subtitles.push(item.attributes.curatorName);
+    let desc = null;
+    if (item.attributes.description) {
+      if (item.attributes.description.short) {
+        desc = item.attributes.description.short;
+      }
+      if (item.attributes.description.standard) {
+        desc = item.attributes.description.standard;
+      }
     }
-    if (item.attributes.lastModifiedDate) {
-      subtitles.push(
-        "(updated " + Utils.formatDate(item.attributes.lastModifiedDate) + ")"
-      );
-    }
+
     return (
       <div className="metadata">
-        {subtitles.length > 0 ? (
-          <div className="subtitle">{subtitles.join(" ")}</div>
+        {item.attributes.curatorName ? (
+          <div className="subtitle">{item.attributes.curatorName}</div>
         ) : (
-          ""
+          " "
+        )}
+        {item.attributes.lastModifiedDate ? (
+          <div className="subtitle">
+            Updated {Utils.formatDate(item.attributes.lastModifiedDate)}
+          </div>
+        ) : (
+          " "
         )}
         {this.renderLength(count, total)}
-        {item.attributes.description && item.attributes.description.short ? (
-          <Text>{item.attributes.description.short}</Text>
-        ) : (
-          ""
-        )}
-        {item.attributes.description && item.attributes.description.standard
-          ? this.renderDescription(item.attributes.description.standard)
-          : ""}
+        {desc ? this.renderDescription(desc) : ""}
       </div>
     );
   };
@@ -259,13 +308,28 @@ class Collection extends Component {
       body = this.renderCollection(this.state.item);
     }
 
+    let name = this.props.item ? this.props.item.attributes.name : " ";
+    if (this.props.item && this.props.item._subSelect) {
+      name =
+        this.props.item.attributes[this.props.item._subSelect + "Name"] || " ";
+    }
+
+    let warning = "";
+    if (this.state.library) {
+      warning = (
+        <Callout intent="danger" style={{ marginBottom: "20px" }}>
+          This content was matched from your library into the Apple Music
+          catalog, and may be inaccurate.
+        </Callout>
+      );
+    }
+
     return (
-      <Dialog
-        {...this.props}
-        title={this.props.item ? this.props.item.attributes.name : " "}
-        className="collection bp3-dark"
-      >
-        <div className={Classes.DIALOG_BODY}>{body}</div>
+      <Dialog {...this.props} title={name} className="collection bp3-dark">
+        <div className={Classes.DIALOG_BODY}>
+          {warning}
+          {body}
+        </div>
       </Dialog>
     );
   }
