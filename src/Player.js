@@ -218,13 +218,10 @@ class Player extends Component {
     let volume = "";
     let button = "play";
     let currentState = this.state.playbackState;
-    if (
-      currentState === PS.loading ||
-      currentState === PS.waiting ||
-      currentState === PS.stalled
-    ) {
-      track = <Spinner />;
-    }
+
+    let logo = (
+      <Logo thin={Colors.BLUE5} music={Colors.BLUE5} bar={Colors.BLUE1} />
+    );
     if (this.props.music.player.nowPlayingItem) {
       track = (
         <Track
@@ -236,6 +233,13 @@ class Player extends Component {
           click={this.props.audioContext ? this.toggleViz.bind(this) : null}
         />
       );
+      if (
+        currentState === PS.loading ||
+        currentState === PS.waiting ||
+        currentState === PS.stalled // FIXME: How to deal with stalled?
+      ) {
+        logo = <Spinner />;
+      }
     }
 
     if (currentState === PS.playing) {
@@ -342,12 +346,7 @@ class Player extends Component {
             {volume}
           </div>
           <div className="contentTrack">{track}</div>
-          <Logo
-            className="contentLogo"
-            thin={Colors.BLUE5}
-            music={Colors.BLUE5}
-            bar={Colors.BLUE1}
-          />
+          <div className="contentLogo">{logo}</div>
         </div>
       </Card>
     );
