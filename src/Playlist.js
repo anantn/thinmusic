@@ -27,14 +27,36 @@ class Playlist extends Component {
     this.setState({ items: this.props.music.player.queue.items });
   };
 
+  shuffle = () => {
+    let item = this.props.music.player.nowPlayingItem;
+    this.props.music.player.queue.shuffle();
+    if (item) {
+      let idx = this.props.music.player.queue.indexForItem(item);
+      if (idx !== -1) {
+        this.props.music.player.queue.position = idx;
+      }
+    }
+  };
+
   clear = () => {
     let self = this;
-    try {
-      this.props.music.player.stop();
-    } catch (e) {}
-    this.props.music.setQueue({}).then(() => {
-      self.setState(self.state);
-    });
+    let next = () => {
+      self.props.music.player.stop().catch(e => {});
+      self.props.music.setQueue({}).then(() => {
+        self.setState(self.state);
+      });
+    };
+
+    // TOOD: Move to common constants, too much hardcoding.
+    if (
+      self.props.music.player.nowPlayingItem &&
+      self.props.music.player.playbackState === 3
+    ) {
+      // LUL.
+      self.props.music.player.play().then(next);
+    } else {
+      next();
+    }
   };
 
   click = (isActive, idx) => {
@@ -109,6 +131,17 @@ class Playlist extends Component {
   };
 
   render() {
+    let buttons = (
+      <div>
+        <Button icon="trash" onClick={this.clear}>
+          Clear
+        </Button>
+        <Button icon="random" onClick={this.shuffle}>
+          Shuffle
+        </Button>
+      </div>
+    );
+
     let total = this.state.items.reduce((s, o) => s + o.playbackDuration, 0);
     return (
       <DragDropContext onDragEnd={this.dragEnd}>
@@ -116,9 +149,7 @@ class Playlist extends Component {
           <Text>
             {Utils.durationListFormat(this.state.items.length, total)}
           </Text>
-          <Button icon="trash" onClick={this.clear}>
-            Clear
-          </Button>
+          {this.state.items.length > 0 ? buttons : null}
         </Card>
         <Droppable droppableId="playlist">
           {(provided, snapshot) => (
