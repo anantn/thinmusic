@@ -242,7 +242,7 @@ class Settings extends Component {
                   <p>
                     <b>What data do you receive?</b>
                     <br />
-                    We request only your name and email address from Facebook.
+                    We only request your name and email address from Facebook.
                     We use this to authenticate you, and occasionally send
                     important account related email.
                     <br />
