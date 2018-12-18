@@ -35,9 +35,13 @@ class BrowseList extends Component {
   render() {
     return (
       <ol className="browseList">
-        {this.props.items.map((o, i) => (
-          <li key={"key-" + i}>{this.renderCard(o)}</li>
-        ))}
+        {this.props.items
+          .filter(
+            o => o.attributes && o.attributes.name && o.attributes.playParams
+          )
+          .map((o, i) => (
+            <li key={"key-" + i}>{this.renderCard(o)}</li>
+          ))}
       </ol>
     );
   }

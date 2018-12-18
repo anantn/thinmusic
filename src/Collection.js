@@ -91,17 +91,32 @@ class Collection extends Component {
     } else {
       if (
         this.props.item.type !== "albums" &&
-        this.props.item.type !== "playlists"
+        this.props.item.type !== "library-albums" &&
+        this.props.item.type !== "playlists" &&
+        this.props.item.type !== "library-playlists"
       ) {
-        return this.setState({ item: null, error: true, library: false });
+        return this.setState({
+          item: null,
+          error: true,
+          library: this.props.item.type.startsWith("library")
+        });
       }
-      this.fetchReal(this.props.item.id, this.props.item.type, false);
+      this.fetchReal(
+        this.props.item.id,
+        this.props.item.type,
+        this.props.item.type.startsWith("library")
+      );
     }
   };
 
   fetchReal = (id, type, isLibrary) => {
     let self = this;
-    this.props.music.api[type.slice(0, -1)](id)
+    let method = this.props.music.api;
+    if (type.startsWith("library")) {
+      method = this.props.music.api.library;
+      type = type.slice("library-".length);
+    }
+    method[type.slice(0, -1)](id)
       .then(res => {
         if (
           res.relationships &&

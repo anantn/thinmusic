@@ -1,4 +1,4 @@
-.results ol {
+.songResults ol {
   padding: 0;
   margin-top: 0px;
   display: grid;
@@ -8,6 +8,6 @@
   list-style-type: none;
 }
 
-.results ol li {
+.songResults ol li {
   width: 333px;
 }

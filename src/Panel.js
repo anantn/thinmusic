@@ -1,6 +1,14 @@
 import async from "async";
 import React, { Component } from "react";
-import { Spinner, Icon, InputGroup, Tabs, Tab, Text } from "@blueprintjs/core";
+import {
+  Spinner,
+  Icon,
+  InputGroup,
+  Tabs,
+  Tab,
+  Toaster,
+  NonIdealState
+} from "@blueprintjs/core";
 
 import "./s/Panel.css";
 import Browse from "./Browse";
@@ -46,6 +54,7 @@ class Panel extends Component {
     let term = event.target.value.trim();
     if (term === "") {
       this.setState({
+        query: "",
         selected:
           this.state.selected !== "search"
             ? this.state.selected
@@ -75,8 +84,8 @@ class Panel extends Component {
       async.reflect(
         async.asyncify(
           self.props.music.api.search.bind(self.props.music.api, value, {
-            limit: 10,
-            types: "songs"
+            limit: 16,
+            types: "songs,albums,playlists"
           })
         )
       )
@@ -89,8 +98,8 @@ class Panel extends Component {
               self.props.music.api.library,
               value,
               {
-                limit: 10,
-                types: "library-songs"
+                limit: 16,
+                types: "library-songs,library-albums,library-playlists"
               }
             )
           )
@@ -98,7 +107,6 @@ class Panel extends Component {
       );
     }
     async.parallel(methods, (err, res) => {
-      // TODO: Remove log and handle errors.
       if (idx < self.counter) {
         return;
       }
@@ -107,73 +115,97 @@ class Panel extends Component {
         return;
       }
 
-      let allSongs = [];
-      let librarySongs = [];
-      if (res[0] && res[0].value && "songs" in res[0].value) {
-        allSongs = res[0].value["songs"].data;
-      }
-      if (res[1] && res[1].value && "library-songs" in res[1].value) {
-        librarySongs = res[1].value["library-songs"].data;
-      }
-      allSongs = allSongs.filter(
-        obj => obj.attributes && obj.attributes.playParams
-      );
-      librarySongs = librarySongs.filter(
-        obj => obj.attributes && obj.attributes.playParams
-      );
+      let songs = self.merge(res, "songs");
+      let albums = self.merge(res, "albums");
+      let playlists = self.merge(res, "playlists");
+      let final =
+        songs.length === 0 && albums.length === 0 && playlists.length === 0
+          ? []
+          : [songs, albums, playlists];
 
-      // Merge global and library results.
-      let final = [];
-
-      // 1. If a song appears in both library and global, show first.
-      let inLibrary = librarySongs.map(
-        obj => obj.attributes.playParams && obj.attributes.playParams.catalogId
-      );
-      for (let obj of allSongs) {
-        if (inLibrary.includes(obj.id)) {
-          final.push(obj);
-        }
-      }
-
-      // 2. Show top 6 (upto 12 depending on library result set)
-      // global results not in library.
-      let added = 0;
-      let limit = librarySongs.length >= 6 ? 6 : 12 - librarySongs.length;
-      for (let obj of allSongs) {
-        if (added >= limit) break;
-        if (!inLibrary.includes(obj.id)) {
-          final.push(obj);
-          added += 1;
-        }
-      }
-
-      // 3. Show remaining library results not already in list.
-      added = 0;
-      let inFinal = final.map(obj => obj.id);
-      for (let obj of librarySongs) {
-        if (added >= 6) break;
-        if (!inFinal.includes(obj.attributes.playParams.catalogId)) {
-          final.push(obj);
-          added += 1;
-        }
-      }
-
-      // 4. Cap to 10 total results.
       self.setState({
-        results: final.length < 12 ? final : final.slice(0, 12),
+        results: final,
         searching: false
       });
+    });
+  };
+
+  merge = (res, type) => {
+    let all = [];
+    let library = [];
+    if (res[0] && res[0].value && type in res[0].value) {
+      all = res[0].value[type].data;
+    }
+    if (res[1] && res[1].value && "library-" + type in res[1].value) {
+      library = res[1].value["library-" + type].data;
+    }
+    all = all.filter(obj => obj.attributes && obj.attributes.playParams);
+    library = library.filter(
+      obj => obj.attributes && obj.attributes.playParams
+    );
+
+    // Merge global and library results.
+    let final = [];
+
+    // 1. If an item appears in both library and global, show first.
+    let inLibrary = library.map(
+      obj => obj.attributes.playParams && obj.attributes.playParams.catalogId
+    );
+    for (let obj of all) {
+      if (inLibrary.includes(obj.id)) {
+        final.push(obj);
+      }
+    }
+
+    // 2. Show top 8 (upto 16 depending on library result set)
+    // global results not in library.
+    let added = 0;
+    let limit = library.length >= 8 ? 8 : 16 - library.length;
+    for (let obj of all) {
+      if (added >= limit) break;
+      if (!inLibrary.includes(obj.id)) {
+        final.push(obj);
+        added += 1;
+      }
+    }
+
+    // 3. Show remaining library results not already in list.
+    added = 0;
+    let inFinal = final.map(obj => obj.id);
+    for (let obj of library) {
+      if (added >= 8) break;
+      if (!inFinal.includes(obj.attributes.playParams.catalogId)) {
+        final.push(obj);
+        added += 1;
+      }
+    }
+
+    // 4. Cap to 16 total results.
+    return final.length < 16 ? final : final.slice(0, 16);
+  };
+
+  playError = () => {
+    Toaster.create().show({
+      icon: "error",
+      intent: "danger",
+      message: "Sorry, there was a problem playing this item."
     });
   };
 
   playNow = (item, event) => {
     let self = this;
     if (this.props.music.player.queue.isEmpty) {
-      this.props.music.setQueue(item).then(() => {
-        self.props.music.player.play().then(() => {
-          self.setState(self.state);
-        });
-      });
+      this.props.music
+        .setQueue(item)
+        .then(() => {
+          self.props.music.player
+            .play()
+            .then(() => {
+              self.setState(self.state);
+            })
+            .catch(self.playError);
+        })
+        .catch(self.playError);
     } else {
       let next = () => {
         self.props.music.player.queue.prepend(item);
@@ -181,10 +213,14 @@ class Panel extends Component {
           .changeToMediaAtIndex(self.props.music.player.nowPlayingItemIndex + 1)
           .then(() => {
             self.setState(self.state);
-          });
+          })
+          .catch(self.playError);
       };
       if (this.props.music.player.isPlaying) {
-        this.props.music.player.stop().then(next);
+        this.props.music.player
+          .stop()
+          .then(next)
+          .catch(self.playError);
       } else {
         next();
       }
@@ -209,17 +245,39 @@ class Panel extends Component {
 
   playCollectionNow = (item, event) => {
     let self = this;
-    this.props.music.setQueue({ url: item.attributes.url }).then(() => {
-      // Queue may contain things without playParams, remove.
-      // TODO: Figure out better way to handle grayed out tracks as displayed.
-      let queue = self.props.music.player.queue;
-      queue._items = queue._items.filter(e => e.attributes.playParams);
-      queue._reindex();
-      queue.dispatchEvent("queueItemsDidChange", queue._items);
-      self.props.music.player.play().then(() => {
-        self.setState(self.state);
-      });
-    });
+    if (!item.attributes.url && !item.attributes.playParams) {
+      self.playError();
+    }
+
+    let options = { url: item.attributes.url };
+    if (!item.attributes.url) {
+      options = {};
+      options[item.attributes.playParams.kind] = item.attributes.playParams.id;
+    }
+
+    this.props.music
+      .setQueue(options)
+      .then(() => {
+        // Queue may contain things without playParams, remove.
+        // TODO: Figure out better way to handle grayed out tracks as displayed.
+        let queue = self.props.music.player.queue;
+        queue._items = queue._items.filter(e => e.attributes.playParams);
+        if (queue._items.length === 0) {
+          self.playError();
+          self.props.music.setQueue({});
+          return;
+        }
+
+        queue._reindex();
+        queue.dispatchEvent("queueItemsDidChange", queue._items);
+        self.props.music.player
+          .play()
+          .then(() => {
+            self.setState(self.state);
+          })
+          .catch(self.playError);
+      })
+      .catch(self.playError);
   };
 
   showCollection = (item, event) => {
@@ -230,7 +288,13 @@ class Panel extends Component {
     let resultBox = <Spinner className="spinner" />;
     if (!this.state.searching) {
       if (this.state.results.length === 0) {
-        resultBox = <Text>Sorry, no results found.</Text>;
+        resultBox = (
+          <NonIdealState
+            className="browseNull"
+            icon="zoom-out"
+            title="Sorry, no results found!"
+          />
+        );
       } else {
         resultBox = (
           <Results
@@ -238,6 +302,7 @@ class Panel extends Component {
             playNow={this.playNow}
             playNext={this.playNext}
             playLast={this.playLast}
+            playCollectionNow={this.playCollectionNow}
             showCollection={this.showCollection}
           />
         );
@@ -245,7 +310,13 @@ class Panel extends Component {
     }
 
     let search = "";
-    if (this.state.searching || this.state.results.length !== 0) {
+    if (
+      this.state.searching ||
+      this.state.results.length !== 0 ||
+      (!this.state.searching &&
+        this.state.results.length === 0 &&
+        this.state.query !== "")
+    ) {
       search = <Tab id="search" title="Search" panel={resultBox} />;
     }
 
