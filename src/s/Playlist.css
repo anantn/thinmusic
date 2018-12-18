@@ -37,6 +37,10 @@ ol.playlist li .active {
   border-color: rgb(19, 124, 189);
 }
 
+ol.playlist li .item span.clickable {
+  cursor: pointer;
+}
+
 ol.playlist li .item img {
   position: absolute;
   width: 30px;

@@ -328,6 +328,7 @@ class Panel extends Component {
           playNext={this.playNext}
           playLast={this.playLast}
           playCollectionNow={this.playCollectionNow}
+          showCollection={this.showCollection}
           item={this.state.collection}
           isOpen={this.state.collection !== null}
           onClose={() => {
@@ -356,7 +357,12 @@ class Panel extends Component {
           <Tab
             id="playing"
             title="Playing"
-            panel={<Playlist music={this.props.music} />}
+            panel={
+              <Playlist
+                music={this.props.music}
+                showCollection={this.showCollection}
+              />
+            }
           />
           {search}
           <Tabs.Expander />

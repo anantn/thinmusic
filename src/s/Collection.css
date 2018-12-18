@@ -41,6 +41,10 @@
   grid-template-columns: 0.5fr 3fr 2fr 2fr 0.5fr 1fr;
 }
 
+.collection.bp3-dialog ol.playlist li .item span.clickable {
+  cursor: pointer;
+}
+
 .collection.bp3-dialog ol.playlist.album li .item {
   grid-template-columns: 0.5fr 4fr 3fr 0.5fr 1fr;
 }

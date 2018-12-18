@@ -42,6 +42,16 @@ class Collection extends Component {
     }
   };
 
+  clickAlbum = item => {
+    item._subSelect = "album";
+    this.props.showCollection(item);
+  };
+
+  clickArtist = item => {
+    item._subSelect = "artist";
+    this.props.showCollection(item);
+  };
+
   fetch = () => {
     if (
       this.props.item.type.startsWith("song") ||
@@ -263,7 +273,14 @@ class Collection extends Component {
           let albumInfo = "";
           if (!isAlbum) {
             albumInfo = (
-              <Text ellipsize={true}>{item.attributes.albumName}</Text>
+              <Text ellipsize={true}>
+                <span
+                  className="clickable"
+                  onClick={this.clickAlbum.bind(this, item)}
+                >
+                  {item.attributes.albumName}
+                </span>
+              </Text>
             );
           }
           return (

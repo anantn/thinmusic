@@ -23,6 +23,16 @@ class Playlist extends Component {
     this.props.music.removeEventListener("queuePositionDidChange");
   };
 
+  clickAlbum = item => {
+    item._subSelect = "album";
+    this.props.showCollection(item);
+  };
+
+  clickArtist = item => {
+    item._subSelect = "artist";
+    this.props.showCollection(item);
+  };
+
   change = () => {
     this.setState({ items: this.props.music.player.queue.items });
   };
@@ -122,7 +132,14 @@ class Playlist extends Component {
         </div>
         <Text ellipsize={true}>{item.title}</Text>
         <Text ellipsize={true}>{item.artistName}</Text>
-        <Text ellipsize={true}>{item.albumName}</Text>
+        <Text ellipsize={true}>
+          <span
+            className="clickable"
+            onClick={this.clickAlbum.bind(this, item)}
+          >
+            {item.albumName}
+          </span>
+        </Text>
         <Text ellipsize={true}>
           {Utils.durationMilliseconds(item.playbackDuration)}
         </Text>
