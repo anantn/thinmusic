@@ -1,0 +1,28 @@
+ol.browseList {
+  padding: 0;
+  margin-top: 0px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  list-style-type: none;
+}
+
+ol.browseList .item {
+  padding: 0px;
+  width: 160px;
+}
+
+ol.browseList .item .title {
+  padding: 5px;
+  height: 50px;
+}
+
+ol.browseList .item .title span {
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+ol.browseList .item .title span:hover {
+  cursor: pointer;
+}

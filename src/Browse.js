@@ -1,9 +1,9 @@
 import async from "async";
 import React, { Component } from "react";
-import { Card, NonIdealState, Spinner, Text } from "@blueprintjs/core";
+import { NonIdealState, Spinner } from "@blueprintjs/core";
 
 import "./s/Browse.css";
-import BrowseIcon from "./BrowseIcon";
+import BrowseList from "./BrowseList";
 
 class Browse extends Component {
   constructor(props) {
@@ -100,33 +100,6 @@ class Browse extends Component {
     );
   };
 
-  renderCard(item) {
-    let title = "";
-    let name = item.attributes.name;
-    if (name.length > 32) {
-      title = name;
-      name = item.attributes.name.slice(0, 32) + "...";
-    }
-
-    return (
-      <Card className="item">
-        <BrowseIcon
-          name={name}
-          item={item}
-          click={this.props.playCollectionNow.bind(this, item)}
-        />
-        <Text className="title">
-          <span
-            title={title}
-            onClick={this.props.showCollection.bind(this, item)}
-          >
-            {name}
-          </span>
-        </Text>
-      </Card>
-    );
-  }
-
   render() {
     if (this.state.loading) {
       return <Spinner className="spinner" />;
@@ -144,11 +117,11 @@ class Browse extends Component {
     }
 
     return (
-      <ol className="browse">
-        {this.state.results.map((o, i) => (
-          <li key={"key-" + i}>{this.renderCard(o)}</li>
-        ))}
-      </ol>
+      <BrowseList
+        items={this.state.results}
+        playCollectionNow={this.props.playCollectionNow}
+        showCollection={this.props.showCollection}
+      />
     );
   }
 }
