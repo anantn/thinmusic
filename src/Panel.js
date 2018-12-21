@@ -371,7 +371,7 @@ class Panel extends Component {
             type="search"
             large={true}
             leftIcon="search"
-            placeholder="Find songs by name..."
+            placeholder="Find songs, albums, playlists by name..."
             onChange={this.search}
           />
           <Tab
