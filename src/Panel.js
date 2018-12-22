@@ -24,27 +24,11 @@ class Panel extends Component {
     this.state = {
       query: "",
       results: [],
-      selected:
-        this.props.user && this.props.user.apple ? "browse" : "settings",
+      selected: "browse",
       searching: false,
       collection: null
     };
   }
-
-  componentDidUpdate = prevProps => {
-    let now =
-      this.props.user && this.props.user.apple ? this.props.user.apple : "";
-    let prev =
-      prevProps.user && prevProps.user.apple ? prevProps.user.apple : "";
-    if (now === prev) {
-      return;
-    }
-    if (now !== "") {
-      this.setState({ selected: "browse" });
-    } else if (prev !== "") {
-      this.setState({ selected: "settings" });
-    }
-  };
 
   tab = event => {
     this.setState({ selected: event });
@@ -342,9 +326,20 @@ class Panel extends Component {
           selectedTabId={this.state.selected}
         >
           <Tab
+            id="settings"
+            panel={
+              <Settings
+                user={this.props.user}
+                userUpdate={this.props.userUpdate}
+                music={this.props.music}
+              />
+            }
+          >
+            <Icon icon="cog" title="Settings" />
+          </Tab>
+          <Tab
             id="browse"
             title="Browse"
-            disabled={this.props.user ? false : true}
             panel={
               <Browse
                 user={this.props.user}
@@ -374,18 +369,6 @@ class Panel extends Component {
             placeholder="Find songs, albums, playlists by name..."
             onChange={this.search}
           />
-          <Tab
-            id="settings"
-            panel={
-              <Settings
-                user={this.props.user}
-                userUpdate={this.props.userUpdate}
-                music={this.props.music}
-              />
-            }
-          >
-            <Icon icon="cog" title="Settings" />
-          </Tab>
         </Tabs>
       </div>
     );

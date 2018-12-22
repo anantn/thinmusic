@@ -15,10 +15,6 @@ class Browse extends Component {
   }
 
   componentDidMount() {
-    if (!this.props.user || !this.props.user.apple) {
-      this.setState({ loading: false });
-      return;
-    }
     this.load();
   }
 
@@ -30,15 +26,33 @@ class Browse extends Component {
     if (now === prev) {
       return;
     }
-    if (now !== "") {
-      this.setState({ loading: true });
-      this.load();
-    } else if (prev !== "") {
-      this.setState({ loading: false, results: [] });
-    }
+    this.load();
   };
 
   load = () => {
+    let self = this;
+    if (!self.props.user || !self.props.user.apple) {
+      self.props.music.api
+        .charts(["albums", "playlists"], { limit: 14 })
+        .then(res => {
+          let merged = [];
+          if (res.playlists && res.playlists[0] && res.playlists[0].data) {
+            merged = merged.concat(res.playlists[0].data);
+          }
+          if (res.albums && res.albums[0] && res.albums[0].data) {
+            merged = merged.concat(res.albums[0].data);
+          }
+          self.setState({ results: merged, loading: false });
+        })
+        .catch(e => {
+          self.setState({ loading: false, results: [] });
+        });
+    } else {
+      self.loadPersonal();
+    }
+  };
+
+  loadPersonal = () => {
     let self = this;
     let api = self.props.music.api;
     let order = ["heavyRotation", "recentPlayed", "recommendations"];

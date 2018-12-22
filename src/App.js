@@ -222,8 +222,7 @@ class App extends Component {
     } else {
       callout = (
         <Callout style={{ marginBottom: "10px" }} intent="warning">
-          You can search for songs and play 30-second previews.
-          <br />
+          Song playback is limited to 30 seconds.&nbsp;
           <span className="link" onClick={this.signIn}>
             Log in
           </span>
