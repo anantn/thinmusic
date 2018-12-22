@@ -3,6 +3,10 @@
   min-height: 600px;
 }
 
+.collection.bp3-dialog span.clickable {
+  cursor: pointer;
+}
+
 .collection.bp3-dialog .bp3-dialog-body .bp3-spinner {
   margin-top: 250px;
 }
@@ -41,10 +45,10 @@
   grid-template-columns: 0.5fr 3fr 2fr 2fr 0.5fr 1fr;
 }
 
-.collection.bp3-dialog ol.playlist li .item span.clickable {
-  cursor: pointer;
-}
-
 .collection.bp3-dialog ol.playlist.album li .item {
   grid-template-columns: 0.5fr 4fr 3fr 0.5fr 1fr;
+}
+
+.collection.bp3-dialog ol.browseList {
+  grid-column-gap: 3px;
 }

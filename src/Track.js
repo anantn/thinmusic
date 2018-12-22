@@ -13,16 +13,6 @@ import Utils from "./Utils";
 import Visualizer from "./Visualizer";
 
 class Track extends Component {
-  clickAlbum = () => {
-    this.props.item._subSelect = "album";
-    this.props.showCollection(this.props.item);
-  };
-
-  clickArtist = () => {
-    this.props.item._subSelect = "artist";
-    this.props.showCollection(this.props.item);
-  };
-
   render() {
     let rhs = "";
     let overlay = "";
@@ -78,9 +68,27 @@ class Track extends Component {
           <Text ellipsize={true}>
             <b>{this.props.item.attributes.name}</b>
           </Text>
-          <Text ellipsize={true}>{this.props.item.attributes.artistName}</Text>
           <Text ellipsize={true}>
-            <span onClick={this.clickAlbum}>
+            <span
+              className="clickable"
+              onClick={Utils.showArtist.bind(
+                Utils,
+                this.props.item,
+                this.props.showCollection
+              )}
+            >
+              {this.props.item.attributes.artistName}
+            </span>
+          </Text>
+          <Text ellipsize={true}>
+            <span
+              className="clickable"
+              onClick={Utils.showAlbum.bind(
+                Utils,
+                this.props.item,
+                this.props.showCollection
+              )}
+            >
               {this.props.item.attributes.albumName}
             </span>
           </Text>

@@ -292,6 +292,16 @@ class _Utils {
       .then(() => true)
       .catch(() => false);
   };
+
+  showAlbum = (item, show) => {
+    item._subSelect = "album";
+    show(item);
+  };
+
+  showArtist = (item, show) => {
+    item._subSelect = "artist";
+    show(item);
+  };
 }
 
 let Utils = new _Utils();

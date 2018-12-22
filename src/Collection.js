@@ -14,6 +14,7 @@ import {
 import "./s/Collection.css";
 import Utils from "./Utils";
 import BrowseIcon from "./BrowseIcon";
+import BrowseList from "./BrowseList";
 
 class Collection extends Component {
   constructor(props) {
@@ -34,22 +35,17 @@ class Collection extends Component {
 
   componentDidUpdate = prevProps => {
     if (
-      this.props.item &&
-      (!prevProps.item || this.props.item.id !== prevProps.item.id)
+      (this.props.item &&
+        (!prevProps.item || prevProps.item.id !== this.props.item.id)) ||
+      (this.props.item &&
+        this.props.item._subSelect &&
+        (!prevProps.item ||
+          !prevProps.item._subSelect ||
+          prevProps.item._subSelect !== this.props.item._subSelect))
     ) {
-      this.setState({ item: null, error: false });
+      this.setState({ item: null, error: false, library: false });
       this.fetch();
     }
-  };
-
-  clickAlbum = item => {
-    item._subSelect = "album";
-    this.props.showCollection(item);
-  };
-
-  clickArtist = item => {
-    item._subSelect = "artist";
-    this.props.showCollection(item);
   };
 
   fetch = () => {
@@ -57,8 +53,10 @@ class Collection extends Component {
       this.props.item.type.startsWith("song") ||
       this.props.item.type.startsWith("library-song")
     ) {
-      // TODO: implement artist collection view.
-      if (this.props.item._subSelect !== "album") {
+      if (
+        this.props.item._subSelect !== "album" &&
+        this.props.item._subSelect !== "artist"
+      ) {
         return this.setState({ error: true });
       }
 
@@ -111,11 +109,27 @@ class Collection extends Component {
           library: this.props.item.type.startsWith("library")
         });
       }
-      this.fetchReal(
-        this.props.item.id,
-        this.props.item.type,
-        this.props.item.type.startsWith("library")
-      );
+      if (this.props.item._subSelect) {
+        let st = this.props.item._subSelect + "s";
+        if (
+          this.props.item.relationships &&
+          this.props.item.relationships[st]
+        ) {
+          this.fetchReal(
+            this.props.item.relationships[st].data[0].id,
+            st,
+            st.startsWith("library")
+          );
+        } else {
+          return this.setState({ item: null, error: true, library: false });
+        }
+      } else {
+        this.fetchReal(
+          this.props.item.id,
+          this.props.item.type,
+          this.props.item.type.startsWith("library")
+        );
+      }
     }
   };
 
@@ -138,8 +152,24 @@ class Collection extends Component {
               return item.attributes && item.attributes.playParams;
             }
           );
+          self.setState({ item: res, error: false, library: isLibrary });
+        } else if (
+          res.relationships &&
+          res.relationships.albums &&
+          res.relationships.albums.data
+        ) {
+          self.props.music.api
+            .albums(res.relationships.albums.data.map(a => a.id).slice(0, 24))
+            .then(albums => {
+              res.relationships.albums.data = albums;
+              self.setState({ item: res, error: false, library: isLibrary });
+            })
+            .catch(e => {
+              self.setState({ item: null, error: true, library: isLibrary });
+            });
+        } else {
+          self.setState({ item: null, error: true, library: isLibrary });
         }
-        self.setState({ item: res, error: false, library: isLibrary });
       })
       .catch(() => {
         self.setState({ item: null, error: true, library: isLibrary });
@@ -210,7 +240,18 @@ class Collection extends Component {
     return (
       <div className="metadata">
         {item.attributes.artistName ? (
-          <div className="subtitle">{item.attributes.artistName}</div>
+          <div className="subtitle">
+            <span
+              className="clickable"
+              onClick={Utils.showArtist.bind(
+                Utils,
+                item,
+                this.props.showCollection
+              )}
+            >
+              {item.attributes.artistName}
+            </span>
+          </div>
         ) : (
           ""
         )}
@@ -245,21 +286,41 @@ class Collection extends Component {
         (s, o) => s + o.attributes.durationInMillis,
         0
       );
+    } else if (
+      item.relationships &&
+      item.relationships.albums &&
+      item.relationships.albums.data
+    ) {
+      list = (
+        <BrowseList
+          items={item.relationships.albums.data}
+          playCollectionNow={this.props.playCollectionNow}
+          showCollection={this.props.showCollection}
+        />
+      );
     }
 
-    let method = this.renderCollectionAlbum;
+    let method = null;
+    if (item.type === "albums") {
+      method = this.renderCollectionAlbum;
+    }
     if (item.type === "playlists") {
       method = this.renderCollectionPlaylist;
     }
+
     return (
       <div>
-        <div className="header">
-          <BrowseIcon
-            item={item}
-            click={this.props.playCollectionNow.bind(this, item)}
-          />
-          {method(item, count, total)}
-        </div>
+        {method ? (
+          <div className="header">
+            <BrowseIcon
+              item={item}
+              click={this.props.playCollectionNow.bind(this, item)}
+            />
+            {method(item, count, total)}
+          </div>
+        ) : (
+          ""
+        )}
         {list}
       </div>
     );
@@ -276,7 +337,11 @@ class Collection extends Component {
               <Text ellipsize={true}>
                 <span
                   className="clickable"
-                  onClick={this.clickAlbum.bind(this, item)}
+                  onClick={Utils.showAlbum.bind(
+                    Utils,
+                    item,
+                    this.props.showCollection
+                  )}
                 >
                   {item.attributes.albumName}
                 </span>
@@ -300,7 +365,18 @@ class Collection extends Component {
                   </div>
                 </div>
                 <Text ellipsize={true}>{item.attributes.name}</Text>
-                <Text ellipsize={true}>{item.attributes.artistName}</Text>
+                <Text ellipsize={true}>
+                  <span
+                    className="clickable"
+                    onClick={Utils.showArtist.bind(
+                      Utils,
+                      item,
+                      this.props.showCollection
+                    )}
+                  >
+                    {item.attributes.artistName}
+                  </span>
+                </Text>
                 {albumInfo}
                 <Text ellipsize={true}>
                   {Utils.durationMilliseconds(item.attributes.durationInMillis)}
