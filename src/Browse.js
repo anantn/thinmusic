@@ -67,6 +67,15 @@ class Browse extends Component {
         let counts = {};
         let merged = [];
         let addToMerged = (source, obj) => {
+          if (
+            !obj.type ||
+            (!obj.type.startsWith("album") &&
+              !obj.type.startsWith("playlist") &&
+              !obj.type.startsWith("song"))
+          ) {
+            return;
+          }
+
           if (obj.id in counts) {
             counts[obj.id] += 1;
           } else {
