@@ -7,7 +7,8 @@ import {
   Icon,
   Elevation,
   Slider,
-  Spinner
+  Spinner,
+  Toaster
 } from "@blueprintjs/core";
 
 import "./s/Player.css";
@@ -27,6 +28,12 @@ import Logo from "./Logo";
 // completed: 10
 const PS = window.MusicKit.PlaybackStates;
 
+// none: 0
+// one: 1
+// all: 2
+const RM = [Colors.GRAY1, Colors.BLUE1, Colors.RED1];
+const RM_TITLES = ["Repeat: None", "Repeat: One", "Repeat: All"];
+
 class Player extends Component {
   constructor(props) {
     super(props);
@@ -36,7 +43,8 @@ class Player extends Component {
       sliderHover: false,
       visualize: false,
       volume: 1,
-      disableControls: false
+      disableControls: false,
+      repeatMode: 0
     };
     this.slider = React.createRef();
   }
@@ -142,12 +150,35 @@ class Player extends Component {
 
   volumeToggle = num => {
     if (this.props.audioElement.volume === 0) {
+      Toaster.create().show({
+        icon: "volume-up",
+        intent: "primary",
+        message: "Volume set to " + Math.round(this.state.volume * 100) + "%"
+      });
       this.props.audioElement.volume = this.state.volume;
       this.setState({ volume: this.props.audioElement.volume });
     } else {
+      Toaster.create().show({
+        icon: "volume-off",
+        intent: "primary",
+        message: "Volume muted"
+      });
       this.props.audioElement.volume = 0;
       this.setState({});
     }
+  };
+
+  repeatChange = () => {
+    let target = (this.state.repeatMode + 1) % 3;
+    this.props.music.player.repeatMode = target;
+    Toaster.create().show({
+      icon: "repeat",
+      intent: "primary",
+      message: RM_TITLES[target]
+    });
+    this.setState({
+      repeatMode: target
+    });
   };
 
   sliderChange = num => {
@@ -284,6 +315,13 @@ class Player extends Component {
             onChange={this.volumeChange}
             value={this.props.audioElement.volume}
             stepSize={0.05}
+          />
+          <Icon
+            className="contentVolumeIconRight"
+            size={10}
+            icon="repeat"
+            color={RM[this.state.repeatMode]}
+            onClick={this.repeatChange}
           />
         </div>
       );

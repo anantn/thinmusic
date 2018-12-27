@@ -54,7 +54,15 @@
   position: absolute;
   left: 0;
   margin-top: 60px;
-  margin-left: 25px;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+.player .content .contentControls .contentVolumeIconRight {
+  position: absolute;
+  left: 0;
+  margin-top: 60px;
+  margin-left: 155px;
   cursor: pointer;
 }
 
@@ -62,7 +70,7 @@
   float: left;
   position: absolute;
   margin-top: 60px;
-  margin-left: 40px;
+  margin-left: 30px;
   width: 100px;
   min-width: 100px;
 }
