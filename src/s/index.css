@@ -16,7 +16,7 @@ body {
   text-align: center;
 }
 
-span.clickable {
+span.continue {
   cursor: pointer;
   text-decoration: underline;
 }

@@ -148,6 +148,18 @@ class Playlist extends Component {
         <Text ellipsize={true}>
           {Utils.durationMilliseconds(item.playbackDuration)}
         </Text>
+        {isActive ? (
+          ""
+        ) : (
+          <Button
+            onClick={this.props.music.player.queue.remove.bind(
+              this.props.music.player.queue,
+              idx
+            )}
+            minimal={true}
+            icon="cross"
+          />
+        )}
       </Card>
     );
   };

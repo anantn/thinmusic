@@ -27,7 +27,7 @@ ol.playlist li .item {
   text-align: left;
   display: grid;
   position: relative;
-  grid-template-columns: 0.5fr 4fr 3fr 3fr 0.6fr;
+  grid-template-columns: 0.5fr 4fr 3fr 3fr 0.6fr 0.5fr;
   grid-column-gap: 10px;
 }
 
