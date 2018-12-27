@@ -15,3 +15,8 @@ body {
   max-width: 760px;
   text-align: center;
 }
+
+span.clickable {
+  cursor: pointer;
+  text-decoration: underline;
+}
