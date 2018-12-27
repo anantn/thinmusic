@@ -236,7 +236,34 @@ class _Utils {
       });
   };
 
+  disconnectFacebook = () => {
+    window.open("https://www.facebook.com/settings?tab=applications");
+  };
+
+  disconnectLastFM = cb => {
+    if (cb && typeof cb !== "function") {
+      cb = null;
+    }
+
+    let ref = Utils.userRef();
+    if (ref) {
+      ref
+        .update({
+          lastfm: firebase.firestore.FieldValue.delete()
+        })
+        .then(() => {
+          if (cb) cb();
+        });
+    } else if (cb) {
+      process.nextTick(cb);
+    }
+  };
+
   disconnectApple = cb => {
+    if (cb && typeof cb !== "function") {
+      cb = null;
+    }
+
     let ref = Utils.userRef();
     if (ref) {
       ref
@@ -246,8 +273,7 @@ class _Utils {
         .then(() => {
           if (cb) cb();
         });
-    }
-    if (cb) {
+    } else if (cb) {
       process.nextTick(cb);
     }
   };

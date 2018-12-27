@@ -212,8 +212,8 @@ class App extends Component {
       if (!this.state.user.apple) {
         callout = (
           <Callout style={{ marginBottom: "10px" }} intent="warning">
-            You haven't connected your Apple Music account yet, track playback
-            will be limited to 30 seconds.
+            You haven't connected your Apple Music account, playback is limited
+            to 30 seconds.
             <br />
             <span className="link" onClick={this.signIn}>
               Click here

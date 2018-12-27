@@ -135,12 +135,26 @@ class Settings extends Component {
     }
 
     let content = "";
-    let connected = (
-      <td>
-        <Icon icon="tick-circle" intent="success" />
-        &nbsp; Connected
-      </td>
-    );
+    let connected = click => {
+      return (
+        <td>
+          <Icon icon="tick-circle" intent="success" />
+          &nbsp; Connected &nbsp;
+          <Button
+            onClick={() => {
+              click(() => {
+                window.location.reload();
+              });
+            }}
+            minimal={true}
+            icon="cross"
+            intent="danger"
+            title="Disconnect"
+          />
+        </td>
+      );
+    };
+
     if (this.props.user) {
       let apple = "";
       if (!this.props.user.apple) {
@@ -179,12 +193,12 @@ class Settings extends Component {
             <tbody>
               <tr>
                 <td className="right">Facebook</td>
-                {connected}
+                {connected(Utils.disconnectFacebook)}
               </tr>
               <tr>
                 <td className="right">Apple Music</td>
                 {this.props.user.apple ? (
-                  connected
+                  connected(Utils.disconnectApple)
                 ) : (
                   <td>
                     <img
@@ -198,7 +212,7 @@ class Settings extends Component {
               <tr>
                 <td className="right">Last.FM</td>
                 {this.props.user.lastfm ? (
-                  connected
+                  connected(Utils.disconnectLastFM)
                 ) : (
                   <td>
                     <img
