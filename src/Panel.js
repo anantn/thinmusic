@@ -16,6 +16,7 @@ import Playlist from "./Playlist";
 import Results from "./Results";
 import Settings from "./Settings";
 import Collection from "./Collection";
+import Utils from "./Utils";
 
 class Panel extends Component {
   constructor(props) {
@@ -194,6 +195,15 @@ class Panel extends Component {
 
   playNow = (item, event) => {
     let self = this;
+    if (Utils.isSameTrack(item, this.props.music.player.nowPlayingItem)) {
+      if (this.props.music.player.isPlaying) {
+        this.props.music.player.pause();
+      } else {
+        this.props.music.player.play();
+      }
+      return;
+    }
+
     if (this.props.music.player.queue.isEmpty) {
       this.props.music
         .setQueue(item)
@@ -208,14 +218,19 @@ class Panel extends Component {
         .catch(self.playError);
     } else {
       let next = () => {
-        self.props.music.player.queue.prepend(item);
+        let idx = self.props.music.player.queue.indexForItem(item.id);
+        if (idx === -1) {
+          self.props.music.player.queue.prepend(item);
+          idx = self.props.music.player.nowPlayingItemIndex + 1;
+        }
         self.props.music.player
-          .changeToMediaAtIndex(self.props.music.player.nowPlayingItemIndex + 1)
+          .changeToMediaAtIndex(idx)
           .then(() => {
             self.setState(self.state);
           })
           .catch(self.playError);
       };
+
       if (this.props.music.player.isPlaying) {
         this.props.music.player
           .stop()
@@ -231,7 +246,16 @@ class Panel extends Component {
     if (this.props.music.player.queue.isEmpty) {
       this.playNow(item, event);
     } else {
-      this.props.music.player.queue.prepend(item);
+      let idx = this.props.music.player.queue.indexForItem(item.id);
+      if (idx === -1) {
+        this.props.music.player.queue.prepend(item);
+      } else {
+        Utils.moveQueue(
+          this.props.music,
+          idx,
+          this.props.music.player.nowPlayingItemIndex + 1
+        );
+      }
     }
   };
 
@@ -239,7 +263,16 @@ class Panel extends Component {
     if (this.props.music.player.queue.isEmpty) {
       this.playNow(item, event);
     } else {
-      this.props.music.player.queue.append(item);
+      let idx = this.props.music.player.queue.indexForItem(item.id);
+      if (idx === -1) {
+        this.props.music.player.queue.append(item);
+      } else {
+        Utils.moveQueue(
+          this.props.music,
+          idx,
+          this.props.music.player.queue.length - 1
+        );
+      }
     }
   };
 

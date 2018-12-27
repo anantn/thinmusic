@@ -328,6 +328,26 @@ class _Utils {
     item._subSelect = "artist";
     show(item);
   };
+
+  moveQueue = (music, from, to) => {
+    if (!music || !from || !to) {
+      return;
+    }
+
+    let queue = music.player.queue;
+    if (from === to || to >= queue.length) {
+      return;
+    }
+
+    let items = Array.from(queue.items);
+    let [moved] = items.splice(from, 1);
+    items.splice(to, 0, moved);
+    // TODO: Using private API, might break.
+    queue._items = items;
+    queue._reindex(); // Sets queue._itemIDs
+    queue.position = queue.indexForItem(music.player.nowPlayingItem);
+    queue.dispatchEvent("queueItemsDidChange", queue._items);
+  };
 }
 
 let Utils = new _Utils();

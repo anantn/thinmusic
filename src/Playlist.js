@@ -89,16 +89,11 @@ class Playlist extends Component {
     if (event.source.index === event.destination.index) {
       return;
     }
-
-    let queue = this.props.music.player.queue;
-    let items = Array.from(queue.items);
-    let [moved] = items.splice(event.source.index, 1);
-    items.splice(event.destination.index, 0, moved);
-    // TODO: Using private API, might break.
-    queue._items = items;
-    queue._reindex(); // Sets queue._itemIDs
-    queue.dispatchEvent("queueItemsDidChange", queue._items);
-    queue.position = queue.indexForItem(this.props.music.player.nowPlayingItem);
+    Utils.moveQueue(
+      this.props.music,
+      event.source.index,
+      event.destination.index
+    );
   };
 
   renderItem = (item, idx) => {
