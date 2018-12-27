@@ -35,7 +35,8 @@ class Player extends Component {
       playbackState: null,
       sliderHover: false,
       visualize: false,
-      volume: 1
+      volume: 1,
+      disableControls: false
     };
     this.slider = React.createRef();
   }
@@ -94,6 +95,7 @@ class Player extends Component {
         }
     }
   };
+
   tick = () => {
     if (this.state.playbackState !== PS.playing) return;
     this.setState({
@@ -150,13 +152,14 @@ class Player extends Component {
 
   sliderChange = num => {
     this.props.music.player.pause();
-    this.setState({ currentTime: num });
+    this.setState({ currentTime: num, disableControls: true });
   };
 
   sliderRelease = num => {
     let self = this;
     this.props.music.player.seekToTime(num).then(() => {
       self.props.music.player.play();
+      self.setState({ disableControls: false });
     });
   };
 
@@ -321,14 +324,18 @@ class Player extends Component {
               <Button
                 icon="fast-backward"
                 title="Previous Track"
-                disabled={this.props.music.player.nowPlayingItemIndex <= 0}
+                disabled={
+                  this.state.disableControls ||
+                  this.props.music.player.nowPlayingItemIndex <= 0
+                }
                 onClick={this.backward}
               />
               <Button
                 icon="step-backward"
                 title="Seek to Beginning"
                 disabled={
-                  currentState !== PS.playing && currentState !== PS.paused
+                  this.state.disableControls ||
+                  (currentState !== PS.playing && currentState !== PS.paused)
                 }
                 onClick={this.beginning}
               />
@@ -336,7 +343,8 @@ class Player extends Component {
                 icon={button}
                 title={currentState === PS.playing ? "Pause" : "Play"}
                 disabled={
-                  currentState !== PS.playing && currentState !== PS.paused
+                  this.state.disableControls ||
+                  (currentState !== PS.playing && currentState !== PS.paused)
                 }
                 onClick={this.toggle}
               />
@@ -344,8 +352,9 @@ class Player extends Component {
                 icon="fast-forward"
                 title="Next Track"
                 disabled={
+                  this.state.disableControls ||
                   this.props.music.player.nowPlayingItemIndex ===
-                  this.props.music.player.queue.length - 1
+                    this.props.music.player.queue.length - 1
                 }
                 onClick={this.forward}
               />

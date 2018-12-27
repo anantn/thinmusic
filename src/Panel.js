@@ -403,7 +403,7 @@ class Panel extends Component {
           />
           <Tab
             id="playing"
-            title="Playing"
+            title="Queue"
             panel={
               <Playlist
                 music={this.props.music}
