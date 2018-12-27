@@ -41,52 +41,59 @@ class Player extends Component {
   }
 
   componentDidMount = () => {
-    let self = this;
-    let defaultTitle = "ThinMusic: The Web Player for Apple Music";
-    this.props.music.addEventListener("playbackStateDidChange", event => {
-      switch (event.state) {
-        case PS.loading:
-        case PS.stopped:
-          window.document.title = defaultTitle;
-          this.setState({
-            playbackState: event.state,
-            currentTime: null,
-            totalTime: null
-          });
-          break;
-        case PS.playing:
-          self.setState({ playbackState: event.state });
-          this.interval = setInterval(this.tick, 300);
-          if (
-            self.props.music.player.nowPlayingItem &&
-            self.props.music.player.nowPlayingItem.attributes
-          ) {
-            let attrs = self.props.music.player.nowPlayingItem.attributes;
-            let title = attrs.name ? attrs.name : "";
-            title += " by ";
-            title += attrs.artistName ? attrs.artistName : "";
-            title += ", on ThinMusic";
-            window.document.title = title;
-          }
-          break;
-        default:
-          window.document.title = defaultTitle;
-          self.setState({ playbackState: event.state });
-          if (this.interval !== 0) {
-            clearInterval(this.interval);
-            this.interval = 0;
-          }
-      }
-    });
+    this.props.music.addEventListener(
+      "playbackStateDidChange",
+      this.playbackChange
+    );
   };
 
   componentWillUnmount = () => {
     if (this.interval !== 0) {
       clearInterval(this.interval);
     }
-    this.props.music.removeEventListener("playbackStateDidChange");
+    this.props.music.removeEventListener(
+      "playbackStateDidChange",
+      this.playbackChange
+    );
   };
 
+  playbackChange = event => {
+    let self = this;
+    let defaultTitle = "ThinMusic: The Web Player for Apple Music";
+    switch (event.state) {
+      case PS.loading:
+      case PS.stopped:
+        window.document.title = defaultTitle;
+        this.setState({
+          playbackState: event.state,
+          currentTime: null,
+          totalTime: null
+        });
+        break;
+      case PS.playing:
+        self.setState({ playbackState: event.state });
+        this.interval = setInterval(this.tick, 300);
+        if (
+          self.props.music.player.nowPlayingItem &&
+          self.props.music.player.nowPlayingItem.attributes
+        ) {
+          let attrs = self.props.music.player.nowPlayingItem.attributes;
+          let title = attrs.name ? attrs.name : "";
+          title += " by ";
+          title += attrs.artistName ? attrs.artistName : "";
+          title += ", on ThinMusic";
+          window.document.title = title;
+        }
+        break;
+      default:
+        window.document.title = defaultTitle;
+        self.setState({ playbackState: event.state });
+        if (this.interval !== 0) {
+          clearInterval(this.interval);
+          this.interval = 0;
+        }
+    }
+  };
   tick = () => {
     if (this.state.playbackState !== PS.playing) return;
     this.setState({

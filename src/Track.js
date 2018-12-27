@@ -13,11 +13,34 @@ import Utils from "./Utils";
 import Visualizer from "./Visualizer";
 
 class Track extends Component {
+  componentDidMount = () => {
+    if (this.props.music) {
+      this.props.music.addEventListener("playbackStateDidChange", this.change);
+    }
+  };
+
+  componentWillUnmount = () => {
+    if (this.props.music) {
+      this.props.music.removeEventListener(
+        "playbackStateDidChange",
+        this.change
+      );
+    }
+  };
+
+  change = () => {
+    this.setState({});
+  };
+
   render() {
     let rhs = "";
     let overlay = "";
+    let isActive = Utils.isSameTrack(this.props.nowPlaying, this.props.item);
+
     if (this.props.rhs) {
-      rhs = (
+      rhs = isActive ? (
+        ""
+      ) : (
         <ButtonGroup minimal={true} vertical={true}>
           <Button
             onClick={this.props.playNext}
@@ -28,8 +51,21 @@ class Track extends Component {
         </ButtonGroup>
       );
       overlay = (
-        <div className="overlay" title="Play Now">
-          <Icon icon="play" />
+        <div>
+          <div className="overlay" title="Play Now">
+            {isActive && this.props.music.player.isPlaying ? (
+              <Icon icon="pause" />
+            ) : (
+              <Icon icon="play" />
+            )}
+          </div>
+          {isActive ? (
+            <div className="overlayActive">
+              <Icon icon="music" color="#BFCCD6" />
+            </div>
+          ) : (
+            ""
+          )}
         </div>
       );
     }
@@ -55,7 +91,7 @@ class Track extends Component {
     }
 
     return (
-      <Card className="track">
+      <Card className={`track ${isActive ? "trackActive" : ""}`}>
         <div
           className="trackImage"
           style={this.props.click ? { cursor: "pointer" } : {}}

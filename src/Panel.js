@@ -26,9 +26,25 @@ class Panel extends Component {
       results: [],
       selected: "browse",
       searching: false,
-      collection: null
+      collection: null,
+      nowPlaying: null
     };
   }
+
+  componentDidMount = () => {
+    this.props.music.addEventListener("mediaItemDidChange", this.mediaChange);
+  };
+
+  componentWillUnmount = () => {
+    this.props.music.removeEventListener(
+      "mediaItemDidChange",
+      this.mediaChange
+    );
+  };
+
+  mediaChange = event => {
+    this.setState({ nowPlaying: event.item ? event.item : null });
+  };
 
   tab = event => {
     this.setState({ selected: event });
@@ -283,6 +299,8 @@ class Panel extends Component {
         resultBox = (
           <Results
             items={this.state.results}
+            music={this.props.music}
+            nowPlaying={this.state.nowPlaying}
             playNow={this.playNow}
             playNext={this.playNext}
             playLast={this.playLast}
@@ -308,6 +326,7 @@ class Panel extends Component {
       <div className="panel">
         <Collection
           music={this.props.music}
+          nowPlaying={this.state.nowPlaying}
           playNow={this.playNow}
           playNext={this.playNext}
           playLast={this.playLast}
@@ -355,6 +374,7 @@ class Panel extends Component {
             panel={
               <Playlist
                 music={this.props.music}
+                nowPlaying={this.state.nowPlaying}
                 showCollection={this.showCollection}
               />
             }

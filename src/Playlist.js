@@ -14,13 +14,15 @@ class Playlist extends Component {
   }
 
   componentDidMount = () => {
+    this.props.music.addEventListener("playbackStateDidChange", this.change);
     this.props.music.addEventListener("queueItemsDidChange", this.change);
     this.props.music.addEventListener("queuePositionDidChange", this.change);
   };
 
   componentWillUnmount = () => {
-    this.props.music.removeEventListener("queueItemsDidChange");
-    this.props.music.removeEventListener("queuePositionDidChange");
+    this.props.music.removeEventListener("playbackStateDidChange", this.change);
+    this.props.music.removeEventListener("queueItemsDidChange", this.change);
+    this.props.music.removeEventListener("queuePositionDidChange", this.change);
   };
 
   change = () => {
@@ -100,7 +102,7 @@ class Playlist extends Component {
   };
 
   renderItem = (item, idx) => {
-    let isActive = idx === this.props.music.player.nowPlayingItemIndex;
+    let isActive = Utils.isSameTrack(this.props.nowPlaying, item);
     return (
       <Card className={`item ${isActive ? "active" : ""}`}>
         <div className="image">
@@ -120,7 +122,11 @@ class Playlist extends Component {
             className="overlay"
             onClick={this.click.bind(this, isActive, idx)}
           >
-            {isActive ? <Icon icon="pause" /> : <Icon icon="play" />}
+            {isActive && this.props.music.player.isPlaying ? (
+              <Icon icon="pause" />
+            ) : (
+              <Icon icon="play" />
+            )}
           </div>
         </div>
         <Text ellipsize={true}>{item.title}</Text>

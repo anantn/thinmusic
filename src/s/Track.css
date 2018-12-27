@@ -2,6 +2,12 @@
   padding: 10px;
 }
 
+.trackActive {
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(19, 124, 189);
+}
+
 .track .trackImage {
   float: left;
   position: relative;
@@ -39,9 +45,25 @@
   background-color: rgb(0, 0, 0, 0.5);
 }
 
-.track .trackImage:hover > .overlay {
+.track .trackImage:hover > div .overlay {
   display: block;
   cursor: pointer;
+}
+
+.track .trackImage .overlayActive {
+  position: absolute;
+}
+
+.track .trackImage .overlayActive svg {
+  height: 50px;
+  width: 50px;
+  margin-top: 4px;
+  margin-left: 4px;
+  background-color: rgb(0, 0, 0, 0.5);
+}
+
+.track .trackImage:hover > div .overlayActive {
+  display: none;
 }
 
 .track .trackInfo {
@@ -50,6 +72,10 @@
 
 .track .trackInfoSmall {
   width: 65%;
+}
+
+.trackActive .trackInfoSmall {
+  width: 80%;
 }
 
 .track .trackInfo div {

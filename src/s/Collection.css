@@ -45,6 +45,12 @@
   grid-template-columns: 0.5fr 3fr 2fr 2fr 0.5fr 1fr;
 }
 
+.collection.bp3-dialog ol.playlist li .itemActive {
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(19, 124, 189);
+}
+
 .collection.bp3-dialog ol.playlist.album li .item {
   grid-template-columns: 0.5fr 4fr 3fr 0.5fr 1fr;
 }

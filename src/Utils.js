@@ -285,6 +285,32 @@ class _Utils {
       });
   };
 
+  isSameTrack = (a, b) => {
+    if (!a || !b) {
+      return false;
+    }
+    if (a.id === b.id) {
+      return true;
+    }
+    let aid = a.id;
+    let bid = b.id;
+    if (
+      a.attributes &&
+      a.attributes.playParams &&
+      a.attributes.playParams.catalogId
+    ) {
+      aid = a.attributes.playParams.catalogId;
+    }
+    if (
+      b.attributes &&
+      b.attributes.playParams &&
+      b.attributes.playParams.catalogId
+    ) {
+      bid = b.attributes.playParams.catalogId;
+    }
+    return aid === bid;
+  };
+
   // Verify token by trying to fetch one.
   isReallyLoggedIn = music => {
     return music.api

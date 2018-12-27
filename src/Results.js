@@ -31,10 +31,12 @@ class Results extends Component {
                       <Track
                         rhs={true}
                         item={item}
+                        music={this.props.music}
                         click={this.props.playNow.bind(this, item)}
                         playNext={this.props.playNext.bind(this, item)}
                         playLast={this.props.playLast.bind(this, item)}
                         showCollection={this.props.showCollection}
+                        nowPlaying={this.props.nowPlaying}
                       />
                     </li>
                   ))}

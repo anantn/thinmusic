@@ -31,6 +31,7 @@ class Collection extends Component {
     if (this.props.item) {
       this.fetch();
     }
+    this.props.music.addEventListener("playbackStateDidChange", this.change);
   };
 
   componentDidUpdate = prevProps => {
@@ -46,6 +47,14 @@ class Collection extends Component {
       this.setState({ item: null, error: false, library: false });
       this.fetch();
     }
+  };
+
+  componentWillUnmount = () => {
+    this.props.music.removeEventListener("playbackStateDidChange", this.change);
+  };
+
+  change = event => {
+    this.setState({});
   };
 
   fetch = () => {
@@ -348,9 +357,10 @@ class Collection extends Component {
               </Text>
             );
           }
+          let isActive = Utils.isSameTrack(this.props.nowPlaying, item);
           return (
             <li key={"item-" + idx}>
-              <Card className="item">
+              <Card className={`item ${isActive ? "itemActive" : ""}`}>
                 <div className="image">
                   <img
                     alt={item.attributes.name}
@@ -361,8 +371,19 @@ class Collection extends Component {
                     className="overlay"
                     onClick={self.props.playNow.bind(self, item)}
                   >
-                    <Icon icon="play" />
+                    {isActive && this.props.music.player.isPlaying ? (
+                      <Icon icon="pause" />
+                    ) : (
+                      <Icon icon="play" />
+                    )}
                   </div>
+                  {isActive ? (
+                    <div className="overlayActive">
+                      <Icon icon="music" color="#BFCCD6" />
+                    </div>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <Text ellipsize={true}>{item.attributes.name}</Text>
                 <Text ellipsize={true}>
@@ -382,16 +403,24 @@ class Collection extends Component {
                   {Utils.durationMilliseconds(item.attributes.durationInMillis)}
                 </Text>
                 <ButtonGroup minimal={true}>
-                  <Button
-                    onClick={self.props.playNext.bind(self, item)}
-                    icon="circle-arrow-right"
-                    title="Play Next"
-                  />
-                  <Button
-                    onClick={self.props.playLast.bind(self, item)}
-                    icon="sort"
-                    title="Play Last"
-                  />
+                  {isActive ? (
+                    ""
+                  ) : (
+                    <Button
+                      onClick={self.props.playNext.bind(self, item)}
+                      icon="circle-arrow-right"
+                      title="Play Next"
+                    />
+                  )}
+                  {isActive ? (
+                    ""
+                  ) : (
+                    <Button
+                      onClick={self.props.playLast.bind(self, item)}
+                      icon="sort"
+                      title="Play Last"
+                    />
+                  )}
                 </ButtonGroup>
               </Card>
             </li>
