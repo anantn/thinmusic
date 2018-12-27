@@ -63,6 +63,23 @@ ol.playlist li .item .image:hover > .overlay {
   cursor: pointer;
 }
 
+ol.playlist li .item .image:hover > .overlayActive {
+  display: none;
+}
+
+ol.playlist li .item .overlayActive {
+  height: 30px;
+  width: 30px;
+  position: absolute;
+}
+
+ol.playlist li .item .overlayActive svg {
+  height: 25px;
+  width: 25px;
+  padding-top: 4px;
+  padding-left: 3px;
+}
+
 ol.playlist li .item div.bp3-text-overflow-ellipsis {
   padding-top: 6px;
 }

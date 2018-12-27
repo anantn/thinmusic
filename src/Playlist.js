@@ -109,15 +109,18 @@ class Playlist extends Component {
             src={Utils.icon(item.artwork, 30, 30)}
             className={Classes.SKELETON}
           />
+          {isActive ? (
+            <div className="overlayActive">
+              <Icon icon="music" color="#BFCCD6" />
+            </div>
+          ) : (
+            ""
+          )}
           <div
             className="overlay"
             onClick={this.click.bind(this, isActive, idx)}
           >
-            {isActive && this.props.music.player.isPlaying ? (
-              <Icon icon="pause" />
-            ) : (
-              <Icon icon="play" />
-            )}
+            {isActive ? <Icon icon="pause" /> : <Icon icon="play" />}
           </div>
         </div>
         <Text ellipsize={true}>{item.title}</Text>
