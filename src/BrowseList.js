@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Card, Text } from "@blueprintjs/core";
+import { Card, Text, Tooltip } from "@blueprintjs/core";
 
 import "./s/BrowseList.css";
 import BrowseIcon from "./BrowseIcon";
@@ -13,7 +13,7 @@ class BrowseList extends Component {
       name = item.attributes.name.slice(0, 32) + "...";
     }
 
-    return (
+    let card = (
       <Card className="item">
         <BrowseIcon
           name={name}
@@ -30,6 +30,38 @@ class BrowseList extends Component {
         </Text>
       </Card>
     );
+
+    if (
+      (item.type.startsWith("album") ||
+        item.type.startsWith("library-album")) &&
+      (item.attributes && item.attributes.artistName)
+    ) {
+      return (
+        <Tooltip
+          position="bottom"
+          hoverOpenDelay={500}
+          content={"by " + item.attributes.artistName}
+        >
+          {card}
+        </Tooltip>
+      );
+    } else if (
+      (item.type.startsWith("playlist") ||
+        item.type.startsWith("library-playlist")) &&
+      (item.attributes && item.attributes.curatorName)
+    ) {
+      return (
+        <Tooltip
+          position="bottom"
+          hoverOpenDelay={500}
+          content={"by " + item.attributes.curatorName}
+        >
+          {card}
+        </Tooltip>
+      );
+    } else {
+      return card;
+    }
   }
 
   render() {
