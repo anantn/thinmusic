@@ -227,6 +227,22 @@ class Settings extends Component {
             </tbody>
           </HTMLTable>
           <Divider />
+          <h2>Known Issues</h2>
+          <ul>
+            <li>
+              Music playback is interrupted occasionally. This appears to be an
+              issue with MusicKit being unable to refresh a DRM token
+              consistently. While we try to find a fix, you can work around the
+              issue by manually pressing the play/pause button or skipping to
+              the next track.
+            </li>
+            <li>
+              The Queue cannot be saved as a playlist, and is cleared when the
+              page is refreshed. We are exploring persisting playback and queue
+              state - in the meantime - we don't recommend closing or refreshing
+              the page until you are done with your session.
+            </li>
+          </ul>
           <h2>Need help or have feedback?</h2>
           <p>
             Send us an email:&nbsp;

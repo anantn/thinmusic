@@ -37,6 +37,15 @@
   border-radius: 5px;
 }
 
+.settings ul {
+  text-align: left;
+  line-height: 1.5em;
+}
+
+.settings ul li {
+  margin-bottom: 5px;
+}
+
 .settings .footer {
   position: absolute;
   bottom: 0;
