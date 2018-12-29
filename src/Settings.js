@@ -305,6 +305,7 @@ class Settings extends Component {
               alt="ThinMusic Preview"
               style={{
                 height: "380px",
+                width: "380px",
                 marginTop: "20px",
                 marginBottom: "20px"
               }}
