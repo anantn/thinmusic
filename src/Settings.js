@@ -70,8 +70,39 @@ class Settings extends Component {
     self.setState({ loginInProgress: true });
     Utils.login(provider, (user, err) => {
       if (err) {
-        self.errorToast(provider);
-        self.setState({ loginInProgress: false });
+        if (
+          err.code &&
+          err.code === "auth/account-exists-with-different-credential"
+        ) {
+          Utils.loginMethods(err.email)
+            .then(methods => {
+              if (!methods || methods.length < 0) {
+                self.errorToast(provider);
+                self.setState({ loginInProgress: false });
+                return;
+              }
+              Toaster.create().show({
+                icon: "error",
+                intent: "danger",
+                timeout: 15000,
+                message: (
+                  <span>
+                    You've previously signed in using{" "}
+                    {Utils.domainToProvider(methods[0])}!<br />
+                    Please log in again using the same provider.
+                  </span>
+                )
+              });
+              self.setState({ loginInProgress: false });
+            })
+            .catch(() => {
+              self.errorToast(provider);
+              self.setState({ loginInProgress: false });
+            });
+        } else {
+          self.errorToast(provider);
+          self.setState({ loginInProgress: false });
+        }
       }
     });
   };

@@ -87,6 +87,10 @@ class _Utils {
     );
   }
 
+  loginMethods = email => {
+    return firebase.auth().fetchSignInMethodsForEmail(email);
+  };
+
   login = (provider, cb) => {
     let providerObj = null;
     switch (provider) {
@@ -327,6 +331,7 @@ class _Utils {
   };
 
   userProvider = () => {
+    let self = this;
     let user = firebase.auth().currentUser;
     if (!user) {
       return null;
@@ -336,18 +341,22 @@ class _Utils {
       user.providerData.length > 0 &&
       user.providerData[0].providerId
     ) {
-      switch (user.providerData[0].providerId) {
-        case "google.com":
-          return "Google";
-        case "twitter.com":
-          return "Twitter";
-        case "facebook.com":
-          return "Facebook";
-        default:
-          return "Login Provider";
-      }
+      return self.domainToProvider(user.providerData[0].providerId);
     }
     return null;
+  };
+
+  domainToProvider = domain => {
+    switch (domain) {
+      case "google.com":
+        return "Google";
+      case "twitter.com":
+        return "Twitter";
+      case "facebook.com":
+        return "Facebook";
+      default:
+        return "Login Provider";
+    }
   };
 
   addAuthObserver = cb => {
