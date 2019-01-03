@@ -52,14 +52,18 @@
 
 .track .trackImage .overlayActive {
   position: absolute;
+  height: 80px;
+  width: 80px;
+  margin-left: -10px;
+  margin-top: -10px;
+  background-color: rgb(0, 0, 0, 0.5);
 }
 
 .track .trackImage .overlayActive svg {
   height: 50px;
   width: 50px;
-  margin-top: 4px;
-  margin-left: 4px;
-  background-color: rgb(0, 0, 0, 0.5);
+  margin-top: 14px;
+  margin-left: -4px;
 }
 
 .track .trackImage:hover > div .overlayActive {

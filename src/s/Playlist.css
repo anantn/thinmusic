@@ -71,6 +71,7 @@ ol.playlist li .item .overlayActive {
   height: 30px;
   width: 30px;
   position: absolute;
+  background-color: rgb(0, 0, 0, 0.5);
 }
 
 ol.playlist li .item .overlayActive svg {
