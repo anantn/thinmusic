@@ -46,6 +46,37 @@
   margin-bottom: 5px;
 }
 
+.settings .login button {
+  margin: 5px;
+}
+
+.settings .login button.google,
+.settings .login button.google:hover {
+  color: #757575;
+  background-color: #fff;
+}
+
+.settings .login button.twitter,
+.settings .login button.twitter:hover {
+  background-color: #55acee;
+}
+
+.settings .login button.facebook,
+.settings .login button.facebook:hover {
+  background-color: #3b5998;
+}
+
+.settings .login button span {
+  width: 100%;
+}
+
+.settings .login button span img {
+  width: 20px;
+  height: 20px;
+  float: left;
+  margin-right: 10px;
+}
+
 .settings .footer {
   position: absolute;
   bottom: 0;

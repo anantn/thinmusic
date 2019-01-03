@@ -8,13 +8,16 @@ import {
   Popover,
   Spinner,
   Alert,
-  Toaster
+  Toaster,
+  ButtonGroup
 } from "@blueprintjs/core";
 
 import "./s/Settings.css";
 import Utils from "./Utils";
 import Login from "./i/Login.svg";
-import Facebook from "./i/Facebook.png";
+import Facebook from "./i/Facebook.svg";
+import Google from "./i/Google.svg";
+import Twitter from "./i/Twitter.svg";
 import Preview from "./i/Preview.png";
 import LastFM from "./i/LastFM.png";
 
@@ -54,6 +57,7 @@ class Settings extends Component {
     Toaster.create().show({
       icon: "error",
       intent: "danger",
+      timeout: 15000,
       message:
         "Sorry, there was a problem connecting with your " +
         provider +
@@ -61,14 +65,14 @@ class Settings extends Component {
     });
   };
 
-  connectFacebook = () => {
+  connectSocial = provider => {
     let self = this;
     self.setState({ loginInProgress: true });
-    Utils.login((user, err) => {
+    Utils.login(provider, (user, err) => {
       if (err) {
-        self.errorToast("Facebook");
+        self.errorToast(provider);
+        self.setState({ loginInProgress: false });
       }
-      self.setState({ loginInProgress: false });
     });
   };
 
@@ -192,8 +196,10 @@ class Settings extends Component {
           <HTMLTable>
             <tbody>
               <tr>
-                <td className="right">Facebook</td>
-                {connected(Utils.disconnectFacebook)}
+                <td className="right">{Utils.userProvider()}</td>
+                {connected(
+                  Utils.disconnectSocial.bind(Utils, Utils.userProvider())
+                )}
               </tr>
               <tr>
                 <td className="right">Apple Music</td>
@@ -256,7 +262,7 @@ class Settings extends Component {
         <div>
           <h2>ThinMusic is a web player for Apple Music.</h2>
           <p>
-            Log in with Facebook&nbsp;
+            Log in &nbsp;
             <Popover isOpen={this.state.explain}>
               <Icon className="help" icon="help" onClick={this.toggleExplain} />
               <div>
@@ -272,13 +278,13 @@ class Settings extends Component {
                   <p>
                     <b>What data do you receive?</b>
                     <br />
-                    We only request your name and email address from Facebook.
-                    We use this to authenticate you, and occasionally send
-                    important account related email.
+                    We only request your name and email address from the login
+                    provider. We use this to authenticate you, and occasionally
+                    send important account related email.
                     <br />
                     <b>
-                      No spam, no sharing, and definitely no wall posts,
-                      promise.
+                      No spam, no sharing, and definitely no wall posts or
+                      tweets, promise.
                     </b>
                   </p>
                   <Button
@@ -294,12 +300,35 @@ class Settings extends Component {
             &nbsp; to begin connecting your Apple Music account and scrobble to
             last.fm:
           </p>
-          <img
-            alt="Log in with Facebook"
-            style={{ cursor: "pointer" }}
-            onClick={this.connectFacebook}
-            src={Facebook}
-          />
+          <ButtonGroup
+            large={true}
+            vertical={true}
+            className="login"
+            alignText="left"
+          >
+            <Button
+              className="google"
+              onClick={this.connectSocial.bind(this, "Google")}
+            >
+              <img src={Google} alt="Log in with Google" />
+              <span>Log in with Google</span>
+            </Button>
+            <Button
+              className="twitter"
+              onClick={this.connectSocial.bind(this, "Twitter")}
+            >
+              <img src={Twitter} alt="Log in with Twitter" />
+              <span>Log in with Twitter</span>
+            </Button>
+            <Button
+              className="facebook"
+              onClick={this.connectSocial.bind(this, "Facebook")}
+            >
+              <img src={Facebook} alt="Log in with Facebook" />
+              <span>Log in with Facebook</span>
+            </Button>
+          </ButtonGroup>
+
           <div>
             <img
               alt="ThinMusic Preview"

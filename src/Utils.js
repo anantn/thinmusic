@@ -87,14 +87,34 @@ class _Utils {
     );
   }
 
-  login = cb => {
-    let provider = new firebase.auth.FacebookAuthProvider();
-    provider.addScope("public_profile");
-    provider.addScope("email");
-    provider.setCustomParameters({ display: "popup" });
+  login = (provider, cb) => {
+    let providerObj = null;
+    switch (provider) {
+      case "Google":
+        providerObj = new firebase.auth.GoogleAuthProvider();
+        providerObj.addScope("profile");
+        providerObj.addScope("email");
+        break;
+      case "Twitter":
+        providerObj = new firebase.auth.TwitterAuthProvider();
+        break;
+      case "Facebook":
+        providerObj = new firebase.auth.FacebookAuthProvider();
+        providerObj.addScope("public_profile");
+        providerObj.addScope("email");
+        break;
+      default:
+        break;
+    }
+    if (!providerObj) {
+      cb(null, "Invalid provider");
+      return;
+    }
+
+    providerObj.setCustomParameters({ display: "popup" });
     firebase
       .auth()
-      .signInWithPopup(provider)
+      .signInWithPopup(providerObj)
       .then(result => {
         if (cb) cb(result, null);
         return false;
@@ -236,8 +256,20 @@ class _Utils {
       });
   };
 
-  disconnectFacebook = () => {
-    window.open("https://www.facebook.com/settings?tab=applications");
+  disconnectSocial = provider => {
+    switch (provider) {
+      case "Google":
+        window.open("https://myaccount.google.com/permissions");
+        break;
+      case "Twitter":
+        window.open("https://twitter.com/settings/sessions");
+        break;
+      case "Facebook":
+        window.open("https://www.facebook.com/settings?tab=applications");
+        break;
+      default:
+        break;
+    }
   };
 
   disconnectLastFM = cb => {
@@ -292,6 +324,30 @@ class _Utils {
       return null;
     }
     return user.displayName.split(" ")[0];
+  };
+
+  userProvider = () => {
+    let user = firebase.auth().currentUser;
+    if (!user) {
+      return null;
+    }
+    if (
+      user.providerData &&
+      user.providerData.length > 0 &&
+      user.providerData[0].providerId
+    ) {
+      switch (user.providerData[0].providerId) {
+        case "google.com":
+          return "Google";
+        case "twitter.com":
+          return "Twitter";
+        case "facebook.com":
+          return "Facebook";
+        default:
+          return "Login Provider";
+      }
+    }
+    return null;
   };
 
   addAuthObserver = cb => {
