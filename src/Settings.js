@@ -103,6 +103,10 @@ class Settings extends Component {
           self.errorToast(provider);
           self.setState({ loginInProgress: false });
         }
+      } else {
+        try {
+          window.gtag("event", "login", { method: provider });
+        } catch (e) {}
       }
     });
   };
@@ -114,6 +118,9 @@ class Settings extends Component {
       if (err) {
         self.errorToast("Apple Music");
       } else {
+        try {
+          window.gtag("event", "login", { method: "Apple" });
+        } catch (e) {}
         self.props.userUpdate();
       }
       self.setState({ loginInProgress: false });
@@ -128,6 +135,9 @@ class Settings extends Component {
         self.errorToast("Last.FM");
         self.setState({ lfmInProgress: false });
       } else {
+        try {
+          window.gtag("event", "login", { method: "LastFM" });
+        } catch (e) {}
         self.lfmToken = token;
       }
     });
