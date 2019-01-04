@@ -135,9 +135,6 @@ class Settings extends Component {
         self.errorToast("Last.FM");
         self.setState({ lfmInProgress: false });
       } else {
-        try {
-          window.gtag("event", "login", { method: "LastFM" });
-        } catch (e) {}
         self.lfmToken = token;
       }
     });
@@ -151,6 +148,9 @@ class Settings extends Component {
         if (err) {
           self.errorToast("Last.FM");
         } else {
+          try {
+            window.gtag("event", "login", { method: "LastFM" });
+          } catch (e) {}
           self.props.userUpdate();
         }
         self.setState({ loginInProgress: false });
