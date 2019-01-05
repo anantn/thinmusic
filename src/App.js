@@ -254,7 +254,9 @@ class App extends Component {
         <div className="footer">
           <Text className="left">
             Made with <Icon icon="heart" /> by{" "}
-            <a href="https://www.kix.in/">kix</a>. © 2018
+            <a href="https://www.kix.in/">kix</a>.{" "}
+            <a href="https://github.com/anantn/thinmusic">Source on Github</a>.
+            © 2018
           </Text>
           <div className="right">{logout}</div>
         </div>

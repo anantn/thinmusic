@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 
+/* This code is courtesy of Webamp.
+ * https://github.com/captbaritone/webamp/blob/master/js/components/Visualizer.js
+ */
 const PIXEL_DENSITY = 2;
 const NUM_BARS = 20;
 const BAR_PEAK_DROP_RATE = 0.01;
