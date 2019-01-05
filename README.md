@@ -1,9 +1,10 @@
 # ThinMusic
 
 https://www.thinmusic.com
+
 A web player for Apple Music with last.fm support
 
-![ThinMusic Preview](https://raw.githubusercontent.com/anantn/thinmusic/master/src/i/Preview.png)
+<img alt="ThinMusic Preview" src="https://raw.githubusercontent.com/anantn/thinmusic/master/src/i/Preview.png" width="380" height="380"/>
 
 ## Credits
 
