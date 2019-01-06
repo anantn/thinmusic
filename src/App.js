@@ -139,9 +139,19 @@ class App extends Component {
                 LS.setItem("sync-count", "0");
                 self.state.music.authorize().then(token => {
                   if (token !== data.apple) {
-                    Utils.connectApple();
+                    Utils.connectApple(self.state.music, (token, err) => {
+                      if (err) {
+                        self.setState({
+                          authState: AUTH_LOGGED_OUT,
+                          user: null
+                        });
+                      } else {
+                        window.location.reload();
+                      }
+                    });
+                  } else {
+                    self.setState({ authState: AUTH_LOGGED_IN, user: data });
                   }
-                  self.setState({ authState: AUTH_LOGGED_IN, user: data });
                 });
               } else {
                 LS.clear();
