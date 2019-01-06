@@ -228,7 +228,8 @@ class App extends Component {
             <span className="link" onClick={this.signIn}>
               Click here
             </span>
-            &nbsp;to connect your Apple Music account.
+            &nbsp;to connect your Apple Music account, or{" "}
+            <a href="https://apple.co/2AA0rdx">sign up for a free trial!</a>
           </Callout>
         );
       }

@@ -301,11 +301,22 @@ class Settings extends Component {
     } else {
       content = (
         <div>
-          <h2>ThinMusic is a web player for Apple Music.</h2>
+          <h2>
+            ThinMusic is a web player for{" "}
+            <a href="https://apple.co/2AA0rdx">Apple Music</a>.
+          </h2>
           <p>
             Log in &nbsp;
             <Popover isOpen={this.state.explain}>
-              <Icon className="help" icon="help" onClick={this.toggleExplain} />
+              <div>
+                (
+                <Icon
+                  className="help"
+                  icon="help"
+                  onClick={this.toggleExplain}
+                />
+                )
+              </div>
               <div>
                 <Card style={{ maxWidth: "400px" }}>
                   <p>
@@ -339,7 +350,11 @@ class Settings extends Component {
               </div>
             </Popover>
             &nbsp; to begin connecting your Apple Music account and scrobble to
-            last.fm:
+            last.fm.
+          </p>
+          <p>
+            No Apple Music account? Sign up for a{" "}
+            <a href="https://apple.co/2AA0rdx">free trial</a>!
           </p>
           <ButtonGroup
             large={true}
