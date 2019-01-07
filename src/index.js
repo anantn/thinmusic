@@ -13,7 +13,7 @@ import Preview from "./i/Preview.png";
 
 const MusicKit = window.MusicKit;
 
-function main() {
+function main(rm) {
   FocusStyleManager.onlyShowFocusOnTabs();
   MusicKit.configure({
     developerToken: process.env.REACT_APP_DEV_TOKEN,
@@ -23,6 +23,12 @@ function main() {
     }
   });
   ReactDOM.render(<App />, document.getElementById("root"));
+  if (rm) {
+    remove();
+  }
+}
+
+function remove() {
   let el = document.getElementById("loader");
   el.parentElement.removeChild(el);
 }
@@ -69,7 +75,7 @@ if (isMobile) {
       <div>{badge}</div>
       <div>
         <p>
-          <span onClick={main} className="continue">
+          <span onClick={main.bind(this, false)} className="continue">
             Continue Anyway
           </span>
         </p>
@@ -82,6 +88,7 @@ if (isMobile) {
     </div>,
     document.getElementById("root")
   );
+  remove();
 } else {
-  main();
+  main(true);
 }
