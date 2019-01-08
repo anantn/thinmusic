@@ -14,10 +14,11 @@ import {
 
 import "./s/Settings.css";
 import Utils from "./Utils";
-import Login from "./i/Login.svg";
-import Facebook from "./i/Facebook.svg";
+import Apple from "./i/Apple.png";
+import AppleSmall from "./i/AppleSmall.svg";
 import Google from "./i/Google.svg";
 import Twitter from "./i/Twitter.svg";
+import Facebook from "./i/Facebook.svg";
 import Preview from "./i/Preview.png";
 import LastFM from "./i/LastFM.png";
 
@@ -127,6 +128,23 @@ class Settings extends Component {
     });
   };
 
+  connectAppleAnonymous = () => {
+    let self = this;
+    self.setState({ loginInProgress: true });
+    self.props.music
+      .authorize()
+      .then(token => {
+        Utils.loginAnonymously()
+          .then(self.connectApple)
+          .catch(e => {
+            self.errorToast("Apple Music");
+          });
+      })
+      .catch(e => {
+        self.errorToast("Apple Music");
+      });
+  };
+
   connectLastFM = () => {
     let self = this;
     self.setState({ lfmInProgress: true });
@@ -167,6 +185,89 @@ class Settings extends Component {
 
   toggleExplain = () => {
     this.setState({ explain: !this.state.explain });
+  };
+
+  renderSocialLogin = () => {
+    return (
+      <ButtonGroup
+        large={true}
+        vertical={true}
+        className="login"
+        alignText="left"
+      >
+        <Button
+          className="google"
+          onClick={this.connectSocial.bind(this, "Google")}
+        >
+          <img src={Google} alt="Log in with Google" />
+          <span>Log in with Google</span>
+        </Button>
+        <Button
+          className="twitter"
+          onClick={this.connectSocial.bind(this, "Twitter")}
+        >
+          <img src={Twitter} alt="Log in with Twitter" />
+          <span>Log in with Twitter</span>
+        </Button>
+        <Button
+          className="facebook"
+          onClick={this.connectSocial.bind(this, "Facebook")}
+        >
+          <img src={Facebook} alt="Log in with Facebook" />
+          <span>Log in with Facebook</span>
+        </Button>
+      </ButtonGroup>
+    );
+  };
+
+  renderSocialLoginExplanation = () => {
+    return (
+      <div>
+        <h2>Use ThinMusic on multiple devices?</h2>
+        <div>
+          Log in with any social account and seamlessly synchronize access to
+          your music
+          <Popover isOpen={this.state.explain}>
+            <div style={{ marginBottom: "10px" }}>
+              &nbsp;(
+              <Icon className="help" icon="help" onClick={this.toggleExplain} />
+              )
+            </div>
+            <div>
+              <Card style={{ maxWidth: "400px" }}>
+                <p>
+                  <b>Why should I log in to ThinMusic?</b>
+                  <br />
+                  Logging into ThinMusic lets us securely store your Apple Music
+                  and last.fm account information in the cloud. You won't need
+                  to re-connect these services if you log in to ThinMusic on any
+                  new device.
+                </p>
+                <p>
+                  <b>What data do you receive?</b>
+                  <br />
+                  We only request your name and email address from the login
+                  provider. We use this to authenticate you, and occasionally
+                  send important account related email.
+                  <br />
+                  <b>
+                    No spam, no sharing, and definitely no wall posts or tweets,
+                    promise.
+                  </b>
+                </p>
+                <Button
+                  style={{ textAlign: "right" }}
+                  icon="thumbs-up"
+                  onClick={this.toggleExplain}
+                >
+                  Ok
+                </Button>
+              </Card>
+            </div>
+          </Popover>
+        </div>
+      </div>
+    );
   };
 
   render() {
@@ -236,14 +337,18 @@ class Settings extends Component {
           {apple}
           <HTMLTable>
             <tbody>
+              {Utils.userProvider() ? (
+                <tr>
+                  <td className="right">{Utils.userProvider()}</td>
+                  {connected(
+                    Utils.disconnectSocial.bind(Utils, Utils.userProvider())
+                  )}
+                </tr>
+              ) : null}
               <tr>
-                <td className="right">{Utils.userProvider()}</td>
-                {connected(
-                  Utils.disconnectSocial.bind(Utils, Utils.userProvider())
-                )}
-              </tr>
-              <tr>
-                <td className="right">Apple Music</td>
+                <td className="right">
+                  {this.props.user.apple ? "" : "Connect "}Apple Music
+                </td>
                 {this.props.user.apple ? (
                   connected(Utils.disconnectApple)
                 ) : (
@@ -251,13 +356,15 @@ class Settings extends Component {
                     <img
                       onClick={this.connectApple}
                       alt="Listen on Apple Music"
-                      src={Login}
+                      src={AppleSmall}
                     />
                   </td>
                 )}
               </tr>
               <tr>
-                <td className="right">Last.FM</td>
+                <td className="right">
+                  {this.props.user.lastfm ? "" : "Connect "}Last.FM
+                </td>
                 {this.props.user.lastfm ? (
                   connected(Utils.disconnectLastFM)
                 ) : (
@@ -274,6 +381,9 @@ class Settings extends Component {
             </tbody>
           </HTMLTable>
           <Divider />
+          {Utils.userProvider() ? null : this.renderSocialLoginExplanation()}
+          {Utils.userProvider() ? null : this.renderSocialLogin()}
+          {Utils.userProvider() ? null : <Divider />}
           <h2>Known Issues</h2>
           <ul>
             <li>
@@ -284,14 +394,14 @@ class Settings extends Component {
               the next track.
             </li>
             <li>
-              The Queue cannot be saved as a playlist, and is cleared when the
+              The queue cannot be saved as a playlist, and is cleared when the
               page is refreshed. We are exploring persisting playback and queue
               state - in the meantime - we don't recommend closing or refreshing
               the page until you are done with your session.
             </li>
           </ul>
           <h2>Need help or have feedback?</h2>
-          <p>
+          <p style={{ marginBottom: "20px" }}>
             Send us an email:&nbsp;
             <a href="mailto:support@thinmusic.com">support@thinmusic.com</a>,
             we're eager to hear from you.
@@ -303,88 +413,31 @@ class Settings extends Component {
         <div>
           <h2>
             ThinMusic is a web player for{" "}
-            <a href="https://apple.co/2AA0rdx">Apple Music</a>.
+            <a href="https://apple.co/2AA0rdx">Apple Music</a>
           </h2>
-          <p>
-            Log in &nbsp;
-            <Popover isOpen={this.state.explain}>
-              <div>
-                (
-                <Icon
-                  className="help"
-                  icon="help"
-                  onClick={this.toggleExplain}
-                />
-                )
-              </div>
-              <div>
-                <Card style={{ maxWidth: "400px" }}>
-                  <p>
-                    <b>Why do I need to log in to ThinMusic?</b>
-                    <br />
-                    Logging into ThinMusic lets us securely store your Apple
-                    Music and last.fm account information. You won't need to
-                    re-connect these services if you log in to ThinMusic on a
-                    new computer.
-                  </p>
-                  <p>
-                    <b>What data do you receive?</b>
-                    <br />
-                    We only request your name and email address from the login
-                    provider. We use this to authenticate you, and occasionally
-                    send important account related email.
-                    <br />
-                    <b>
-                      No spam, no sharing, and definitely no wall posts or
-                      tweets, promise.
-                    </b>
-                  </p>
-                  <Button
-                    style={{ textAlign: "right" }}
-                    icon="thumbs-up"
-                    onClick={this.toggleExplain}
-                  >
-                    Ok
-                  </Button>
-                </Card>
-              </div>
-            </Popover>
-            &nbsp; to begin connecting your Apple Music account and scrobble to
-            last.fm.
-          </p>
-          <p>
-            No Apple Music account? Sign up for a{" "}
-            <a href="https://apple.co/2AA0rdx">free trial</a>!
-          </p>
-          <ButtonGroup
-            large={true}
-            vertical={true}
-            className="login"
-            alignText="left"
-          >
-            <Button
-              className="google"
-              onClick={this.connectSocial.bind(this, "Google")}
-            >
-              <img src={Google} alt="Log in with Google" />
-              <span>Log in with Google</span>
-            </Button>
-            <Button
-              className="twitter"
-              onClick={this.connectSocial.bind(this, "Twitter")}
-            >
-              <img src={Twitter} alt="Log in with Twitter" />
-              <span>Log in with Twitter</span>
-            </Button>
-            <Button
-              className="facebook"
-              onClick={this.connectSocial.bind(this, "Facebook")}
-            >
-              <img src={Facebook} alt="Log in with Facebook" />
-              <span>Log in with Facebook</span>
-            </Button>
-          </ButtonGroup>
-
+          <Card className="nux">
+            <div className="box">
+              <h3>New user?</h3>
+              <p>Sign in with your Apple ID to get started:</p>
+              <Button
+                large={true}
+                className="apple"
+                onClick={this.connectAppleAnonymous}
+              >
+                <img src={Apple} alt="Log in with Apple" />
+                <span>Connect with Apple Music</span>
+              </Button>
+              <p>
+                No Apple Music account? Sign up for a{" "}
+                <a href="https://apple.co/2AA0rdx">free trial</a>!
+              </p>
+            </div>
+            <Divider />
+            <div className="box">
+              <h3>Returning user?</h3>
+              {this.renderSocialLogin()}
+            </div>
+          </Card>
           <div>
             <img
               alt="ThinMusic Preview"

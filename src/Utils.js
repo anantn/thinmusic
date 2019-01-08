@@ -116,17 +116,35 @@ class _Utils {
     }
 
     providerObj.setCustomParameters({ display: "popup" });
-    firebase
-      .auth()
-      .signInWithPopup(providerObj)
-      .then(result => {
-        if (cb) cb(result, null);
-        return false;
-      })
-      .catch(error => {
-        if (cb) cb(null, error);
-        return false;
-      });
+
+    let user = firebase.auth().currentUser;
+    if (user && user.isAnonymous) {
+      user
+        .linkWithPopup(providerObj)
+        .then(result => {
+          window.location.reload();
+        })
+        .catch(error => {
+          if (cb) cb(null, error);
+          return false;
+        });
+    } else {
+      firebase
+        .auth()
+        .signInWithPopup(providerObj)
+        .then(result => {
+          if (cb) cb(result, null);
+          return false;
+        })
+        .catch(error => {
+          if (cb) cb(null, error);
+          return false;
+        });
+    }
+  };
+
+  loginAnonymously = () => {
+    return firebase.auth().signInAnonymously();
   };
 
   logout = cb => {
@@ -326,6 +344,9 @@ class _Utils {
     let user = firebase.auth().currentUser;
     if (!user) {
       return null;
+    }
+    if (!user.displayName) {
+      return "Anonymous";
     }
     return user.displayName.split(" ")[0];
   };

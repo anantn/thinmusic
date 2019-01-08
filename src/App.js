@@ -214,11 +214,13 @@ class App extends Component {
     let logout = "";
     let callout = "";
     if (this.state.user) {
-      logout = (
-        <Button onClick={this.signOut} minimal={true} icon="log-out">
-          Logout
-        </Button>
-      );
+      if (Utils.userProvider()) {
+        logout = (
+          <Button onClick={this.signOut} minimal={true} icon="log-out">
+            Logout
+          </Button>
+        );
+      }
       if (!this.state.user.apple) {
         callout = (
           <Callout style={{ marginBottom: "10px" }} intent="warning">
@@ -267,7 +269,7 @@ class App extends Component {
             Made with <Icon icon="heart" /> by{" "}
             <a href="https://www.kix.in/">kix</a>.{" "}
             <a href="https://github.com/anantn/thinmusic">Source on Github</a>.
-            © 2018
+            © 2018-Present.
           </Text>
           <div className="right">{logout}</div>
         </div>

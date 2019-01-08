@@ -3,6 +3,26 @@
   min-height: 600px;
 }
 
+.settings .nux {
+  display: flex;
+  justify-content: space-around;
+}
+
+.settings .nux button.apple img {
+  height: 60px;
+  vertical-align: middle;
+}
+.settings .nux button.apple > span > span {
+  padding: 10px;
+}
+
+.settings .nux button.apple {
+  padding: 0;
+  margin: 15px;
+  display: inline-block;
+  border-radius: 13px;
+}
+
 .settings .help {
   cursor: pointer;
 }
@@ -81,5 +101,6 @@
   position: absolute;
   bottom: 0;
   width: 95%;
+  margin-top: 10px;
   margin-bottom: 10px;
 }
