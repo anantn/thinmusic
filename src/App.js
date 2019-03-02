@@ -7,7 +7,7 @@ import {
   Text,
   Spinner
 } from "@blueprintjs/core";
-import { isChrome, isSafari } from "react-device-detect";
+import { isChrome } from "react-device-detect";
 
 import "./s/App.css";
 import Panel from "./Panel";
@@ -247,25 +247,8 @@ class App extends Component {
       );
     }
 
-    let playbackError;
-    if (!isSafari) {
-      playbackError = (
-        <Callout
-          style={{ marginBottom: "10px" }}
-          intent="danger"
-          title="Playback currently unavailable!"
-        >
-          There is an ongoing issue with the Apple Music API, preventing song
-          playback on all browsers except Safari. We apologize for the
-          inconvenience, and appreciate your patience as we work to fix the
-          problem.
-        </Callout>
-      );
-    }
-
     return (
       <div className="app">
-        {playbackError}
         {callout}
         <Player
           music={this.state.music}
