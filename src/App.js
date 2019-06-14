@@ -155,7 +155,10 @@ class App extends Component {
                 });
               } else {
                 LS.clear();
-                window.location.reload();
+                Utils.disconnectApple(() => {
+                  console.log("case2");
+                  window.location.reload();
+                });
               }
             });
           } else {
