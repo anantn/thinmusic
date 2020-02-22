@@ -156,7 +156,6 @@ class App extends Component {
               } else {
                 LS.clear();
                 Utils.disconnectApple(() => {
-                  console.log("case2");
                   window.location.reload();
                 });
               }

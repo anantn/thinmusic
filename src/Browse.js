@@ -107,7 +107,7 @@ class Browse extends Component {
           });
         }
 
-        // Sort by count. I count is same:
+        // Sort by count. If count is same:
         // prefer heavy rotation -> recently played -> recommendations.
         merged.sort((a, b) => {
           let score = counts[b.id] - counts[a.id];
@@ -116,7 +116,7 @@ class Browse extends Component {
           return order.indexOf(a.source) - order.indexOf(b.source);
         });
         self.setState({
-          results: merged.length < 28 ? merged : merged.slice(0, 28),
+          results: merged,
           loading: false
         });
       }

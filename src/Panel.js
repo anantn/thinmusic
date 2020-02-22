@@ -85,7 +85,7 @@ class Panel extends Component {
       async.reflect(
         async.asyncify(
           self.props.music.api.search.bind(self.props.music.api, value, {
-            limit: 16,
+            limit: 25,
             types: "songs,albums,playlists"
           })
         )
@@ -99,7 +99,7 @@ class Panel extends Component {
               self.props.music.api.library,
               value,
               {
-                limit: 16,
+                limit: 25,
                 types: "library-songs,library-albums,library-playlists"
               }
             )
@@ -148,7 +148,7 @@ class Panel extends Component {
     // Merge global and library results.
     let final = [];
 
-    // 1. If an item appears in both library and global, show first.
+    // If an item appears in both library and global, show first.
     let inLibrary = library.map(
       obj => obj.attributes.playParams && obj.attributes.playParams.catalogId
     );
@@ -158,31 +158,22 @@ class Panel extends Component {
       }
     }
 
-    // 2. Show top 8 (upto 16 depending on library result set)
-    // global results not in library.
-    let added = 0;
-    let limit = library.length >= 8 ? 8 : 16 - library.length;
+    // Global results not in library.
     for (let obj of all) {
-      if (added >= limit) break;
       if (!inLibrary.includes(obj.id)) {
         final.push(obj);
-        added += 1;
       }
     }
 
-    // 3. Show remaining library results not already in list.
-    added = 0;
+    // Remaining library results not already in list.
     let inFinal = final.map(obj => obj.id);
     for (let obj of library) {
-      if (added >= 8) break;
       if (!inFinal.includes(obj.attributes.playParams.catalogId)) {
         final.push(obj);
-        added += 1;
       }
     }
 
-    // 4. Cap to 16 total results.
-    return final.length < 16 ? final : final.slice(0, 16);
+    return final;
   };
 
   playError = () => {
