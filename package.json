@@ -8,6 +8,7 @@
     "@types/react-dom": "^16.0.9",
     "async-es": "^2.6.1",
     "firebase": "^5.7.0",
+    "netlify-cli": "^2.35.0",
     "normalize.css": "^8.0.1",
     "react": "^16.6.0",
     "react-beautiful-dnd": "^10.0.2",
