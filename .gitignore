@@ -24,3 +24,6 @@ yarn-error.log*
 
 /.netlify
 /workspace
+
+# Local Netlify folder
+.netlify
