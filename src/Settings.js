@@ -387,6 +387,12 @@ class Settings extends Component {
           <h2>Known Issues</h2>
           <ul>
             <li>
+              Connecting your Apple Music account would sometimes not work and
+              result in asking you to authenticate again (during late March or
+              early April 2021). Logging out and logging back in before connecting
+              your Apple Music account will fix the problem.
+            </li>
+            <li>
               Music playback is interrupted occasionally. This appears to be an
               issue with MusicKit being unable to refresh a DRM token
               consistently. While we try to find a fix, you can work around the
