@@ -220,7 +220,7 @@ class _Utils {
     let self = this;
     Fetch(
       "https://us-central1-thin-music.cloudfunctions.net/tmlfm/session?token=" +
-        token
+      token
     )
       .then(resp => {
         if (!resp.ok || resp.status !== 200) {
@@ -426,7 +426,7 @@ class _Utils {
   // Verify token by trying to fetch one.
   isReallyLoggedIn = music => {
     return music.api
-      .recentPlayed({ limit: 1 })
+      .recommendations()
       .then(() => true)
       .catch(() => false);
   };
