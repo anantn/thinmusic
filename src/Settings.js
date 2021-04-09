@@ -393,11 +393,11 @@ class Settings extends Component {
               your Apple Music account will fix the problem.
             </li>
             <li>
-              Music playback is interrupted occasionally. This appears to be an
-              issue with MusicKit being unable to refresh a DRM token
-              consistently. While we try to find a fix, you can work around the
-              issue by manually pressing the play/pause button or skipping to
-              the next track.
+              Music playback is interrupted after 10 or so minutes. This appears
+              to be an issue with MusicKit being unable to
+              <a href="https://github.com/TTFM-Labs/public/issues/7">
+                refresh a DRM token consistently
+              </a>. The fix for this is as yet unknown.
             </li>
             <li>
               The queue cannot be saved as a playlist, and is cleared when the
