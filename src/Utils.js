@@ -24,7 +24,7 @@ class _Utils {
       "December"
     ];
     firebase.initializeApp({
-      apiKey: "AIzaSyC7nu8-o3v1calJe35PtMUBmlMohchf5lE",
+      apiKey: process.env.REACT_APP_FIREBASE_TOKEN,
       authDomain: "auth.thinmusic.com",
       databaseURL: "https://thin-music.firebaseio.com",
       projectId: "thin-music",
