@@ -44,7 +44,7 @@ class Settings extends Component {
     if (this.authObserver) this.authObserver();
   }
 
-  componentDidUpdate(prevProps) {}
+  componentDidUpdate(prevProps) { }
 
   cancel = () => {
     this.setState({ loginInProgress: false });
@@ -107,7 +107,7 @@ class Settings extends Component {
       } else {
         try {
           window.gtag("event", "login", { method: provider });
-        } catch (e) {}
+        } catch (e) { }
       }
     });
   };
@@ -121,7 +121,7 @@ class Settings extends Component {
       } else {
         try {
           window.gtag("event", "login", { method: "Apple" });
-        } catch (e) {}
+        } catch (e) { }
         self.props.userUpdate();
       }
       self.setState({ loginInProgress: false });
@@ -168,7 +168,7 @@ class Settings extends Component {
         } else {
           try {
             window.gtag("event", "login", { method: "LastFM" });
-          } catch (e) {}
+          } catch (e) { }
           self.props.userUpdate();
         }
         self.setState({ loginInProgress: false });
@@ -387,17 +387,16 @@ class Settings extends Component {
           <h2>Known Issues</h2>
           <ul>
             <li>
-              Connecting your Apple Music account would sometimes not work and
-              result in asking you to authenticate again (during late March or
-              early April 2021). Logging out and logging back in before connecting
-              your Apple Music account will fix the problem.
+              If you logged in with a Facebook account prior to Dec 25, 2021 -
+              you will have to reconnect your Apple Music and Last.FM accounts.
+              This does not affect Google or Twitter logins.
             </li>
             <li>
               Music playback is interrupted after 10 or so minutes. This appears
               to be an issue with MusicKit being unable to
               <a href="https://github.com/TTFM-Labs/public/issues/7">
                 refresh a DRM token consistently
-              </a>. The fix for this is as yet unknown.
+              </a>. The fix for this will be rolled out with MusicKit v3.
             </li>
             <li>
               The queue cannot be saved as a playlist, and is cleared when the

@@ -24,11 +24,11 @@ Modern web development stands on the shoulders of giants.
 
 Obtain a [MusicKit JS](https://developer.apple.com/documentation/musickitjs) developer token.
 
-`$ REACT_APP_DEV_TOKEN=<token> npm start`
+`$ REACT_APP_MUSICKIT_TOKEN=<token> REACT_APP_FIREBASE_TOKEN=<token> npm start`
 
 ## Deployment
 
-`$ REACT_APP_DEV_TOKEN=<token> GENERATE_SOURCEMAP=false PUBLIC_URL=https://www.thinmusic.com npm run build`
+`$ REACT_APP_MUSICKIT_TOKEN=<token> REACT_APP_FIREBASE_TOKEN=<token> GENERATE_SOURCEMAP=false PUBLIC_URL=https://www.thinmusic.com npm run build`
 
 ## License
 
