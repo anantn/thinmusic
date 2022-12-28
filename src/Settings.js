@@ -387,7 +387,7 @@ class Settings extends Component {
           <h2>Known Issues</h2>
           <ul>
             <li>
-              If you logged in with a Facebook account prior to Dec 25, 2021 -
+              If you logged in with a Facebook account prior to Dec 25, 2022 -
               you will have to reconnect your Apple Music and Last.FM accounts.
               This does not affect Google or Twitter logins.
             </li>
