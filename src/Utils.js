@@ -25,11 +25,11 @@ class _Utils {
     ];
     firebase.initializeApp({
       apiKey: process.env.REACT_APP_FIREBASE_TOKEN,
-      authDomain: "auth.thinmusic.com",
-      databaseURL: "https://thin-music.firebaseio.com",
-      projectId: "thin-music",
-      storageBucket: "thin-music.appspot.com",
-      messagingSenderId: "1074915904459"
+      authDomain: "apple-thinmusic.firebaseapp.com",
+      projectId: "apple-thinmusic",
+      storageBucket: "apple-thinmusic.appspot.com",
+      messagingSenderId: "694059640396",
+      appId: "1:694059640396:web:075505cc9e17a3a43f76e9"
     });
     this.db = firebase.firestore();
     this.db.settings({ timestampsInSnapshots: true });
@@ -169,7 +169,7 @@ class _Utils {
       path = "now";
     }
     let url =
-      "https://us-central1-thin-music.cloudfunctions.net/tmlfm/" +
+      "https://us-central1-apple-thinmusic.cloudfunctions.net/tmlfm/" +
       path +
       "?sk=" +
       EUC(key) +
@@ -196,7 +196,7 @@ class _Utils {
       "window",
       "toolbar=no, menubar=no, resizable=yes, width=600, height=600"
     );
-    Fetch("https://us-central1-thin-music.cloudfunctions.net/tmlfm/token")
+    Fetch("https://us-central1-apple-thinmusic.cloudfunctions.net/tmlfm/token")
       .then(resp => {
         if (!resp.ok || resp.status !== 200) {
           throw resp;
@@ -219,7 +219,7 @@ class _Utils {
   connectLastFMSession = (token, cb) => {
     let self = this;
     Fetch(
-      "https://us-central1-thin-music.cloudfunctions.net/tmlfm/session?token=" +
+      "https://us-central1-apple-thinmusic.cloudfunctions.net/tmlfm/session?token=" +
       token
     )
       .then(resp => {

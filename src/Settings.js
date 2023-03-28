@@ -17,7 +17,6 @@ import Utils from "./Utils";
 import Apple from "./i/Apple.png";
 import AppleSmall from "./i/AppleSmall.svg";
 import Google from "./i/Google.svg";
-import Twitter from "./i/Twitter.svg";
 import Facebook from "./i/Facebook.svg";
 import Preview from "./i/Preview.png";
 import LastFM from "./i/LastFM.png";
@@ -201,13 +200,6 @@ class Settings extends Component {
         >
           <img src={Google} alt="Log in with Google" />
           <span>Log in with Google</span>
-        </Button>
-        <Button
-          className="twitter"
-          onClick={this.connectSocial.bind(this, "Twitter")}
-        >
-          <img src={Twitter} alt="Log in with Twitter" />
-          <span>Log in with Twitter</span>
         </Button>
         <Button
           className="facebook"
