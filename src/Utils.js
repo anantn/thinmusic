@@ -32,7 +32,6 @@ class _Utils {
       appId: "1:694059640396:web:075505cc9e17a3a43f76e9"
     });
     this.db = firebase.firestore();
-    this.db.settings({ timestampsInSnapshots: true });
   }
 
   icon(artwork, width, height) {
@@ -421,6 +420,16 @@ class _Utils {
       bid = b.attributes.playParams.catalogId;
     }
     return aid === bid;
+  };
+
+  // Turn item into URL or library ID for queue.
+  itemToQueue = item => {
+    let options = { url: item.attributes.url };
+    if (!item.attributes.url) {
+      options = {};
+      options[item.attributes.playParams.kind] = item.attributes.playParams.id;
+    }
+    return options;
   };
 
   // Verify token by trying to fetch one.

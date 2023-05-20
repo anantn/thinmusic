@@ -33,7 +33,7 @@ class Settings extends Component {
     this.authObserver = null;
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.authObserver = Utils.addAuthObserver(() => {
       this.setState({ loginInProgress: false });
     });

@@ -60,8 +60,8 @@ class Panel extends Component {
           this.state.selected !== "search"
             ? this.state.selected
             : this.props.user && this.props.user.apple
-            ? "browse"
-            : "settings",
+              ? "browse"
+              : "settings",
         searching: false,
         results: []
       });
@@ -176,7 +176,8 @@ class Panel extends Component {
     return final;
   };
 
-  playError = () => {
+  playError = (e) => {
+    console.error(e);
     Toaster.create().show({
       icon: "error",
       intent: "danger",
@@ -197,7 +198,7 @@ class Panel extends Component {
 
     if (this.props.music.player.queue.isEmpty) {
       this.props.music
-        .setQueue(item)
+        .setQueue(Utils.itemToQueue(item))
         .then(() => {
           self.props.music.player
             .play()
@@ -273,14 +274,8 @@ class Panel extends Component {
       self.playError();
     }
 
-    let options = { url: item.attributes.url };
-    if (!item.attributes.url) {
-      options = {};
-      options[item.attributes.playParams.kind] = item.attributes.playParams.id;
-    }
-
     this.props.music
-      .setQueue(options)
+      .setQueue(Utils.itemToQueue(item))
       .then(() => {
         // Queue may contain things without playParams, remove.
         // TODO: Figure out better way to handle grayed out tracks as displayed.

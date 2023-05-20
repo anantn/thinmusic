@@ -38,7 +38,7 @@ class App extends Component {
     this.authObserver = null;
   }
 
-  componentWillMount() {
+  componentDidMount() {
     let self = this;
     self.state.music.addEventListener("mediaCanPlay", () => {
       if (self.state.audioElement) {
@@ -46,6 +46,7 @@ class App extends Component {
       }
 
       let element = window.document.getElementById("apple-music-player");
+      element.crossOrigin = "anonymous";
       let context = null;
       let source = null;
       // Nobody except Chrome can support this.

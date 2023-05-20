@@ -52,16 +52,13 @@ class Visualizer extends Component {
     this.canvas = React.createRef();
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.barCanvas = this.preRenderBar(
       this._barWidth(),
       this._height(),
       COLORS,
       this._renderHeight()
     );
-  }
-
-  componentDidMount() {
     this.drawing = true;
     this.draw();
   }
