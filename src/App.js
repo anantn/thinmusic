@@ -51,7 +51,7 @@ class App extends Component {
       let source = null;
       // Nobody except Chrome can support this.
       // More info at https://stackoverflow.com/questions/13958158/why-arent-safari-or-firefox-able-to-process-audio-data-from-mediaelementsource
-      if (isChrome) {
+      if (isChrome && self.state.music.isAuthorized) {
         context = new (window.AudioContext || window.webkitAudioContext)();
         source = context.createMediaElementSource(element);
         source.connect(context.destination);
