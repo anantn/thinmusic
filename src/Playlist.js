@@ -31,7 +31,8 @@ class Playlist extends Component {
 
   shuffle = () => {
     let item = this.props.music.nowPlayingItem;
-    this.props.music.queue.shuffle();
+    this.props.music.shuffleMode = window.MusicKit.PlayerShuffleMode.off;
+    this.props.music.shuffleMode = window.MusicKit.PlayerShuffleMode.songs;
     if (item) {
       let idx = this.props.music.queue.indexForItem(item);
       if (idx !== -1) {
