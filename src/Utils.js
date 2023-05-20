@@ -454,7 +454,7 @@ class _Utils {
   };
 
   moveQueue = (music, from, to) => {
-    if (!music || !from || !to) {
+    if (!music || from === undefined || to === undefined) {
       return;
     }
 
@@ -470,7 +470,7 @@ class _Utils {
     queue._queueItems = items;
     queue._reindex(); // Sets queue._itemIDs
     queue.position = queue.indexForItem(music.nowPlayingItem);
-    queue._dispatcher.publish("queueItemsDidChange", queue._items);
+    queue._dispatcher.publish("queueItemsDidChange", queue._queueItems);
   };
 }
 

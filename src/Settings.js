@@ -379,16 +379,12 @@ class Settings extends Component {
           <h2>Known Issues</h2>
           <ul>
             <li>
-              If you logged in with a Facebook account prior to Dec 25, 2022 -
-              you will have to reconnect your Apple Music and Last.FM accounts.
-              This does not affect Google or Twitter logins.
+              Twitter login is no longer supported, sign up with a different
+              provider to continue using ThinMusic.
             </li>
             <li>
-              Music playback is interrupted after 10 or so minutes. This appears
-              to be an issue with MusicKit being unable to
-              <a href="https://github.com/TTFM-Labs/public/issues/7">
-                refresh a DRM token consistently
-              </a>. The fix for this will be rolled out with MusicKit v3.
+              If you logged in with a Facebook account prior to Dec 25, 2022 -
+              you will have to reconnect your Apple Music and Last.FM accounts.
             </li>
             <li>
               The queue cannot be saved as a playlist, and is cleared when the

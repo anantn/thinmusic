@@ -43,7 +43,7 @@ class Playlist extends Component {
   clear = () => {
     let self = this;
     let next = () => {
-      self.props.music.stop().catch(e => {});
+      self.props.music.stop().catch(e => { });
       self.props.music.setQueue({}).then(() => {
         self.setState(self.state);
       });
