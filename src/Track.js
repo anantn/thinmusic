@@ -53,7 +53,7 @@ class Track extends Component {
       overlay = (
         <div>
           <div className="overlay" title="Play Now">
-            {isActive && this.props.music.player.isPlaying ? (
+            {isActive && this.props.music.isPlaying ? (
               <Icon icon="pause" />
             ) : (
               <Icon icon="play" />

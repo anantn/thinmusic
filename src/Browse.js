@@ -33,8 +33,14 @@ class Browse extends Component {
     let self = this;
     if (!self.props.user || !self.props.user.apple) {
       self.props.music.api
-        .charts(["albums", "playlists"], { limit: 14 })
-        .then(res => {
+        .music("/v1/catalog/{{storefrontId}}/charts", {
+          types: ["albums", "playlists"], limit: 14
+        })
+        .then(obj => {
+          if (!obj || !obj.data || !obj.data.results) {
+            throw new Error("Invalid response.");
+          }
+          let res = obj.data.results;
           let merged = [];
           if (res.playlists && res.playlists[0] && res.playlists[0].data) {
             merged = merged.concat(res.playlists[0].data);
@@ -58,9 +64,9 @@ class Browse extends Component {
     let order = ["heavyRotation", "recentPlayed", "recommendations"];
     async.parallel(
       [
-        async.reflect(async.asyncify(api.historyHeavyRotation.bind(api))),
-        async.reflect(async.asyncify(api.recentPlayed.bind(api))),
-        async.reflect(async.asyncify(api.recommendations.bind(api)))
+        async.reflect(async.asyncify(api.music.bind(api, "/v1/me/history/heavy-rotation"))),
+        async.reflect(async.asyncify(api.music.bind(api, "/v1/me/recent/played"))),
+        async.reflect(async.asyncify(api.music.bind(api, "/v1/me/recommendations")))
       ],
       (err, res) => {
         // TODO: Remove log and handle errors.
@@ -86,18 +92,18 @@ class Browse extends Component {
         };
 
         // Heavy rotation.
-        if (res[0] && res[0].value && Array.isArray(res[0].value)) {
-          res[0].value.map(addToMerged.bind(this, order[0]));
+        if (res[0] && res[0].value && Array.isArray(res[0].value.data.data)) {
+          res[0].value.data.data.map(addToMerged.bind(this, order[0]));
         }
 
         // Recently played.
-        if (res[1] && res[1].value && Array.isArray(res[1].value)) {
-          res[1].value.map(addToMerged.bind(this, order[1]));
+        if (res[1] && res[1].value && Array.isArray(res[1].value.data.data)) {
+          res[1].value.data.data.map(addToMerged.bind(this, order[1]));
         }
 
         // Personal recommendations.
-        if (res[2] && res[2].value && Array.isArray(res[2].value)) {
-          res[2].value.map(e => {
+        if (res[2] && res[2].value && Array.isArray(res[2].value.data.data)) {
+          res[2].value.data.data.map(e => {
             if (e.relationships && e.relationships.contents) {
               return e.relationships.contents.data.map(
                 addToMerged.bind(this, order[2])

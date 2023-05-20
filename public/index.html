@@ -1,61 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
-    <link rel="apple-music-app-icon" href="%PUBLIC_URL%/logo.png" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <meta name="theme-color" content="#394b59" />
 
-    <title>ThinMusic: The Web Player for Apple Music</title>
-    <meta property="og:title" content="ThinMusic" />
-    <meta name="twitter:title" content="ThinMusic" />
+<head>
+  <meta charset="utf-8" />
+  <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+  <link rel="apple-music-app-icon" href="%PUBLIC_URL%/logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="theme-color" content="#394b59" />
 
-    <meta
-      name="description"
-      content="ThinMusic is a free web player for Apple Music with support for last.fm scrobbling."
-    />
-    <meta
-      property="og:description"
-      content="ThinMusic is a free web player for Apple Music with support for last.fm scrobbling."
-    />
-    <meta
-      name="twitter:description"
-      content="ThinMusic is a free web player for Apple Music with support for last.fm scrobbling."
-    />
+  <title>ThinMusic: The Web Player for Apple Music</title>
+  <meta property="og:title" content="ThinMusic" />
+  <meta name="twitter:title" content="ThinMusic" />
 
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.thinmusic.com/" />
-    <meta property="og:image" content="%PUBLIC_URL%/logo.png" />
-    <meta name="twitter:image" content="%PUBLIC_URL%/logo.png" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:creator" content="@anantn" />
+  <meta name="description"
+    content="ThinMusic is a free web player for Apple Music with support for last.fm scrobbling." />
+  <meta property="og:description"
+    content="ThinMusic is a free web player for Apple Music with support for last.fm scrobbling." />
+  <meta name="twitter:description"
+    content="ThinMusic is a free web player for Apple Music with support for last.fm scrobbling." />
 
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js"></script>
-    <script defer data-domain="thinmusic.com" src="https://data.kix.in/js/script.js"></script>
-  </head>
-  <body>
-    <noscript>
-      <a href="https://www.enable-javascript.com/"
-        >ThinMusic needs JavaScript enabled to work!</a
-      >
-    </noscript>
-    <main>
-      <div
-        id="loader"
-        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; text-align: center; color: #f5f8fa; background-color: #394b59; width: 100%; height: 2180px; margin: 0; padding: 0"
-      >
-        <img style="margin-top: 150px" src="%PUBLIC_URL%/logo.png" />
-        <p style="margin-top: 20px">
-          ThinMusic is a web player for Apple Music.
-        </p>
-        <p>Please stand by while we prepare some tunes!</p>
-      </div>
-      <div id="root" class="bp3-dark" role="main"></div>
-    </main>
-  </body>
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.thinmusic.com/" />
+  <meta property="og:image" content="%PUBLIC_URL%/logo.png" />
+  <meta name="twitter:image" content="%PUBLIC_URL%/logo.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:creator" content="@anantn" />
+
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js" data-web-components></script>
+  <script src="https://data.kix.in/js/script.js" data-domain="thinmusic.com" defer></script>
+</head>
+
+<body>
+  <noscript>
+    <a href="https://www.enable-javascript.com/">ThinMusic needs JavaScript enabled to work!</a>
+  </noscript>
+  <main>
+    <div id="loader"
+      style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; text-align: center; color: #f5f8fa; background-color: #394b59; width: 100%; height: 2180px; margin: 0; padding: 0">
+      <img style="margin-top: 150px" src="%PUBLIC_URL%/logo.png" />
+      <p style="margin-top: 20px">
+        ThinMusic is a web player for Apple Music.
+      </p>
+      <p>Please stand by while we prepare some tunes!</p>
+    </div>
+    <div id="root" class="bp3-dark" role="main"></div>
+  </main>
+</body>
+
 </html>

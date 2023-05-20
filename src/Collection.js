@@ -87,8 +87,12 @@ class Collection extends Component {
 
       let self = this;
       this.props.music.api
-        .song(id)
-        .then(res => {
+        .music(`/v1/catalog/{{storefrontId}}/songs/${id}`)
+        .then(obj => {
+          if (!obj || !obj.data || !obj.data) {
+            throw new Error("Invalid response.");
+          }
+          let res = obj.data.data[0];
           let select = self.props.item._subSelect + "s";
           if (
             res.relationships &&
@@ -144,13 +148,17 @@ class Collection extends Component {
 
   fetchReal = (id, type, isLibrary) => {
     let self = this;
-    let method = this.props.music.api;
+    let method = `/v1/catalog/{{storefrontId}}/${type}/${id}`;
     if (type.startsWith("library")) {
-      method = this.props.music.api.library;
       type = type.slice("library-".length);
+      method = `/v1/me/library/${type}/${id}`
     }
-    method[type.slice(0, -1)](id)
-      .then(res => {
+    this.props.music.api.music(method, { include: ["tracks", "albums"] })
+      .then(obj => {
+        if (!obj || !obj.data || !obj.data.data) {
+          throw new Error("Invalid response.");
+        }
+        let res = obj.data.data[0];
         if (
           res.relationships &&
           res.relationships.tracks &&
@@ -167,10 +175,13 @@ class Collection extends Component {
           res.relationships.albums &&
           res.relationships.albums.data
         ) {
-          self.props.music.api
-            .albums(res.relationships.albums.data.map(a => a.id).slice(0, 24))
-            .then(albums => {
-              res.relationships.albums.data = albums;
+          self.props.music.api.music("/v1/catalog/{{storefrontId}}/albums",
+            { ids: res.relationships.albums.data.map(a => a.id).slice(0, 24) })
+            .then(obj => {
+              if (!obj || !obj.data) {
+                throw new Error("Invalid response.");
+              }
+              res.relationships.albums = obj.data;
               self.setState({ item: res, error: false, library: isLibrary });
             })
             .catch(e => {
@@ -371,7 +382,7 @@ class Collection extends Component {
                     className="overlay"
                     onClick={self.props.playNow.bind(self, item)}
                   >
-                    {isActive && this.props.music.player.isPlaying ? (
+                    {isActive && this.props.music.isPlaying ? (
                       <Icon icon="pause" />
                     ) : (
                       <Icon icon="play" />

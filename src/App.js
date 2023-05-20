@@ -192,8 +192,8 @@ class App extends Component {
 
   signOut = () => {
     let self = this;
-    if (self.state.music.player.isPlaying) {
-      self.state.music.player.stop();
+    if (self.state.music.isPlaying) {
+      self.state.music.stop();
     }
     self.state.music.setQueue({});
     Utils.logout(() => {

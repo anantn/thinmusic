@@ -33,12 +33,12 @@ class Panel extends Component {
   }
 
   componentDidMount = () => {
-    this.props.music.addEventListener("mediaItemDidChange", this.mediaChange);
+    this.props.music.addEventListener("nowPlayingItemDidChange", this.mediaChange);
   };
 
   componentWillUnmount = () => {
     this.props.music.removeEventListener(
-      "mediaItemDidChange",
+      "nowPlayingItemDidChange",
       this.mediaChange
     );
   };
@@ -84,10 +84,15 @@ class Panel extends Component {
     let methods = [
       async.reflect(
         async.asyncify(
-          self.props.music.api.search.bind(self.props.music.api, value, {
-            limit: 25,
-            types: "songs,albums,playlists"
-          })
+          self.props.music.api.music.bind(
+            self.props.music.api,
+            "/v1/catalog/{{storefrontId}}/search",
+            {
+              term: value,
+              limit: 25,
+              types: ["songs", "albums", "playlists"]
+            }
+          )
         )
       )
     ];
@@ -95,12 +100,13 @@ class Panel extends Component {
       methods.push(
         async.reflect(
           async.asyncify(
-            self.props.music.api.library.search.bind(
-              self.props.music.api.library,
-              value,
+            self.props.music.api.music.bind(
+              self.props.music.api,
+              "/v1/me/library/search",
               {
+                term: value,
                 limit: 25,
-                types: "library-songs,library-albums,library-playlists"
+                types: ["library-songs", "library-albums", "library-playlists"]
               }
             )
           )
@@ -134,11 +140,11 @@ class Panel extends Component {
   merge = (res, type) => {
     let all = [];
     let library = [];
-    if (res[0] && res[0].value && type in res[0].value) {
-      all = res[0].value[type].data;
+    if (res[0] && res[0].value && res[0].value.data && type in res[0].value.data.results) {
+      all = res[0].value.data.results[type].data;
     }
-    if (res[1] && res[1].value && "library-" + type in res[1].value) {
-      library = res[1].value["library-" + type].data;
+    if (res[1] && res[1].value && res[0].value.data && "library-" + type in res[1].value.data.results) {
+      library = res[1].value.data.results["library-" + type].data;
     }
     all = all.filter(obj => obj.attributes && obj.attributes.playParams);
     library = library.filter(
@@ -185,22 +191,22 @@ class Panel extends Component {
     });
   };
 
-  playNow = (item, event) => {
+  playNow = async (item, event) => {
     let self = this;
-    if (Utils.isSameTrack(item, this.props.music.player.nowPlayingItem)) {
-      if (this.props.music.player.isPlaying) {
-        this.props.music.player.pause();
+    if (Utils.isSameTrack(item, this.props.music.nowPlayingItem)) {
+      if (this.props.music.isPlaying) {
+        this.props.music.pause();
       } else {
-        this.props.music.player.play();
+        this.props.music.play();
       }
       return;
     }
 
-    if (this.props.music.player.queue.isEmpty) {
+    if (this.props.music.queue.isEmpty) {
       this.props.music
         .setQueue(Utils.itemToQueue(item))
         .then(() => {
-          self.props.music.player
+          self.props.music
             .play()
             .then(() => {
               self.setState(self.state);
@@ -209,13 +215,13 @@ class Panel extends Component {
         })
         .catch(self.playError);
     } else {
-      let next = () => {
-        let idx = self.props.music.player.queue.indexForItem(item.id);
+      let next = async () => {
+        let idx = self.props.music.queue.indexForItem(item.id);
         if (idx === -1) {
-          self.props.music.player.queue.prepend(item);
-          idx = self.props.music.player.nowPlayingItemIndex + 1;
+          await self.props.music.playNext(Utils.itemToQueue(item));
+          idx = self.props.music.nowPlayingItemIndex + 1;
         }
-        self.props.music.player
+        self.props.music
           .changeToMediaAtIndex(idx)
           .then(() => {
             self.setState(self.state);
@@ -223,46 +229,46 @@ class Panel extends Component {
           .catch(self.playError);
       };
 
-      if (this.props.music.player.isPlaying) {
-        this.props.music.player
+      if (this.props.music.isPlaying) {
+        this.props.music
           .stop()
           .then(next)
           .catch(self.playError);
       } else {
-        next();
+        await next();
       }
     }
   };
 
-  playNext = (item, event) => {
-    if (this.props.music.player.queue.isEmpty) {
+  playNext = async (item, event) => {
+    if (this.props.music.queue.isEmpty) {
       this.playNow(item, event);
     } else {
-      let idx = this.props.music.player.queue.indexForItem(item.id);
+      let idx = this.props.music.queue.indexForItem(item.id);
       if (idx === -1) {
-        this.props.music.player.queue.prepend(item);
+        await this.props.music.playNext(Utils.itemToQueue(item));
       } else {
         Utils.moveQueue(
           this.props.music,
           idx,
-          this.props.music.player.nowPlayingItemIndex + 1
+          this.props.music.nowPlayingItemIndex + 1
         );
       }
     }
   };
 
-  playLast = (item, event) => {
-    if (this.props.music.player.queue.isEmpty) {
+  playLast = async (item, event) => {
+    if (this.props.music.queue.isEmpty) {
       this.playNow(item, event);
     } else {
-      let idx = this.props.music.player.queue.indexForItem(item.id);
+      let idx = this.props.music.queue.indexForItem(item.id);
       if (idx === -1) {
-        this.props.music.player.queue.append(item);
+        await this.props.music.playLater(Utils.itemToQueue(item));
       } else {
         Utils.moveQueue(
           this.props.music,
           idx,
-          this.props.music.player.queue.length - 1
+          this.props.music.queue.length - 1
         );
       }
     }
@@ -279,17 +285,17 @@ class Panel extends Component {
       .then(() => {
         // Queue may contain things without playParams, remove.
         // TODO: Figure out better way to handle grayed out tracks as displayed.
-        let queue = self.props.music.player.queue;
-        queue._items = queue._items.filter(e => e.attributes.playParams);
-        if (queue._items.length === 0) {
+        let queue = self.props.music.queue;
+        queue._queueItems = queue._queueItems.filter(e => e.item.attributes.playParams);
+        if (queue._queueItems.length === 0) {
           self.playError();
           self.props.music.setQueue({});
           return;
         }
 
         queue._reindex();
-        queue.dispatchEvent("queueItemsDidChange", queue._items);
-        self.props.music.player
+        queue._dispatcher.publish("queueItemsDidChange", queue._queueItems);
+        self.props.music
           .play()
           .then(() => {
             self.setState(self.state);

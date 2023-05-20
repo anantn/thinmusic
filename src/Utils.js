@@ -424,10 +424,13 @@ class _Utils {
 
   // Turn item into URL or library ID for queue.
   itemToQueue = item => {
-    let options = { url: item.attributes.url };
-    if (!item.attributes.url) {
-      options = {};
+    let options = {};
+    if (item.attributes.playParams && item.attributes.playParams.id) {
       options[item.attributes.playParams.kind] = item.attributes.playParams.id;
+    } else if (item.attributes.url) {
+      options.url = item.attributes.url;
+    } else {
+      throw new Error("Could not get any ID for item!");
     }
     return options;
   };
@@ -435,7 +438,7 @@ class _Utils {
   // Verify token by trying to fetch one.
   isReallyLoggedIn = music => {
     return music.api
-      .recommendations()
+      .music("/v1/me/recommendations")
       .then(() => true)
       .catch(() => false);
   };
@@ -455,19 +458,19 @@ class _Utils {
       return;
     }
 
-    let queue = music.player.queue;
+    let queue = music.queue;
     if (from === to || to >= queue.length) {
       return;
     }
 
-    let items = Array.from(queue.items);
+    let items = Array.from(queue._queueItems);
     let [moved] = items.splice(from, 1);
     items.splice(to, 0, moved);
     // TODO: Using private API, might break.
-    queue._items = items;
+    queue._queueItems = items;
     queue._reindex(); // Sets queue._itemIDs
-    queue.position = queue.indexForItem(music.player.nowPlayingItem);
-    queue.dispatchEvent("queueItemsDidChange", queue._items);
+    queue.position = queue.indexForItem(music.nowPlayingItem);
+    queue._dispatcher.publish("queueItemsDidChange", queue._items);
   };
 }
 

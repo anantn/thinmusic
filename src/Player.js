@@ -83,10 +83,10 @@ class Player extends Component {
         self.setState({ playbackState: event.state });
         this.interval = setInterval(this.tick, 300);
         if (
-          self.props.music.player.nowPlayingItem &&
-          self.props.music.player.nowPlayingItem.attributes
+          self.props.music.nowPlayingItem &&
+          self.props.music.nowPlayingItem.attributes
         ) {
-          let attrs = self.props.music.player.nowPlayingItem.attributes;
+          let attrs = self.props.music.nowPlayingItem.attributes;
           let title = attrs.name ? attrs.name : "";
           title += " by ";
           title += attrs.artistName ? attrs.artistName : "";
@@ -107,8 +107,8 @@ class Player extends Component {
   tick = () => {
     if (this.state.playbackState !== PS.playing) return;
     this.setState({
-      currentTime: this.props.music.player.currentPlaybackTime,
-      totalTime: this.props.music.player.currentPlaybackDuration
+      currentTime: this.props.music.currentPlaybackTime,
+      totalTime: this.props.music.currentPlaybackDuration
     });
   };
 
@@ -118,7 +118,7 @@ class Player extends Component {
     var rect = this.slider.current.getBoundingClientRect();
     return Math.floor(
       ((event.clientX - rect.left) / (rect.right - rect.left)) *
-        this.props.music.player.currentPlaybackDuration
+        this.props.music.currentPlaybackDuration
     );
   };
 
@@ -170,7 +170,7 @@ class Player extends Component {
 
   repeatChange = () => {
     let target = (this.state.repeatMode + 1) % 3;
-    this.props.music.player.repeatMode = target;
+    this.props.music.repeatMode = target;
     Toaster.create().show({
       icon: "repeat",
       intent: "primary",
@@ -182,23 +182,23 @@ class Player extends Component {
   };
 
   sliderChange = num => {
-    this.props.music.player.pause();
+    this.props.music.pause();
     this.setState({ currentTime: num, disableControls: true });
   };
 
   sliderRelease = num => {
     let self = this;
-    this.props.music.player.seekToTime(num).then(() => {
-      self.props.music.player.play();
+    this.props.music.seekToTime(num).then(() => {
+      self.props.music.play();
       self.setState({ disableControls: false });
     });
   };
 
   toggle = () => {
     if (this.state.playbackState === PS.playing) {
-      this.props.music.player.pause();
+      this.props.music.pause();
     } else {
-      this.props.music.player.play();
+      this.props.music.play();
     }
   };
 
@@ -208,9 +208,9 @@ class Player extends Component {
 
   beginning = () => {
     let self = this;
-    this.props.music.player.seekToTime(0).then(() => {
+    this.props.music.seekToTime(0).then(() => {
       if (self.state.playbackState === PS.paused) {
-        self.props.music.player.play();
+        self.props.music.play();
       }
     });
   };
@@ -219,10 +219,10 @@ class Player extends Component {
     let self = this;
     let next = () => {
       // Bug in MusicKit, at index 1, back doesn't work?
-      if (self.props.music.player.nowPlayingItemIndex === 1) {
-        self.props.music.player.changeToMediaAtIndex(0);
+      if (self.props.music.nowPlayingItemIndex === 1) {
+        self.props.music.changeToMediaAtIndex(0);
       } else {
-        self.props.music.player.skipToPreviousItem();
+        self.props.music.skipToPreviousItem();
       }
     };
 
@@ -231,8 +231,8 @@ class Player extends Component {
 
     // Why do this? There's a state glitch we're trying to avoid which we
     // just eat if track happends to be paused.
-    if (this.props.music.player.isPlaying) {
-      this.props.music.player.stop().then(next);
+    if (this.props.music.isPlaying) {
+      this.props.music.stop().then(next);
     } else {
       next();
     }
@@ -241,14 +241,14 @@ class Player extends Component {
   forward = () => {
     let self = this;
     let next = () => {
-      self.props.music.player.skipToNextItem();
+      self.props.music.skipToNextItem();
     };
 
     // Don't wait until promise for UI feedback (spinner).
     this.setState({ playbackState: PS.stopped });
 
-    if (this.props.music.player.isPlaying) {
-      this.props.music.player.stop().then(next);
+    if (this.props.music.isPlaying) {
+      this.props.music.stop().then(next);
     } else {
       next();
     }
@@ -263,10 +263,10 @@ class Player extends Component {
     let logo = (
       <Logo thin={Colors.BLUE5} music={Colors.BLUE5} bar={Colors.BLUE1} />
     );
-    if (this.props.music.player.nowPlayingItem) {
+    if (this.props.music.nowPlayingItem) {
       track = (
         <Track
-          item={this.props.music.player.nowPlayingItem}
+          item={this.props.music.nowPlayingItem}
           audioContext={this.props.audioContext}
           audioSource={this.props.audioSource}
           visualize={this.state.visualize}
@@ -364,7 +364,7 @@ class Player extends Component {
                 title="Previous Track"
                 disabled={
                   this.state.disableControls ||
-                  this.props.music.player.nowPlayingItemIndex <= 0
+                  this.props.music.nowPlayingItemIndex <= 0
                 }
                 onClick={this.backward}
               />
@@ -391,8 +391,8 @@ class Player extends Component {
                 title="Next Track"
                 disabled={
                   this.state.disableControls ||
-                  this.props.music.player.nowPlayingItemIndex ===
-                    this.props.music.player.queue.length - 1
+                  this.props.music.nowPlayingItemIndex ===
+                    this.props.music.queue.length - 1
                 }
                 onClick={this.forward}
               />

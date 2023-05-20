@@ -9,7 +9,7 @@ class Playlist extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      items: this.props.music.player.queue.items
+      items: this.props.music.queue.items
     };
   }
 
@@ -26,16 +26,16 @@ class Playlist extends Component {
   };
 
   change = () => {
-    this.setState({ items: this.props.music.player.queue.items });
+    this.setState({ items: this.props.music.queue.items });
   };
 
   shuffle = () => {
-    let item = this.props.music.player.nowPlayingItem;
-    this.props.music.player.queue.shuffle();
+    let item = this.props.music.nowPlayingItem;
+    this.props.music.queue.shuffle();
     if (item) {
-      let idx = this.props.music.player.queue.indexForItem(item);
+      let idx = this.props.music.queue.indexForItem(item);
       if (idx !== -1) {
-        this.props.music.player.queue.position = idx;
+        this.props.music.queue.position = idx;
       }
     }
   };
@@ -43,7 +43,7 @@ class Playlist extends Component {
   clear = () => {
     let self = this;
     let next = () => {
-      self.props.music.player.stop().catch(e => {});
+      self.props.music.stop().catch(e => {});
       self.props.music.setQueue({}).then(() => {
         self.setState(self.state);
       });
@@ -51,11 +51,11 @@ class Playlist extends Component {
 
     // TOOD: Move to common constants, too much hardcoding.
     if (
-      self.props.music.player.nowPlayingItem &&
-      self.props.music.player.playbackState === 3
+      self.props.music.nowPlayingItem &&
+      self.props.music.playbackState === 3
     ) {
       // LUL.
-      self.props.music.player.play().then(next);
+      self.props.music.play().then(next);
     } else {
       next();
     }
@@ -63,18 +63,18 @@ class Playlist extends Component {
 
   click = (isActive, idx) => {
     if (isActive) {
-      if (this.props.music.player.isPlaying) {
-        this.props.music.player.pause().then(this.change);
+      if (this.props.music.isPlaying) {
+        this.props.music.pause().then(this.change);
       } else {
-        this.props.music.player.play().then(this.change);
+        this.props.music.play().then(this.change);
       }
     } else {
       let self = this;
       let next = () => {
-        self.props.music.player.changeToMediaAtIndex(idx);
+        self.props.music.changeToMediaAtIndex(idx);
       };
-      if (this.props.music.player.isPlaying) {
-        this.props.music.player.stop().then(next);
+      if (this.props.music.isPlaying) {
+        this.props.music.stop().then(next);
       } else {
         next();
       }
@@ -117,7 +117,7 @@ class Playlist extends Component {
             className="overlay"
             onClick={this.click.bind(this, isActive, idx)}
           >
-            {isActive && this.props.music.player.isPlaying ? (
+            {isActive && this.props.music.isPlaying ? (
               <Icon icon="pause" />
             ) : (
               <Icon icon="play" />
@@ -156,8 +156,8 @@ class Playlist extends Component {
           ""
         ) : (
           <Button
-            onClick={this.props.music.player.queue.remove.bind(
-              this.props.music.player.queue,
+            onClick={this.props.music.queue.remove.bind(
+              this.props.music.queue,
               idx
             )}
             minimal={true}

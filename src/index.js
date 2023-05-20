@@ -13,9 +13,9 @@ import Preview from "./i/Preview.png";
 
 const MusicKit = window.MusicKit;
 
-function main(rm) {
+async function main(rm) {
   FocusStyleManager.onlyShowFocusOnTabs();
-  MusicKit.configure({
+  await MusicKit.configure({
     developerToken: process.env.REACT_APP_MUSICKIT_TOKEN,
     app: {
       name: "ThinMusic",
