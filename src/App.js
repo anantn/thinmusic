@@ -75,6 +75,7 @@ class App extends Component {
     self.state.music.addEventListener("nowPlayingItemDidChange", event => {
       let item = event.item;
       if (
+        !item ||
         !self.state.user ||
         !self.state.user.lastfm ||
         !self.state.user.lastfm.key
