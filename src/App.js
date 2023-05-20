@@ -72,7 +72,7 @@ class App extends Component {
       }
     );
 
-    self.state.music.addEventListener("mediaItemWillChange", event => {
+    self.state.music.addEventListener("nowPlayingItemDidChange", event => {
       let item = event.item;
       if (
         !self.state.user ||
@@ -119,7 +119,7 @@ class App extends Component {
   componentWillUnmount() {
     if (this.authObserver) this.authObserver();
     this.state.music.removeEventListener("mediaCanPlay");
-    this.state.music.removeEventListener("mediaItemWillChange");
+    this.state.music.removeEventListener("nowPlayingItemDidChange");
     this.state.music.removeEventListener("authorizationStatusDidChange");
   }
 
