@@ -27,6 +27,7 @@ import Logo from "./Logo";
 // stalled:   9
 // completed: 10
 const PS = window.MusicKit.PlaybackStates;
+const LS = window.localStorage;
 
 // none: 0
 // one: 1
@@ -118,7 +119,7 @@ class Player extends Component {
     var rect = this.slider.current.getBoundingClientRect();
     return Math.floor(
       ((event.clientX - rect.left) / (rect.right - rect.left)) *
-        this.props.music.currentPlaybackDuration
+      this.props.music.currentPlaybackDuration
     );
   };
 
@@ -126,7 +127,7 @@ class Player extends Component {
     this.setState({
       sliderHover:
         this.state.playbackState === PS.playing ||
-        this.state.playbackState === PS.paused
+          this.state.playbackState === PS.paused
           ? true
           : false,
       hoverTime: this.hoverTime(event)
@@ -144,6 +145,7 @@ class Player extends Component {
   };
 
   volumeChange = num => {
+    LS.setItem("volume", num);
     this.props.audioElement.volume = num;
     this.setState({ volume: this.props.audioElement.volume });
   };
@@ -304,8 +306,8 @@ class Player extends Component {
               this.props.audioElement.volume === 0
                 ? "volume-off"
                 : this.props.audioElement.volume >= 0.5
-                ? "volume-up"
-                : "volume-down"
+                  ? "volume-up"
+                  : "volume-down"
             }
           />
           <Slider
@@ -392,7 +394,7 @@ class Player extends Component {
                 disabled={
                   this.state.disableControls ||
                   this.props.music.nowPlayingItemIndex ===
-                    this.props.music.queue.length - 1
+                  this.props.music.queue.length - 1
                 }
                 onClick={this.forward}
               />

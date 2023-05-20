@@ -47,6 +47,8 @@ class App extends Component {
 
       let element = window.document.getElementById("apple-music-player");
       element.crossOrigin = "anonymous";
+      element.volume = LS.getItem("volume") || 1;
+
       let context = null;
       let source = null;
       // Nobody except Chrome can support this.
