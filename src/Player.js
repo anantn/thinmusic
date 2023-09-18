@@ -55,6 +55,10 @@ class Player extends Component {
       "playbackStateDidChange",
       this.playbackChange
     );
+    this.props.music.addEventListener(
+      "nowPlayingItemDidChange",
+      this.nowPlayingChange
+    );
   };
 
   componentWillUnmount = () => {
@@ -65,15 +69,42 @@ class Player extends Component {
       "playbackStateDidChange",
       this.playbackChange
     );
+    this.props.music.removeEventListener(
+      "nowPlayingItemDidChange",
+      this.nowPlayingChange
+    );
+  };
+
+  nowPlayingChange = event => {
+    let item = event.item;
+    let volume = LS.getItem("volume") || 1;
+    if (this.props.audioElement) {
+      this.props.audioElement.volume = volume;
+      this.setState({ volume: this.props.audioElement.volume });
+    }
+
+    if (
+      item &&
+      item.attributes
+    ) {
+      let attrs = item.attributes;
+      let title = attrs.name ? attrs.name : "";
+      title += " by ";
+      title += attrs.artistName ? attrs.artistName : "";
+      title += ", on ThinMusic";
+      console.log("setting title to " + title);
+      window.document.title = title;
+    } else {
+      let defaultTitle = "ThinMusic: The Web Player for Apple Music";
+      window.document.title = defaultTitle;
+    }
   };
 
   playbackChange = event => {
     let self = this;
-    let defaultTitle = "ThinMusic: The Web Player for Apple Music";
     switch (event.state) {
       case PS.loading:
       case PS.stopped:
-        window.document.title = defaultTitle;
         this.setState({
           playbackState: event.state,
           currentTime: null,
@@ -83,20 +114,8 @@ class Player extends Component {
       case PS.playing:
         self.setState({ playbackState: event.state });
         this.interval = setInterval(this.tick, 300);
-        if (
-          self.props.music.nowPlayingItem &&
-          self.props.music.nowPlayingItem.attributes
-        ) {
-          let attrs = self.props.music.nowPlayingItem.attributes;
-          let title = attrs.name ? attrs.name : "";
-          title += " by ";
-          title += attrs.artistName ? attrs.artistName : "";
-          title += ", on ThinMusic";
-          window.document.title = title;
-        }
         break;
       default:
-        window.document.title = defaultTitle;
         self.setState({ playbackState: event.state });
         if (this.interval !== 0) {
           clearInterval(this.interval);
