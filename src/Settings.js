@@ -17,7 +17,6 @@ import Utils from "./Utils";
 import Apple from "./i/Apple.png";
 import AppleSmall from "./i/AppleSmall.svg";
 import Google from "./i/Google.svg";
-import Facebook from "./i/Facebook.svg";
 import Preview from "./i/Preview.png";
 import LastFM from "./i/LastFM.png";
 
@@ -201,13 +200,6 @@ class Settings extends Component {
           <img src={Google} alt="Log in with Google" />
           <span>Log in with Google</span>
         </Button>
-        <Button
-          className="facebook"
-          onClick={this.connectSocial.bind(this, "Facebook")}
-        >
-          <img src={Facebook} alt="Log in with Facebook" />
-          <span>Log in with Facebook</span>
-        </Button>
       </ButtonGroup>
     );
   };
@@ -379,12 +371,8 @@ class Settings extends Component {
           <h2>Known Issues</h2>
           <ul>
             <li>
-              Twitter login is no longer supported, sign up with a different
+              Twitter and Facebook login are no longer supported, sign up with a different
               provider to continue using ThinMusic.
-            </li>
-            <li>
-              If you logged in with a Facebook account prior to Dec 25, 2022 -
-              you will have to reconnect your Apple Music and Last.FM accounts.
             </li>
             <li>
               The queue cannot be saved as a playlist, and is cleared when the
