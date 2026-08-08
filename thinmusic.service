@@ -1,0 +1,15 @@
+[Unit]
+Description=ThinMusic Web Player
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/path/to/thinmusic
+ExecStart=/usr/bin/npx serve -s build -l 3000
+Restart=on-failure
+RestartSec=10
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
