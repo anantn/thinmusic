@@ -12,6 +12,7 @@ import "./s/App.css";
 import Panel from "./Panel";
 import Player from "./Player";
 import Utils from "./Utils";
+import { isChrome } from "./device";
 import { toast } from "./toaster";
 
 const MusicKit = window.MusicKit;
@@ -87,12 +88,12 @@ class App extends Component {
     }
     element.crossOrigin = "anonymous";
 
-    // The visualizer taps the audio element through Web Audio (needs CORS,
-    // so only for signed-in playback). Volume is set on MusicKit (see
+    // The visualizer taps the audio element through Web Audio (Chrome only,
+    // and only for signed-in playback because of CORS). Volume is set on MusicKit (see
     // volume.js), never on the element.
     let context = null;
     let source = null;
-    if (this.state.music.isAuthorized) {
+    if (isChrome && this.state.music.isAuthorized) {
       try {
         context = new (window.AudioContext || window.webkitAudioContext)();
         source = context.createMediaElementSource(element);
