@@ -1,0 +1,135 @@
+/* Classic look: Blueprint 6 restyled to match the original Blueprint 3 dark
+   theme ThinMusic was designed with (slate-blue surfaces, #48aff0 accents,
+   flat 3px corners, quiet shadows). Loaded after blueprint.css. */
+
+.bp6-dark {
+  --bp-intent-primary-rest: #137cbd;
+  --bp-intent-primary-hover: #106ba3;
+  --bp-intent-primary-active: #0e5a8a;
+  --bp-surface-border-radius: 3px;
+  --bp-surface-shadow-0: 0 0 0 1px rgba(16, 22, 26, 0.4);
+  --bp-surface-shadow-2: 0 0 0 1px rgba(16, 22, 26, 0.2), 0 1px 1px rgba(16, 22, 26, 0.4), 0 2px 6px rgba(16, 22, 26, 0.4);
+  color: #f5f8fa;
+}
+.bp6-dark a { color: #48aff0; }
+
+/* Cards */
+.bp6-dark .bp6-card {
+  background-color: #30404d;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.4);
+}
+.bp6-dark .bp6-card.bp6-elevation-2 {
+  box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.2), 0 1px 1px rgba(16, 22, 26, 0.4), 0 2px 6px rgba(16, 22, 26, 0.4);
+}
+
+/* Buttons */
+.bp6-dark .bp6-button:not([class*="bp6-intent-"]):not(.bp6-minimal) {
+  background-color: #394b59;
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+  box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.4);
+  color: #f5f8fa;
+  border-radius: 3px;
+  padding: 5px 15px;
+}
+.bp6-dark .bp6-button:not([class*="bp6-intent-"]):not(.bp6-minimal):hover {
+  background-color: #30404d;
+}
+.bp6-dark .bp6-button:not([class*="bp6-intent-"]):not(.bp6-minimal):active {
+  background-color: #202b33;
+  background-image: none;
+}
+.bp6-dark .bp6-button:not([class*="bp6-intent-"]):not(.bp6-minimal):disabled,
+.bp6-dark .bp6-button:not([class*="bp6-intent-"]):not(.bp6-minimal).bp6-disabled {
+  background-color: rgba(57, 75, 89, 0.5);
+  background-image: none;
+  box-shadow: none;
+  color: rgba(167, 182, 194, 0.6);
+}
+.bp6-dark .bp6-button .bp6-icon { color: #a7b6c2; }
+.bp6-dark .bp6-button:disabled .bp6-icon { color: rgba(167, 182, 194, 0.6); }
+.bp6-dark .bp6-button-group .bp6-button:not(:first-child) { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.bp6-dark .bp6-button-group .bp6-button:not(:last-child) { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.bp6-dark .bp6-button.bp6-minimal,
+.bp6-dark .bp6-button-group.bp6-minimal .bp6-button:not([class*="bp6-intent-"]) {
+  background: none; box-shadow: none; color: inherit; padding: 5px 10px;
+}
+.bp6-dark .bp6-button.bp6-minimal:hover,
+.bp6-dark .bp6-button-group.bp6-minimal .bp6-button:not([class*="bp6-intent-"]):hover {
+  background: rgba(138, 155, 168, 0.15);
+}
+.bp6-dark .bp6-button.bp6-minimal:active,
+.bp6-dark .bp6-button-group.bp6-minimal .bp6-button:not([class*="bp6-intent-"]):active {
+  background: rgba(138, 155, 168, 0.3);
+}
+
+/* Callout */
+.bp6-dark .bp6-callout {
+  border-radius: 3px;
+  padding: 10px 12px 9px 40px;
+  color: #f5f8fa;
+}
+.bp6-dark .bp6-callout.bp6-intent-warning,
+.bp6-dark .bp6-callout.bp6-intent-danger { color: #f5f8fa; }
+.bp6-dark .bp6-callout.bp6-intent-warning:not(.bp6-minimal) { background-color: rgba(217, 130, 43, 0.25); }
+.bp6-dark .bp6-callout.bp6-intent-danger:not(.bp6-minimal) { background-color: rgba(219, 55, 55, 0.25); }
+.bp6-dark .bp6-callout.bp6-intent-warning > .bp6-icon:first-child { color: #ffb366; }
+.bp6-dark .bp6-callout.bp6-intent-danger > .bp6-icon:first-child { color: #ff7373; }
+.bp6-dark .bp6-callout > .bp6-icon:first-child { left: 10px; top: 10px; }
+.bp6-dark .bp6-callout > .bp6-icon:first-child svg { width: 20px; height: 20px; }
+
+/* Tabs */
+.bp6-dark .bp6-tab { color: #f5f8fa; }
+.bp6-dark .bp6-tab[aria-selected="true"],
+.bp6-dark .bp6-tab:not([aria-disabled="true"]):hover { color: #48aff0; }
+.bp6-dark .bp6-tab-indicator { background-color: #48aff0; }
+
+/* Inputs */
+.bp6-dark .bp6-input {
+  background: rgba(16, 22, 26, 0.3);
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);
+  color: #f5f8fa;
+}
+.bp6-dark .bp6-input-group.bp6-large .bp6-input[type=search] { border-radius: 30px; padding-right: 15px; }
+.bp6-dark .bp6-input:focus {
+  box-shadow: 0 0 0 1px #137cbd, 0 0 0 3px rgba(19, 124, 189, 0.3), inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);
+}
+.bp6-dark .bp6-input::placeholder { color: rgba(167, 182, 194, 0.6); }
+.bp6-dark .bp6-input-group .bp6-input-left-container > .bp6-icon,
+.bp6-dark .bp6-input-group > .bp6-icon { color: #a7b6c2; }
+
+/* Sliders */
+.bp6-dark .bp6-slider-track { background: rgba(16, 22, 26, 0.5); border-radius: 3px; }
+.bp6-dark .bp6-slider-progress.bp6-intent-primary { background-color: #137cbd; }
+.bp6-dark .bp6-slider-handle {
+  background-color: #394b59;
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+  box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.4);
+  border-radius: 3px;
+}
+.bp6-dark .bp6-slider-handle:hover { background-color: #30404d; }
+
+/* Dialogs, popovers, tooltips */
+.bp6-dark.bp6-dialog, .bp6-dark .bp6-dialog {
+  background: #293742;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.2), 0 4px 8px rgba(16, 22, 26, 0.4), 0 18px 46px 6px rgba(16, 22, 26, 0.4);
+  color: #f5f8fa;
+}
+.bp6-dark .bp6-dialog-header, .bp6-dark.bp6-dialog .bp6-dialog-header {
+  background: #30404d;
+  box-shadow: 0 1px 0 rgba(16, 22, 26, 0.4);
+}
+.bp6-dark .bp6-dialog-header { padding-left: 20px; min-height: 40px; }
+.bp6-dark .bp6-dialog-header .bp6-heading { font-size: 18px; font-weight: 600; }
+.bp6-dark .bp6-dialog-body { margin: 20px; padding: 0; }
+.bp6-dark .bp6-popover-content, .bp6-dark.bp6-popover-content { background: #30404d; color: inherit; }
+.bp6-tooltip .bp6-popover-content { background: #e1e8ed; color: #394b59; }
+
+/* Spinner, toasts, misc */
+.bp6-dark .bp6-spinner .bp6-spinner-track { stroke: rgba(16, 22, 26, 0.5); }
+.bp6-dark .bp6-spinner .bp6-spinner-head { stroke: rgba(167, 182, 194, 0.8); }
+.bp6-dark .bp6-divider { border-color: rgba(16, 22, 26, 0.4); }
+.bp6-dark .bp6-html-table td, .bp6-dark .bp6-html-table th { color: #f5f8fa; }
+.bp6-dark .bp6-non-ideal-state-visual .bp6-icon { color: rgba(167, 182, 194, 0.6); }

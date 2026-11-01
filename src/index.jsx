@@ -5,6 +5,7 @@ import { FocusStyleManager } from "@blueprintjs/core";
 
 import "normalize.css/normalize.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
+import "./s/classic.css";
 
 import "./s/index.css";
 import Preview from "./i/Preview.png";

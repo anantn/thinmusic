@@ -3,7 +3,6 @@ import {
   ButtonGroup,
   Button,
   Card,
-  Colors,
   Icon,
   Elevation,
   Slider,
@@ -32,7 +31,9 @@ const PS = window.MusicKit.PlaybackStates;
 // none: 0
 // one: 1
 // all: 2
-const RM = [Colors.GRAY1, Colors.BLUE1, Colors.RED1];
+// The original Blueprint 3 palette (Blueprint 6 repainted its Colors).
+const C = { GRAY1: "#5C7080", BLUE1: "#0E5A8A", BLUE5: "#48AFF0", RED1: "#A82A2A" };
+const RM = [C.GRAY1, C.BLUE1, C.RED1];
 const RM_TITLES = ["Repeat: None", "Repeat: One", "Repeat: All"];
 
 class Player extends Component {
@@ -291,7 +292,7 @@ class Player extends Component {
     let currentState = this.state.playbackState;
 
     let logo = (
-      <Logo thin={Colors.BLUE5} music={Colors.BLUE5} bar={Colors.BLUE1} />
+      <Logo thin={C.BLUE5} music={C.BLUE5} bar={C.BLUE1} />
     );
     if (this.props.music.nowPlayingItem) {
       track = (
@@ -328,7 +329,7 @@ class Player extends Component {
         <div>
           <Icon
             size={10}
-            color={Colors.GRAY1}
+            color={C.GRAY1}
             className="contentVolumeIcon"
             onClick={this.volumeToggle}
             title={this.state.muted ? "Unmute" : "Mute"}

@@ -16,7 +16,8 @@
   padding: 10px;
 }
 
-.settings .nux button.apple {
+.settings .nux button.apple,
+.bp6-dark .settings .nux button.bp6-button.apple {
   padding: 0;
   margin: 15px;
   display: inline-block;
@@ -71,7 +72,9 @@
 }
 
 .settings .login button.google,
-.settings .login button.google:hover {
+.settings .login button.google:hover,
+.bp6-dark .settings .login button.bp6-button.google,
+.bp6-dark .settings .login button.bp6-button.google:hover {
   color: #757575;
   background-color: #fff;
 }
