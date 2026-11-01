@@ -1,6 +1,23 @@
-import firebase from "firebase/app";
-import "firebase/firestore";
-import "firebase/auth";
+import { initializeApp } from "firebase/app";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  fetchSignInMethodsForEmail,
+  linkWithPopup,
+  onAuthStateChanged,
+  signInAnonymously,
+  signInWithCredential,
+  signInWithPopup,
+  signOut
+} from "firebase/auth";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteField
+} from "firebase/firestore";
 
 const MusicKit = window.MusicKit;
 const Fetch = window.fetch;
@@ -23,7 +40,7 @@ class _Utils {
       "November",
       "December"
     ];
-    firebase.initializeApp({
+    const app = initializeApp({
       apiKey: import.meta.env.VITE_FIREBASE_KEY,
       authDomain: "apple-thinmusic.firebaseapp.com",
       projectId: "apple-thinmusic",
@@ -31,7 +48,8 @@ class _Utils {
       messagingSenderId: "694059640396",
       appId: "1:694059640396:web:075505cc9e17a3a43f76e9"
     });
-    this.db = firebase.firestore();
+    this.auth = getAuth(app);
+    this.db = getFirestore(app);
   }
 
   icon(artwork, width, height) {
@@ -87,69 +105,53 @@ class _Utils {
   }
 
   loginMethods = email => {
-    return firebase.auth().fetchSignInMethodsForEmail(email);
+    return fetchSignInMethodsForEmail(this.auth, email);
   };
 
   login = (provider, cb) => {
-    let providerObj = null;
-    switch (provider) {
-      case "Google":
-        providerObj = new firebase.auth.GoogleAuthProvider();
-        providerObj.addScope("profile");
-        providerObj.addScope("email");
-        break;
-      case "Twitter":
-        providerObj = new firebase.auth.TwitterAuthProvider();
-        break;
-      case "Facebook":
-        providerObj = new firebase.auth.FacebookAuthProvider();
-        providerObj.addScope("public_profile");
-        providerObj.addScope("email");
-        break;
-      default:
-        break;
-    }
-    if (!providerObj) {
+    if (provider !== "Google") {
       cb(null, "Invalid provider");
       return;
     }
-
+    let providerObj = new GoogleAuthProvider();
+    providerObj.addScope("profile");
+    providerObj.addScope("email");
     providerObj.setCustomParameters({ display: "popup" });
 
-    let user = firebase.auth().currentUser;
+    let user = this.auth.currentUser;
     if (user && user.isAnonymous) {
-      user
-        .linkWithPopup(providerObj)
-        .then(result => {
-          window.location.reload();
+      linkWithPopup(user, providerObj)
+        .then(() => window.location.reload())
+        .catch(error => {
+          // This Google account already has a ThinMusic user: sign in to it.
+          let credential = GoogleAuthProvider.credentialFromError(error);
+          if (error.code === "auth/credential-already-in-use" && credential) {
+            return signInWithCredential(this.auth, credential).then(result => {
+              if (cb) cb(result, null);
+            });
+          }
+          throw error;
         })
         .catch(error => {
           if (cb) cb(null, error);
-          return false;
         });
     } else {
-      firebase
-        .auth()
-        .signInWithPopup(providerObj)
+      signInWithPopup(this.auth, providerObj)
         .then(result => {
           if (cb) cb(result, null);
-          return false;
         })
         .catch(error => {
           if (cb) cb(null, error);
-          return false;
         });
     }
   };
 
   loginAnonymously = () => {
-    return firebase.auth().signInAnonymously();
+    return signInAnonymously(this.auth);
   };
 
   logout = cb => {
-    firebase
-      .auth()
-      .signOut()
+    signOut(this.auth)
       .then(() => {
         if (cb) cb();
       })
@@ -286,12 +288,6 @@ class _Utils {
       case "Google":
         window.open("https://myaccount.google.com/permissions");
         break;
-      case "Twitter":
-        window.open("https://twitter.com/settings/sessions");
-        break;
-      case "Facebook":
-        window.open("https://www.facebook.com/settings?tab=applications");
-        break;
       default:
         break;
     }
@@ -304,10 +300,7 @@ class _Utils {
 
     let ref = Utils.userRef();
     if (ref) {
-      ref
-        .update({
-          lastfm: firebase.firestore.FieldValue.delete()
-        })
+      updateDoc(ref, { lastfm: deleteField() })
         .then(() => {
           if (cb) cb();
         })
@@ -331,10 +324,7 @@ class _Utils {
 
     let ref = Utils.userRef();
     if (ref) {
-      ref
-        .update({
-          apple: firebase.firestore.FieldValue.delete()
-        })
+      updateDoc(ref, { apple: deleteField() })
         .then(() => {
           if (cb) cb();
         })
@@ -348,15 +338,21 @@ class _Utils {
   };
 
   userRef = () => {
-    let user = firebase.auth().currentUser;
+    let user = this.auth.currentUser;
     if (!user) {
       return null;
     }
-    return this.db.collection("users").doc(user.uid);
+    return doc(this.db, "users", user.uid);
+  };
+
+  // The signed-in user's saved settings ({} if none yet).
+  loadUser = async () => {
+    let snap = await getDoc(this.userRef());
+    return snap.exists() ? snap.data() || {} : {};
   };
 
   userName = () => {
-    let user = firebase.auth().currentUser;
+    let user = this.auth.currentUser;
     if (!user) {
       return null;
     }
@@ -368,7 +364,7 @@ class _Utils {
 
   userProvider = () => {
     let self = this;
-    let user = firebase.auth().currentUser;
+    let user = this.auth.currentUser;
     if (!user) {
       return null;
     }
@@ -396,7 +392,7 @@ class _Utils {
   };
 
   addAuthObserver = cb => {
-    return firebase.auth().onAuthStateChanged(cb);
+    return onAuthStateChanged(this.auth, cb);
   };
 
   // Merge fields into the signed-in user's document (creates it if needed).
@@ -405,7 +401,7 @@ class _Utils {
     if (!ref) {
       return Promise.reject(new Error("Not signed in"));
     }
-    return ref.set(obj, { merge: true });
+    return setDoc(ref, obj, { merge: true });
   };
 
   isSameTrack = (a, b) => {

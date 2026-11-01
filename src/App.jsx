@@ -165,8 +165,7 @@ class App extends Component {
     let music = this.state.music;
     let data = {};
     try {
-      let doc = await Utils.userRef().get();
-      data = doc.exists ? doc.data() || {} : {};
+      data = await Utils.loadUser();
     } catch (e) {
       console.error("could not load user profile", e);
       toast({
