@@ -38,7 +38,11 @@ const COLORS = [
 class Visualizer extends Component {
   constructor(props) {
     super(props);
+    this.canvas = React.createRef();
+  }
 
+  componentDidMount() {
+    // Audio graph setup lives here (not the constructor) so it runs once per mount.
     this.props.audioContext.resume();
     this.analyzer = this.props.audioContext.createAnalyser();
     this.analyzer.fftSize = 2048;
@@ -47,12 +51,8 @@ class Visualizer extends Component {
     this.octaveBuckets = this.createOctaveBuckets(this.bufferSize);
     this.barPeaks = new Array(NUM_BARS).fill(0);
     this.barPeakFrames = new Array(NUM_BARS).fill(0);
-
     this.props.audioSource.connect(this.analyzer);
-    this.canvas = React.createRef();
-  }
 
-  componentDidMount() {
     this.barCanvas = this.preRenderBar(
       this._barWidth(),
       this._height(),
@@ -67,10 +67,6 @@ class Visualizer extends Component {
     this.drawing = false;
     this.props.audioSource.disconnect(this.analyzer);
   }
-
-  toggle = () => {
-    this.setState({ logo: !this.state.logo });
-  };
 
   draw = () => {
     if (this.drawing) {
@@ -129,10 +125,6 @@ class Visualizer extends Component {
     }
 
     return barWidth - 1;
-  }
-
-  _renderWidth() {
-    return this.props.width;
   }
 
   _renderHeight() {

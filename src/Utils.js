@@ -26,20 +26,6 @@ const EUC = window.encodeURIComponent;
 class _Utils {
   constructor() {
     this.ICON_SIZE = 40;
-    this.MONTHS = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
-    ];
     const app = initializeApp({
       apiKey: import.meta.env.VITE_FIREBASE_KEY,
       authDomain: "apple-thinmusic.firebaseapp.com",
@@ -94,14 +80,11 @@ class _Utils {
   }
 
   formatDate(iso) {
-    let d = new Date(iso);
-    return (
-      this.MONTHS[d.getMonth()].slice(0, 3) +
-      " " +
-      d.getDate() +
-      ", " +
-      d.getFullYear()
-    );
+    return new Date(iso).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
   }
 
   loginMethods = email => {
