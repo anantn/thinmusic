@@ -10,6 +10,7 @@ import "@blueprintjs/core/lib/css/blueprint.css";
 import "./s/index.css";
 import App from "./App";
 import Preview from "./i/Preview.png";
+import { loadVolume, applyVolume } from "./volume";
 
 const MusicKit = window.MusicKit;
 
@@ -22,6 +23,8 @@ async function main(rm) {
       build: "0.1"
     }
   });
+  // Set the saved volume before anything can play, so tracks never start loud.
+  applyVolume(MusicKit.getInstance(), loadVolume());
   ReactDOM.render(<App />, document.getElementById("root"));
   if (rm) {
     remove();

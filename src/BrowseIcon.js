@@ -8,7 +8,7 @@ import Explicit from "./i/Explicit.svg";
 class BrowseIcon extends Component {
   render() {
     if (!this.props.item) {
-      return;
+      return null;
     }
 
     let icon = "";

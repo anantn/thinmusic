@@ -41,44 +41,32 @@ class Playlist extends Component {
     }
   };
 
-  clear = () => {
-    let self = this;
-    let next = () => {
-      self.props.music.stop().catch(e => { });
-      self.props.music.setQueue({}).then(() => {
-        self.setState(self.state);
-      });
-    };
-
-    // TOOD: Move to common constants, too much hardcoding.
-    if (
-      self.props.music.nowPlayingItem &&
-      self.props.music.playbackState === 3
-    ) {
-      // LUL.
-      self.props.music.play().then(next);
-    } else {
-      next();
+  clear = async () => {
+    let music = this.props.music;
+    try {
+      await music.stop();
+    } catch (e) {}
+    try {
+      await music.setQueue({});
+    } catch (e) {
+      console.error("could not clear queue", e);
     }
+    this.change();
   };
 
   click = (isActive, idx) => {
     if (isActive) {
-      if (this.props.music.isPlaying) {
-        this.props.music.pause().then(this.change);
-      } else {
-        this.props.music.play().then(this.change);
-      }
+      let p = this.props.music.isPlaying
+        ? this.props.music.pause()
+        : this.props.music.play();
+      Promise.resolve(p).then(this.change).catch(e => console.error(e));
     } else {
       let self = this;
-      let next = () => {
-        self.props.music.changeToMediaAtIndex(idx);
-      };
-      if (this.props.music.isPlaying) {
-        this.props.music.stop().then(next);
-      } else {
-        next();
-      }
+      let next = () => self.props.music.changeToMediaAtIndex(idx);
+      let p = this.props.music.isPlaying
+        ? this.props.music.stop().then(next)
+        : Promise.resolve(next());
+      p.catch(e => console.error("could not change track", e));
     }
   };
 
@@ -97,8 +85,19 @@ class Playlist extends Component {
     );
   };
 
+  // Stable keys for drag and drop: the song id plus which copy of it this is.
+  itemKeys = () => {
+    let seen = {};
+    return this.state.items.map(item => {
+      seen[item.id] = (seen[item.id] || 0) + 1;
+      return `q-${item.id}-${seen[item.id]}`;
+    });
+  };
+
   renderItem = (item, idx) => {
-    let isActive = Utils.isSameTrack(this.props.nowPlaying, item);
+    // The active row is the current queue position, so a song queued twice
+    // only highlights once.
+    let isActive = idx === this.props.music.nowPlayingItemIndex;
     return (
       <Card className={`item ${isActive ? "active" : ""}`}>
         <div className="image">
@@ -157,10 +156,7 @@ class Playlist extends Component {
           ""
         ) : (
           <Button
-            onClick={this.props.music.queue.remove.bind(
-              this.props.music.queue,
-              idx
-            )}
+            onClick={() => this.props.music.queue.remove(idx)}
             minimal={true}
             icon="cross"
           />
@@ -191,25 +187,26 @@ class Playlist extends Component {
           {this.state.items.length > 0 ? buttons : null}
         </Card>
         <Droppable droppableId="playlist">
-          {(provided, snapshot) => (
-            <ol className="playlist" ref={provided.innerRef}>
-              {this.state.items.map((item, idx) => (
-                <Draggable
-                  key={"key-" + idx}
-                  draggableId={"item-" + idx}
-                  index={idx}
-                >
-                  {(provided, snapshot) => (
+          {provided => (
+            <ol
+              className="playlist"
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              {this.itemKeys().map((key, idx) => (
+                <Draggable key={key} draggableId={key} index={idx}>
+                  {provided => (
                     <li
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                     >
-                      {this.renderItem(item, idx)}
+                      {this.renderItem(this.state.items[idx], idx)}
                     </li>
                   )}
                 </Draggable>
               ))}
+              {provided.placeholder}
             </ol>
           )}
         </Droppable>

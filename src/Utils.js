@@ -185,7 +185,11 @@ class _Utils {
     if (start) {
       url += "&timestamp=" + EUC(start);
     }
-    Fetch(url);
+    return Fetch(url)
+      .then(resp => {
+        if (!resp.ok) throw new Error("Last.fm " + path + " failed: " + resp.status);
+      })
+      .catch(e => console.error(e));
   };
 
   connectLastFMToken = cb => {
@@ -306,9 +310,13 @@ class _Utils {
         })
         .then(() => {
           if (cb) cb();
+        })
+        .catch(e => {
+          console.error("could not remove Last.fm session", e);
+          if (cb) cb();
         });
     } else if (cb) {
-      process.nextTick(cb);
+      queueMicrotask(cb);
     }
   };
 
@@ -316,6 +324,10 @@ class _Utils {
     if (cb && typeof cb !== "function") {
       cb = null;
     }
+    // Also sign MusicKit out on this device, not just forget the saved token.
+    Promise.resolve(MusicKit.getInstance().unauthorize()).catch(e =>
+      console.error("unauthorize failed", e)
+    );
 
     let ref = Utils.userRef();
     if (ref) {
@@ -325,9 +337,13 @@ class _Utils {
         })
         .then(() => {
           if (cb) cb();
+        })
+        .catch(e => {
+          console.error("could not remove Apple Music token", e);
+          if (cb) cb();
         });
     } else if (cb) {
-      process.nextTick(cb);
+      queueMicrotask(cb);
     }
   };
 
@@ -383,17 +399,13 @@ class _Utils {
     return firebase.auth().onAuthStateChanged(cb);
   };
 
+  // Merge fields into the signed-in user's document (creates it if needed).
   setOrUpdate = obj => {
-    let self = this;
-    return this.userRef()
-      .get()
-      .then(doc => {
-        if (doc.exists) {
-          return self.userRef().update(obj);
-        } else {
-          return self.userRef().set(obj);
-        }
-      });
+    let ref = this.userRef();
+    if (!ref) {
+      return Promise.reject(new Error("Not signed in"));
+    }
+    return ref.set(obj, { merge: true });
   };
 
   isSameTrack = (a, b) => {
@@ -435,12 +447,21 @@ class _Utils {
     return options;
   };
 
-  // Verify token by trying to fetch one.
+  // Check the Apple Music user token with a cheap request.
+  // Resolves true (valid), false (Apple rejected it) or null (couldn't tell:
+  // offline, rate limited, server error), so transient errors don't log people out.
   isReallyLoggedIn = music => {
     return music.api
-      .music("/v1/me/recommendations")
+      .music("/v1/me/storefront")
       .then(() => true)
-      .catch(() => false);
+      .catch(e => {
+        let status = e && (e.status || (e.response && e.response.status));
+        let code = String((e && (e.errorCode || e.name || e.message)) || "");
+        if (status === 401 || status === 403 || /unauthori[sz]ed|forbidden|token/i.test(code)) {
+          return false;
+        }
+        return null;
+      });
   };
 
   showAlbum = (item, show) => {

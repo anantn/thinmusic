@@ -1,4 +1,3 @@
-import async from "async";
 import React, { Component } from "react";
 import {
   Spinner,
@@ -6,7 +5,6 @@ import {
   InputGroup,
   Tabs,
   Tab,
-  Toaster,
   NonIdealState
 } from "@blueprintjs/core";
 
@@ -17,11 +15,13 @@ import Results from "./Results";
 import Settings from "./Settings";
 import Collection from "./Collection";
 import Utils from "./Utils";
+import { toast } from "./toaster";
 
 class Panel extends Component {
   constructor(props) {
     super(props);
     this.counter = 0;
+    this.searchTimer = 0;
     this.state = {
       query: "",
       results: [],
@@ -37,6 +37,8 @@ class Panel extends Component {
   };
 
   componentWillUnmount = () => {
+    clearTimeout(this.searchTimer);
+    this.counter += 1;
     this.props.music.removeEventListener(
       "nowPlayingItemDidChange",
       this.mediaChange
@@ -53,6 +55,9 @@ class Panel extends Component {
 
   search = event => {
     let term = event.target.value.trim();
+    // Every keystroke invalidates searches already in flight.
+    let idx = (this.counter += 1);
+    clearTimeout(this.searchTimer);
     if (term === "") {
       this.setState({
         query: "",
@@ -67,124 +72,73 @@ class Panel extends Component {
       });
       return;
     }
-    if (term === this.state.query && this.state.searching) {
-      return;
-    }
     this.setState({ query: term, selected: "search", searching: true });
-    let idx = (this.counter += 1);
-    setTimeout(this.doSearch.bind(this, term, idx), 250);
+    this.searchTimer = setTimeout(() => this.doSearch(term, idx), 250);
   };
 
-  doSearch = (value, idx) => {
-    if (idx < this.counter) {
-      return;
-    }
-
-    let self = this;
-    let methods = [
-      async.reflect(
-        async.asyncify(
-          self.props.music.api.music.bind(
-            self.props.music.api,
-            "/v1/catalog/{{storefrontId}}/search",
-            {
-              term: value,
-              limit: 25,
-              types: ["songs", "albums", "playlists"]
-            }
-          )
-        )
-      )
+  doSearch = async (value, idx) => {
+    let api = this.props.music.api;
+    let requests = [
+      api.music("/v1/catalog/{{storefrontId}}/search", {
+        term: value,
+        limit: 25,
+        types: ["songs", "albums", "playlists"]
+      })
     ];
     if (this.props.user && this.props.user.apple) {
-      methods.push(
-        async.reflect(
-          async.asyncify(
-            self.props.music.api.music.bind(
-              self.props.music.api,
-              "/v1/me/library/search",
-              {
-                term: value,
-                limit: 25,
-                types: ["library-songs", "library-albums", "library-playlists"]
-              }
-            )
-          )
-        )
+      requests.push(
+        api.music("/v1/me/library/search", {
+          term: value,
+          limit: 25,
+          types: ["library-songs", "library-albums", "library-playlists"]
+        })
       );
     }
-    async.parallel(methods, (err, res) => {
-      if (idx < self.counter) {
-        return;
-      }
-      if (err !== null) {
-        self.setState({ searching: false });
-        return;
-      }
+    // Either search may fail on its own; show whatever came back.
+    let res = await Promise.allSettled(requests);
+    if (idx !== this.counter) {
+      return;
+    }
+    let results = res.map(r =>
+      r.status === "fulfilled" && r.value && r.value.data
+        ? r.value.data.results || {}
+        : {}
+    );
 
-      let songs = self.merge(res, "songs");
-      let albums = self.merge(res, "albums");
-      let playlists = self.merge(res, "playlists");
-      let final =
-        songs.length === 0 && albums.length === 0 && playlists.length === 0
-          ? []
-          : [songs, albums, playlists];
+    let songs = this.merge(results, "songs");
+    let albums = this.merge(results, "albums");
+    let playlists = this.merge(results, "playlists");
+    let final =
+      songs.length === 0 && albums.length === 0 && playlists.length === 0
+        ? []
+        : [songs, albums, playlists];
 
-      self.setState({
-        results: final,
-        searching: false
-      });
-    });
+    this.setState({ results: final, searching: false });
   };
 
-  merge = (res, type) => {
-    let all = [];
-    let library = [];
-    if (res[0] && res[0].value && res[0].value.data && type in res[0].value.data.results) {
-      all = res[0].value.data.results[type].data;
-    }
-    if (res[1] && res[1].value && res[0].value.data && "library-" + type in res[1].value.data.results) {
-      library = res[1].value.data.results["library-" + type].data;
-    }
-    all = all.filter(obj => obj.attributes && obj.attributes.playParams);
-    library = library.filter(
-      obj => obj.attributes && obj.attributes.playParams
-    );
+  // Library matches first, then the rest of the catalog, then library-only items.
+  merge = ([catalog = {}, library = {}], type) => {
+    let playable = obj => obj.attributes && obj.attributes.playParams;
+    let all = ((catalog[type] && catalog[type].data) || []).filter(playable);
+    let mine = ((library["library-" + type] && library["library-" + type].data) || []).filter(playable);
 
-    // Merge global and library results.
-    let final = [];
-
-    // If an item appears in both library and global, show first.
-    let inLibrary = library.map(
-      obj => obj.attributes.playParams && obj.attributes.playParams.catalogId
-    );
-    for (let obj of all) {
-      if (inLibrary.includes(obj.id)) {
+    let inLibrary = new Set(mine.map(obj => obj.attributes.playParams.catalogId));
+    let final = [
+      ...all.filter(obj => inLibrary.has(obj.id)),
+      ...all.filter(obj => !inLibrary.has(obj.id))
+    ];
+    let inFinal = new Set(final.map(obj => obj.id));
+    for (let obj of mine) {
+      if (!inFinal.has(obj.attributes.playParams.catalogId)) {
         final.push(obj);
       }
     }
-
-    // Global results not in library.
-    for (let obj of all) {
-      if (!inLibrary.includes(obj.id)) {
-        final.push(obj);
-      }
-    }
-
-    // Remaining library results not already in list.
-    let inFinal = final.map(obj => obj.id);
-    for (let obj of library) {
-      if (!inFinal.includes(obj.attributes.playParams.catalogId)) {
-        final.push(obj);
-      }
-    }
-
     return final;
   };
 
   playError = (e) => {
     console.error(e);
-    Toaster.create().show({
+    toast({
       icon: "error",
       intent: "danger",
       message: "Sorry, there was a problem playing this item."
@@ -248,11 +202,10 @@ class Panel extends Component {
       if (idx === -1) {
         await this.props.music.playNext(Utils.itemToQueue(item));
       } else {
-        Utils.moveQueue(
-          this.props.music,
-          idx,
-          this.props.music.nowPlayingItemIndex + 1
-        );
+        // Right after the current track. Moving an earlier item shifts the
+        // current track down one, so its slot is the current index.
+        let current = this.props.music.nowPlayingItemIndex;
+        Utils.moveQueue(this.props.music, idx, idx < current ? current : current + 1);
       }
     }
   };
@@ -278,6 +231,7 @@ class Panel extends Component {
     let self = this;
     if (!item.attributes.url && !item.attributes.playParams) {
       self.playError();
+      return;
     }
 
     this.props.music

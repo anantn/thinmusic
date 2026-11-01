@@ -1,4 +1,3 @@
-import async from "async";
 import React, { Component } from "react";
 import { NonIdealState, Spinner } from "@blueprintjs/core";
 
@@ -58,75 +57,58 @@ class Browse extends Component {
     }
   };
 
-  loadPersonal = () => {
-    let self = this;
-    let api = self.props.music.api;
+  loadPersonal = async () => {
+    let api = this.props.music.api;
     let order = ["heavyRotation", "recentPlayed", "recommendations"];
-    async.parallel(
-      [
-        async.reflect(async.asyncify(api.music.bind(api, "/v1/me/history/heavy-rotation"))),
-        async.reflect(async.asyncify(api.music.bind(api, "/v1/me/recent/played"))),
-        async.reflect(async.asyncify(api.music.bind(api, "/v1/me/recommendations")))
-      ],
-      (err, res) => {
-        // TODO: Remove log and handle errors.
-        let counts = {};
-        let merged = [];
-        let addToMerged = (source, obj) => {
-          if (
-            !obj.type ||
-            (!obj.type.startsWith("album") &&
-              !obj.type.startsWith("playlist") &&
-              !obj.type.startsWith("song"))
-          ) {
-            return;
-          }
-
-          if (obj.id in counts) {
-            counts[obj.id] += 1;
-          } else {
-            counts[obj.id] = 1;
-            obj.source = source;
-            merged.push(obj);
-          }
-        };
-
-        // Heavy rotation.
-        if (res[0] && res[0].value && Array.isArray(res[0].value.data.data)) {
-          res[0].value.data.data.map(addToMerged.bind(this, order[0]));
-        }
-
-        // Recently played.
-        if (res[1] && res[1].value && Array.isArray(res[1].value.data.data)) {
-          res[1].value.data.data.map(addToMerged.bind(this, order[1]));
-        }
-
-        // Personal recommendations.
-        if (res[2] && res[2].value && Array.isArray(res[2].value.data.data)) {
-          res[2].value.data.data.map(e => {
-            if (e.relationships && e.relationships.contents) {
-              return e.relationships.contents.data.map(
-                addToMerged.bind(this, order[2])
-              );
-            }
-            return e;
-          });
-        }
-
-        // Sort by count. If count is same:
-        // prefer heavy rotation -> recently played -> recommendations.
-        merged.sort((a, b) => {
-          let score = counts[b.id] - counts[a.id];
-          if (score !== 0) return score;
-          if (a.source === b.source) return 0;
-          return order.indexOf(a.source) - order.indexOf(b.source);
-        });
-        self.setState({
-          results: merged,
-          loading: false
-        });
-      }
+    let res = await Promise.allSettled([
+      api.music("/v1/me/history/heavy-rotation"),
+      api.music("/v1/me/recent/played"),
+      api.music("/v1/me/recommendations")
+    ]);
+    // Each source can fail on its own; use whatever loaded.
+    let data = res.map(r =>
+      r.status === "fulfilled" && r.value && r.value.data && Array.isArray(r.value.data.data)
+        ? r.value.data.data
+        : []
     );
+
+    let counts = {};
+    let merged = [];
+    let addToMerged = (source, obj) => {
+      if (
+        !obj.type ||
+        (!obj.type.startsWith("album") &&
+          !obj.type.startsWith("playlist") &&
+          !obj.type.startsWith("song"))
+      ) {
+        return;
+      }
+      if (obj.id in counts) {
+        counts[obj.id] += 1;
+      } else {
+        counts[obj.id] = 1;
+        obj.source = source;
+        merged.push(obj);
+      }
+    };
+
+    data[0].forEach(obj => addToMerged(order[0], obj));
+    data[1].forEach(obj => addToMerged(order[1], obj));
+    data[2].forEach(e => {
+      if (e.relationships && e.relationships.contents && e.relationships.contents.data) {
+        e.relationships.contents.data.forEach(obj => addToMerged(order[2], obj));
+      }
+    });
+
+    // Sort by count. If count is same:
+    // prefer heavy rotation -> recently played -> recommendations.
+    merged.sort((a, b) => {
+      let score = counts[b.id] - counts[a.id];
+      if (score !== 0) return score;
+      if (a.source === b.source) return 0;
+      return order.indexOf(a.source) - order.indexOf(b.source);
+    });
+    this.setState({ results: merged, loading: false });
   };
 
   render() {

@@ -13,12 +13,25 @@ import "./s/App.css";
 import Panel from "./Panel";
 import Player from "./Player";
 import Utils from "./Utils";
+import { toast } from "./toaster";
 
 const MusicKit = window.MusicKit;
 const LS = window.localStorage;
 const AUTH_UNKNOWN = 0;
 const AUTH_LOGGED_OUT = 1;
 const AUTH_LOGGED_IN = 2;
+
+// Clears this app's own keys, keeping the volume preference and MusicKit's keys.
+function clearAppStorage() {
+  try {
+    for (let key of Object.keys(LS)) {
+      if (key === "sync-count" || key.endsWith(".r") || key.endsWith(".s") ||
+          key === "music.6fl6vvxxeh.u") {
+        LS.removeItem(key);
+      }
+    }
+  } catch (e) {}
+}
 
 class App extends Component {
   constructor(props) {
@@ -28,181 +41,215 @@ class App extends Component {
       authState: AUTH_UNKNOWN,
       user: null,
       music: instance,
-      currentTrack: null,
       audioElement: null,
       audioContext: null,
       audioSource: null
     };
-    this.itemId = null;
+    this.scrobble = null;
+    this.scrobbleTimer = 0;
     this.panel = React.createRef();
     this.authObserver = null;
   }
 
   componentDidMount() {
-    let self = this;
-    self.state.music.addEventListener("mediaCanPlay", () => {
-      if (self.state.audioElement) {
-        return;
-      }
+    let music = this.state.music;
+    music.addEventListener("mediaCanPlay", this.mediaCanPlay);
+    music.addEventListener("authorizationStatusDidChange", this.authChange);
+    music.addEventListener("nowPlayingItemDidChange", this.scrobbleItemChange);
+    music.addEventListener("playbackStateDidChange", this.scrobbleStateChange);
+    this.scrobbleTimer = setInterval(this.scrobbleTick, 1000);
 
-      let element = window.document.getElementById("apple-music-player");
-      element.crossOrigin = "anonymous";
-      element.volume = LS.getItem("volume") || 1;
-
-      let context = null;
-      let source = null;
-      // Nobody except Chrome can support this.
-      // More info at https://stackoverflow.com/questions/13958158/why-arent-safari-or-firefox-able-to-process-audio-data-from-mediaelementsource
-      if (isChrome && self.state.music.isAuthorized) {
-        context = new (window.AudioContext || window.webkitAudioContext)();
-        source = context.createMediaElementSource(element);
-        source.connect(context.destination);
-      }
-      self.setState({
-        audioElement: element,
-        audioContext: context,
-        audioSource: source
-      });
-    });
-
-    self.state.music.addEventListener(
-      "authorizationStatusDidChange",
-      status => {
-        if (status.authorizationStatus === 0 && Utils.userRef()) {
-          Utils.disconnectApple(self.userUpdate);
-        }
-      }
-    );
-
-    self.state.music.addEventListener("nowPlayingItemDidChange", event => {
-      let item = event.item;
-      if (
-        !item ||
-        !self.state.user ||
-        !self.state.user.lastfm ||
-        !self.state.user.lastfm.key
-      ) {
-        return;
-      }
-
-      // If item is same in next 5 seconds, send to nowPlaying.
-      let key = self.state.user.lastfm.key;
-      window.setTimeout(() => {
-        if (item.id === self.itemId) {
-          Utils.scrobble(key, true, item);
-        }
-      }, 5000);
-
-      // To scrobble:
-      // - Track must be longer than 30 seconds.
-      // - Track has played for half its duration (we are stricter: 75% counts),
-      // or 4 minutes, whichever is earlier.
-      let now = Math.floor(Date.now() / 1000);
-      let total = Math.floor(item.attributes.durationInMillis / 1000);
-      if (total > 30) {
-        window.setTimeout(() => {
-          if (item.id === self.itemId) {
-            Utils.scrobble(key, false, item, now);
-          }
-        }, Math.round(500 * total < 240000 ? 750 * total : 240000));
-      }
-
-      self.itemId = item.id;
-    });
-
-    self.authObserver = Utils.addAuthObserver(user => {
+    this.authObserver = Utils.addAuthObserver(user => {
       if (user) {
-        self.userUpdate();
+        this.userUpdate();
       } else {
-        self.setState({ authState: AUTH_LOGGED_OUT, user: null });
+        this.setState({ authState: AUTH_LOGGED_OUT, user: null });
       }
     });
   }
 
   componentWillUnmount() {
     if (this.authObserver) this.authObserver();
-    this.state.music.removeEventListener("mediaCanPlay");
-    this.state.music.removeEventListener("nowPlayingItemDidChange");
-    this.state.music.removeEventListener("authorizationStatusDidChange");
+    clearInterval(this.scrobbleTimer);
+    let music = this.state.music;
+    music.removeEventListener("mediaCanPlay", this.mediaCanPlay);
+    music.removeEventListener("authorizationStatusDidChange", this.authChange);
+    music.removeEventListener("nowPlayingItemDidChange", this.scrobbleItemChange);
+    music.removeEventListener("playbackStateDidChange", this.scrobbleStateChange);
   }
 
-  userUpdate = () => {
-    let self = this;
-    Utils.userRef()
-      .get()
-      .then(doc => {
-        let data = {};
-        if (doc.exists) {
-          data = doc.data();
-        }
-        if (data && data.apple) {
-          if (self.state.music.isAuthorized) {
-            // Clear stale credentials.
-            Utils.isReallyLoggedIn(self.state.music).then(yes => {
-              if (yes) {
-                LS.setItem("sync-count", "0");
-                self.state.music.authorize().then(token => {
-                  if (token !== data.apple) {
-                    Utils.connectApple(self.state.music, (token, err) => {
-                      if (err) {
-                        self.setState({
-                          authState: AUTH_LOGGED_OUT,
-                          user: null
-                        });
-                      } else {
-                        window.location.reload();
-                      }
-                    });
-                  } else {
-                    self.setState({ authState: AUTH_LOGGED_IN, user: data });
-                  }
-                });
-              } else {
-                LS.clear();
-                Utils.disconnectApple(() => {
-                  window.location.reload();
-                });
-              }
-            });
-          } else {
-            let count = LS.getItem("sync-count") || "0";
-            LS.setItem("sync-count", Number(count) + 1);
-            LS.setItem(data.apple + ".r", "");
-            LS.setItem(data.apple + ".s", "");
-            LS.setItem("music.6fl6vvxxeh.u", data.apple);
-            if (Number(count) > 3) {
-              // TODO: Log exception, this is really bad.
-              Utils.disconnectApple(self.userUpdate);
-            } else {
-              self.state.music.authorize().then(() => {
-                window.location.reload();
-              });
-            }
-          }
-        } else {
-          self.setState({ authState: AUTH_LOGGED_IN, user: data });
-        }
-      });
+  mediaCanPlay = () => {
+    if (this.state.audioElement) {
+      return;
+    }
+    let element = window.document.getElementById("apple-music-player");
+    if (!element) {
+      return;
+    }
+    element.crossOrigin = "anonymous";
+
+    // The visualizer taps the audio element through Web Audio. Volume is set
+    // on MusicKit (see volume.js), never on the element.
+    let context = null;
+    let source = null;
+    if (isChrome && this.state.music.isAuthorized) {
+      try {
+        context = new (window.AudioContext || window.webkitAudioContext)();
+        source = context.createMediaElementSource(element);
+        source.connect(context.destination);
+      } catch (e) {
+        console.error("visualizer unavailable", e);
+        context = null;
+        source = null;
+      }
+    }
+    this.setState({
+      audioElement: element,
+      audioContext: context,
+      audioSource: source
+    });
   };
 
-  open = path => {
-    window.open(path, "window", "toolbar=no, menubar=no, resizable=yes");
+  authChange = status => {
+    if (status.authorizationStatus === 0 && Utils.userRef()) {
+      Utils.disconnectApple(this.userUpdate);
+    }
+  };
+
+  // Last.fm scrobbling, based on time actually listened (pauses, buffering
+  // and seeks don't count). Rules: "now playing" after 5 s; scrobble tracks
+  // longer than 30 s once 75% has been heard, or 4 minutes, whichever is first.
+  scrobbleItemChange = event => {
+    let item = event.item;
+    this.scrobble = item
+      ? {
+          item,
+          start: Math.floor(Date.now() / 1000),
+          heardMs: 0,
+          since: this.state.music.isPlaying ? Date.now() : null,
+          nowSent: false,
+          done: false
+        }
+      : null;
+  };
+
+  scrobbleStateChange = () => {
+    let s = this.scrobble;
+    if (!s) return;
+    if (this.state.music.isPlaying) {
+      if (s.since === null) s.since = Date.now();
+    } else if (s.since !== null) {
+      s.heardMs += Date.now() - s.since;
+      s.since = null;
+    }
+  };
+
+  scrobbleTick = () => {
+    let s = this.scrobble;
+    let user = this.state.user;
+    if (!s || s.done || !user || !user.lastfm || !user.lastfm.key) return;
+    let heard = (s.heardMs + (s.since !== null ? Date.now() - s.since : 0)) / 1000;
+    let total = Math.floor((s.item.attributes.durationInMillis || 0) / 1000);
+    if (!s.nowSent && heard >= 5) {
+      s.nowSent = true;
+      Utils.scrobble(user.lastfm.key, true, s.item);
+    }
+    if (total > 30 && heard >= Math.min(0.75 * total, 240)) {
+      s.done = true;
+      Utils.scrobble(user.lastfm.key, false, s.item, s.start);
+    }
+  };
+
+  userUpdate = async () => {
+    let music = this.state.music;
+    let data = {};
+    try {
+      let doc = await Utils.userRef().get();
+      data = doc.exists ? doc.data() || {} : {};
+    } catch (e) {
+      console.error("could not load user profile", e);
+      toast({
+        icon: "error",
+        intent: "danger",
+        message: "Couldn't load your ThinMusic settings. Try reloading the page."
+      });
+      this.setState({ authState: AUTH_LOGGED_IN, user: {} });
+      return;
+    }
+
+    if (!data.apple) {
+      this.setState({ authState: AUTH_LOGGED_IN, user: data });
+      return;
+    }
+
+    // Saved as connected to Apple Music, but not usable on this device.
+    let notOnThisDevice = () => {
+      let { apple, ...rest } = data;
+      this.setState({ authState: AUTH_LOGGED_IN, user: rest });
+    };
+
+    try {
+      if (music.isAuthorized) {
+        let status = await Utils.isReallyLoggedIn(music);
+        if (status === false) {
+          // Apple rejected the token: forget it. Transient errors (null) keep it.
+          clearAppStorage();
+          Utils.disconnectApple(() => window.location.reload());
+          return;
+        }
+        LS.setItem("sync-count", "0");
+        let token = await music.authorize();
+        if (token && token !== data.apple) {
+          Utils.connectApple(music, (token, err) => {
+            if (err) {
+              notOnThisDevice();
+            } else {
+              window.location.reload();
+            }
+          });
+        } else {
+          this.setState({ authState: AUTH_LOGGED_IN, user: data });
+        }
+      } else {
+        let count = Number(LS.getItem("sync-count") || "0");
+        LS.setItem("sync-count", String(count + 1));
+        LS.setItem(data.apple + ".r", "");
+        LS.setItem(data.apple + ".s", "");
+        LS.setItem("music.6fl6vvxxeh.u", data.apple);
+        if (count > 3) {
+          Utils.disconnectApple(this.userUpdate);
+        } else {
+          await music.authorize();
+          window.location.reload();
+        }
+      }
+    } catch (e) {
+      // authorize() can reject (popup blocked, user cancelled). Don't hang on the spinner.
+      console.error("Apple Music authorization failed", e);
+      notOnThisDevice();
+    }
   };
 
   signIn = () => {
     this.panel.current.tab("settings");
   };
 
-  signOut = () => {
-    let self = this;
-    if (self.state.music.isPlaying) {
-      self.state.music.stop();
+  signOut = async () => {
+    let music = this.state.music;
+    try {
+      if (music.isPlaying) {
+        await music.stop();
+      }
+      await music.setQueue({});
+      await music.unauthorize();
+    } catch (e) {
+      console.error("error while signing out of Apple Music", e);
     }
-    self.state.music.setQueue({});
+    this.scrobble = null;
     Utils.logout(() => {
-      LS.clear();
-      self.setState({ authState: AUTH_LOGGED_OUT, user: null });
-      self.signIn();
+      clearAppStorage();
+      this.setState({ authState: AUTH_LOGGED_OUT, user: null });
+      this.signIn();
     });
   };
 
@@ -214,7 +261,7 @@ class App extends Component {
 
   render() {
     if (this.state.authState === AUTH_UNKNOWN) {
-      return <Spinner className="mainSpinner" size="200" />;
+      return <Spinner className="mainSpinner" size={200} />;
     }
 
     let logout = "";
@@ -248,7 +295,7 @@ class App extends Component {
           <span className="link" onClick={this.signIn}>
             Log in
           </span>
-          &nbsp;to unlock the the full experience!
+          &nbsp;to unlock the full experience!
         </Callout>
       );
     }

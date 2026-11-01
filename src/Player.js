@@ -7,14 +7,15 @@ import {
   Icon,
   Elevation,
   Slider,
-  Spinner,
-  Toaster
+  Spinner
 } from "@blueprintjs/core";
 
 import "./s/Player.css";
 import Utils from "./Utils";
 import Track from "./Track";
 import Logo from "./Logo";
+import { toast } from "./toaster";
+import { loadVolume, saveVolume, applyVolume } from "./volume";
 
 // none:      0
 // loading:   1
@@ -27,7 +28,6 @@ import Logo from "./Logo";
 // stalled:   9
 // completed: 10
 const PS = window.MusicKit.PlaybackStates;
-const LS = window.localStorage;
 
 // none: 0
 // one: 1
@@ -39,13 +39,16 @@ class Player extends Component {
   constructor(props) {
     super(props);
     this.interval = 0;
+    this.wasPlaying = false;
+    let { pos, muted } = loadVolume();
     this.state = {
-      playbackState: null,
+      playbackState: props.music.playbackState,
       sliderHover: false,
       visualize: false,
-      volume: 1,
+      volumePos: pos,
+      muted: muted,
       disableControls: false,
-      repeatMode: 0
+      repeatMode: props.music.repeatMode || 0
     };
     this.slider = React.createRef();
   }
@@ -62,9 +65,7 @@ class Player extends Component {
   };
 
   componentWillUnmount = () => {
-    if (this.interval !== 0) {
-      clearInterval(this.interval);
-    }
+    this.stopTick();
     this.props.music.removeEventListener(
       "playbackStateDidChange",
       this.playbackChange
@@ -77,12 +78,6 @@ class Player extends Component {
 
   nowPlayingChange = event => {
     let item = event.item;
-    let volume = LS.getItem("volume") || 1;
-    if (this.props.audioElement) {
-      this.props.audioElement.volume = volume;
-      this.setState({ volume: this.props.audioElement.volume });
-    }
-
     if (
       item &&
       item.attributes
@@ -92,7 +87,6 @@ class Player extends Component {
       title += " by ";
       title += attrs.artistName ? attrs.artistName : "";
       title += ", on ThinMusic";
-      console.log("setting title to " + title);
       window.document.title = title;
     } else {
       let defaultTitle = "ThinMusic: The Web Player for Apple Music";
@@ -101,10 +95,10 @@ class Player extends Component {
   };
 
   playbackChange = event => {
-    let self = this;
     switch (event.state) {
       case PS.loading:
       case PS.stopped:
+        this.stopTick();
         this.setState({
           playbackState: event.state,
           currentTime: null,
@@ -112,15 +106,25 @@ class Player extends Component {
         });
         break;
       case PS.playing:
-        self.setState({ playbackState: event.state });
-        this.interval = setInterval(this.tick, 300);
+        this.setState({ playbackState: event.state });
+        this.startTick();
         break;
       default:
-        self.setState({ playbackState: event.state });
-        if (this.interval !== 0) {
-          clearInterval(this.interval);
-          this.interval = 0;
-        }
+        this.stopTick();
+        this.setState({ playbackState: event.state });
+    }
+  };
+
+  // Exactly one progress timer at a time; playing fires on every track.
+  startTick = () => {
+    this.stopTick();
+    this.interval = setInterval(this.tick, 300);
+  };
+
+  stopTick = () => {
+    if (this.interval !== 0) {
+      clearInterval(this.interval);
+      this.interval = 0;
     }
   };
 
@@ -163,36 +167,38 @@ class Player extends Component {
     this.setState({ sliderHover: false });
   };
 
-  volumeChange = num => {
-    LS.setItem("volume", num);
-    this.props.audioElement.volume = num;
-    this.setState({ volume: this.props.audioElement.volume });
+  setVolume = (pos, muted) => {
+    let v = { pos, muted };
+    applyVolume(this.props.music, v);
+    saveVolume(v);
+    this.setState({ volumePos: pos, muted });
   };
 
-  volumeToggle = num => {
-    if (this.props.audioElement.volume === 0) {
-      Toaster.create().show({
+  volumeChange = pos => {
+    // Dragging the slider unmutes; dragging to zero is its own kind of mute.
+    this.setVolume(pos, false);
+  };
+
+  volumeToggle = () => {
+    let { volumePos, muted } = this.state;
+    if (muted || volumePos === 0) {
+      let pos = volumePos === 0 ? 0.5 : volumePos;
+      this.setVolume(pos, false);
+      toast({
         icon: "volume-up",
         intent: "primary",
-        message: "Volume set to " + Math.round(this.state.volume * 100) + "%"
+        message: "Volume set to " + Math.round(pos * 100) + "%"
       });
-      this.props.audioElement.volume = this.state.volume;
-      this.setState({ volume: this.props.audioElement.volume });
     } else {
-      Toaster.create().show({
-        icon: "volume-off",
-        intent: "primary",
-        message: "Volume muted"
-      });
-      this.props.audioElement.volume = 0;
-      this.setState({});
+      this.setVolume(volumePos, true);
+      toast({ icon: "volume-off", intent: "primary", message: "Volume muted" });
     }
   };
 
   repeatChange = () => {
     let target = (this.state.repeatMode + 1) % 3;
     this.props.music.repeatMode = target;
-    Toaster.create().show({
+    toast({
       icon: "repeat",
       intent: "primary",
       message: RM_TITLES[target]
@@ -203,24 +209,32 @@ class Player extends Component {
   };
 
   sliderChange = num => {
-    this.props.music.pause();
+    if (!this.state.disableControls) {
+      // First move of a drag: remember whether to resume afterwards.
+      this.wasPlaying = this.props.music.isPlaying;
+      this.props.music.pause();
+    }
     this.setState({ currentTime: num, disableControls: true });
   };
 
-  sliderRelease = num => {
-    let self = this;
-    this.props.music.seekToTime(num).then(() => {
-      self.props.music.play();
-      self.setState({ disableControls: false });
-    });
+  sliderRelease = async num => {
+    try {
+      await this.props.music.seekToTime(num);
+      if (this.wasPlaying) {
+        await this.props.music.play();
+      }
+    } catch (e) {
+      console.error("seek failed", e);
+    } finally {
+      this.setState({ disableControls: false });
+    }
   };
 
   toggle = () => {
-    if (this.state.playbackState === PS.playing) {
-      this.props.music.pause();
-    } else {
-      this.props.music.play();
-    }
+    let p = this.state.playbackState === PS.playing
+      ? this.props.music.pause()
+      : this.props.music.play();
+    Promise.resolve(p).catch(e => console.error("play/pause failed", e));
   };
 
   toggleViz = () => {
@@ -241,10 +255,9 @@ class Player extends Component {
     let next = () => {
       // Bug in MusicKit, at index 1, back doesn't work?
       if (self.props.music.nowPlayingItemIndex === 1) {
-        self.props.music.changeToMediaAtIndex(0);
-      } else {
-        self.props.music.skipToPreviousItem();
+        return self.props.music.changeToMediaAtIndex(0);
       }
+      return self.props.music.skipToPreviousItem();
     };
 
     // Don't wait until promise for UI feedback (spinner).
@@ -252,27 +265,23 @@ class Player extends Component {
 
     // Why do this? There's a state glitch we're trying to avoid which we
     // just eat if track happends to be paused.
-    if (this.props.music.isPlaying) {
-      this.props.music.stop().then(next);
-    } else {
-      next();
-    }
+    let p = this.props.music.isPlaying
+      ? this.props.music.stop().then(next)
+      : Promise.resolve(next());
+    p.catch(e => console.error("previous track failed", e));
   };
 
   forward = () => {
     let self = this;
-    let next = () => {
-      self.props.music.skipToNextItem();
-    };
+    let next = () => self.props.music.skipToNextItem();
 
     // Don't wait until promise for UI feedback (spinner).
     this.setState({ playbackState: PS.stopped });
 
-    if (this.props.music.isPlaying) {
-      this.props.music.stop().then(next);
-    } else {
-      next();
-    }
+    let p = this.props.music.isPlaying
+      ? this.props.music.stop().then(next)
+      : Promise.resolve(next());
+    p.catch(e => console.error("next track failed", e));
   };
 
   render() {
@@ -313,18 +322,20 @@ class Player extends Component {
       stime = <b>{this.tickLabel(this.state.hoverTime)}</b>;
     }
 
-    if (this.props.audioElement) {
+    {
+      let pos = this.state.muted ? 0 : this.state.volumePos;
       volume = (
         <div>
           <Icon
-            size={10}
+            iconSize={10}
             color={Colors.GRAY1}
             className="contentVolumeIcon"
             onClick={this.volumeToggle}
+            title={this.state.muted ? "Unmute" : "Mute"}
             icon={
-              this.props.audioElement.volume === 0
+              pos === 0
                 ? "volume-off"
-                : this.props.audioElement.volume >= 0.5
+                : pos >= 0.5
                   ? "volume-up"
                   : "volume-down"
             }
@@ -334,12 +345,13 @@ class Player extends Component {
             max={1}
             className="contentVolume"
             onChange={this.volumeChange}
-            value={this.props.audioElement.volume}
-            stepSize={0.05}
+            value={pos}
+            stepSize={0.01}
+            labelRenderer={false}
           />
           <Icon
             className="contentVolumeIconRight"
-            size={10}
+            iconSize={10}
             icon="repeat"
             color={RM[this.state.repeatMode]}
             onClick={this.repeatChange}
@@ -412,8 +424,9 @@ class Player extends Component {
                 title="Next Track"
                 disabled={
                   this.state.disableControls ||
-                  this.props.music.nowPlayingItemIndex ===
-                  this.props.music.queue.length - 1
+                  (this.props.music.nowPlayingItemIndex ===
+                    this.props.music.queue.length - 1 &&
+                    this.state.repeatMode !== 2)
                 }
                 onClick={this.forward}
               />

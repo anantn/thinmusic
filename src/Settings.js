@@ -8,12 +8,12 @@ import {
   Popover,
   Spinner,
   Alert,
-  Toaster,
   ButtonGroup
 } from "@blueprintjs/core";
 
 import "./s/Settings.css";
 import Utils from "./Utils";
+import { toast } from "./toaster";
 import Apple from "./i/Apple.png";
 import AppleSmall from "./i/AppleSmall.svg";
 import Google from "./i/Google.svg";
@@ -42,8 +42,6 @@ class Settings extends Component {
     if (this.authObserver) this.authObserver();
   }
 
-  componentDidUpdate(prevProps) { }
-
   cancel = () => {
     this.setState({ loginInProgress: false });
   };
@@ -53,7 +51,7 @@ class Settings extends Component {
   };
 
   errorToast = provider => {
-    Toaster.create().show({
+    toast({
       icon: "error",
       intent: "danger",
       timeout: 15000,
@@ -75,12 +73,12 @@ class Settings extends Component {
         ) {
           Utils.loginMethods(err.email)
             .then(methods => {
-              if (!methods || methods.length < 0) {
+              if (!methods || methods.length === 0) {
                 self.errorToast(provider);
                 self.setState({ loginInProgress: false });
                 return;
               }
-              Toaster.create().show({
+              toast({
                 icon: "error",
                 intent: "danger",
                 timeout: 15000,
@@ -102,10 +100,6 @@ class Settings extends Component {
           self.errorToast(provider);
           self.setState({ loginInProgress: false });
         }
-      } else {
-        try {
-          window.gtag("event", "login", { method: provider });
-        } catch (e) { }
       }
     });
   };
@@ -117,9 +111,6 @@ class Settings extends Component {
       if (err) {
         self.errorToast("Apple Music");
       } else {
-        try {
-          window.gtag("event", "login", { method: "Apple" });
-        } catch (e) { }
         self.props.userUpdate();
       }
       self.setState({ loginInProgress: false });
@@ -136,10 +127,12 @@ class Settings extends Component {
           .then(self.connectApple)
           .catch(e => {
             self.errorToast("Apple Music");
+            self.setState({ loginInProgress: false });
           });
       })
       .catch(e => {
         self.errorToast("Apple Music");
+        self.setState({ loginInProgress: false });
       });
   };
 
@@ -164,9 +157,6 @@ class Settings extends Component {
         if (err) {
           self.errorToast("Last.FM");
         } else {
-          try {
-            window.gtag("event", "login", { method: "LastFM" });
-          } catch (e) { }
           self.props.userUpdate();
         }
         self.setState({ loginInProgress: false });
