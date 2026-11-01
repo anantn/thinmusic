@@ -10,11 +10,10 @@ A web player for Apple Music with last.fm support
 
 Modern web development stands on the shoulders of giants.
 
-- [React](https://reactjs.org) and [create-react-app](https://github.com/facebook/create-react-app)
-- [async-es](https://www.npmjs.com/package/async-es) and [normalize.css](https://necolas.github.io/normalize.css/)
+- [React](https://react.dev) and [Vite](https://vite.dev)
+- [normalize.css](https://necolas.github.io/normalize.css/)
 - UI by [Blueprint JS](https://blueprintjs.com)
 - Backend in [Firebase](https://firebase.google.com)
-- Hosted by [Netlify](https://www.netlify.com)
 - Drag and Drop by [react-beautiful-dnd](https://github.com/atlassian/react-beautiful-dnd)
 - Device detection by [react-device-detect](https://github.com/duskload/react-device-detect)
 - Visualizer from [Webamp](https://github.com/captbaritone/webamp)
@@ -22,13 +21,15 @@ Modern web development stands on the shoulders of giants.
 
 ## Development
 
-Obtain a [MusicKit JS](https://developer.apple.com/documentation/musickitjs) developer token.
+You need Node 20+ and a [MusicKit](https://developer.apple.com/documentation/musickitjs)
+developer token. Put it in `.env.local` as `VITE_MUSICKIT_TOKEN=<token>`, then:
 
-`$ REACT_APP_MUSICKIT_TOKEN=<token> REACT_APP_FIREBASE_TOKEN=<token> npm start`
+    npm install
+    npm run dev
 
-## Deployment
+## Build
 
-`$ REACT_APP_MUSICKIT_TOKEN=<token> REACT_APP_FIREBASE_TOKEN=<token> GENERATE_SOURCEMAP=false PUBLIC_URL=https://www.thinmusic.com npm run build`
+`npm run build` writes the site to `dist/`.
 
 ## License
 

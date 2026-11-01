@@ -8,16 +8,42 @@ import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 
 import "./s/index.css";
-import App from "./App";
 import Preview from "./i/Preview.png";
 import { loadVolume, applyVolume } from "./volume";
 
-const MusicKit = window.MusicKit;
+// MusicKit comes from Apple's CDN. Wait for it (with a timeout) before loading
+// the app, since several modules read window.MusicKit when they load.
+function musicKitReady(timeoutMs = 20000) {
+  if (window.MusicKit) return Promise.resolve(window.MusicKit);
+  return new Promise((resolve, reject) => {
+    let timer = setTimeout(() => reject(new Error("MusicKit did not load")), timeoutMs);
+    document.addEventListener("musickitloaded", () => {
+      clearTimeout(timer);
+      resolve(window.MusicKit);
+    }, { once: true });
+  });
+}
+
+function showLoadError() {
+  let el = document.getElementById("loader");
+  if (el) {
+    el.querySelector("p:last-child").textContent =
+      "Apple Music couldn't be reached. Check your connection or ad blocker and reload.";
+  }
+}
 
 async function main(rm) {
   FocusStyleManager.onlyShowFocusOnTabs();
+  let MusicKit;
+  try {
+    MusicKit = await musicKitReady();
+  } catch (e) {
+    console.error(e);
+    showLoadError();
+    return;
+  }
   await MusicKit.configure({
-    developerToken: process.env.REACT_APP_MUSICKIT_TOKEN,
+    developerToken: import.meta.env.VITE_MUSICKIT_TOKEN,
     app: {
       name: "ThinMusic",
       build: "0.1"
@@ -25,6 +51,7 @@ async function main(rm) {
   });
   // Set the saved volume before anything can play, so tracks never start loud.
   applyVolume(MusicKit.getInstance(), loadVolume());
+  const { default: App } = await import("./App");
   ReactDOM.render(<App />, document.getElementById("root"));
   if (rm) {
     remove();

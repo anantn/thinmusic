@@ -24,7 +24,7 @@ class _Utils {
       "December"
     ];
     firebase.initializeApp({
-      apiKey: process.env.REACT_APP_FIREBASE_TOKEN,
+      apiKey: import.meta.env.VITE_FIREBASE_KEY,
       authDomain: "apple-thinmusic.firebaseapp.com",
       projectId: "apple-thinmusic",
       storageBucket: "apple-thinmusic.appspot.com",
