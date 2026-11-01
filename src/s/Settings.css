@@ -3,9 +3,56 @@
   min-height: 600px;
 }
 
+/* Signed-out card: Apple Music is the main way in, Google is a small
+   option underneath for people who used it before. */
 .settings .nux {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 24px 20px 18px;
+  text-align: center;
+}
+
+.settings .nux p {
+  margin: 0;
+}
+
+.settings .nux p.trial {
+  color: #a7b6c2;
+}
+
+.settings .nux .altLogin {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(16, 22, 26, 0.4);
+  color: #a7b6c2;
+  font-size: 13px;
   display: flex;
-  justify-content: space-around;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.settings .nux .altLogin button.google,
+.bp6-dark .settings .nux .altLogin button.bp6-button.google,
+.bp6-dark .settings .nux .altLogin button.bp6-button.google:hover {
+  color: #5f6368;
+  background: #fff;
+  box-shadow: none;
+  padding: 3px 10px;
+  min-height: 26px;
+  font-size: 13px;
+  border-radius: 3px;
+}
+
+.bp6-dark .settings .nux .altLogin button.bp6-button.google:hover {
+  background: #f1f3f4;
+}
+
+.settings .nux .altLogin button.google img {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  margin-right: 6px;
 }
 
 .settings .nux button.apple img {
@@ -16,9 +63,10 @@
   padding: 10px;
 }
 
-.settings .nux button.apple {
+.settings .nux button.apple,
+.bp6-dark .settings .nux button.bp6-button.apple {
   padding: 0;
-  margin: 15px;
+  margin: 16px 0 12px;
   display: inline-block;
   border-radius: 13px;
 }
@@ -27,7 +75,7 @@
   cursor: pointer;
 }
 
-.settings .bp3-spinner {
+.settings .bp6-spinner {
   padding-top: 150px;
   padding-bottom: 20px;
 }
@@ -71,7 +119,9 @@
 }
 
 .settings .login button.google,
-.settings .login button.google:hover {
+.settings .login button.google:hover,
+.bp6-dark .settings .login button.bp6-button.google,
+.bp6-dark .settings .login button.bp6-button.google:hover {
   color: #757575;
   background-color: #fff;
 }

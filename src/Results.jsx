@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Tab, Tabs, NonIdealState } from "@blueprintjs/core";
+import { Tab, Tabs, TabsExpander, NonIdealState } from "@blueprintjs/core";
 
 import "./s/Results.css";
 import Track from "./Track";
@@ -16,7 +16,7 @@ class Results extends Component {
     );
     return (
       <Tabs>
-        <Tabs.Expander />
+        <TabsExpander />
         <Tab
           id="songs"
           title="Songs"

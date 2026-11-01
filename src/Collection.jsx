@@ -89,7 +89,7 @@ class Collection extends Component {
       this.props.music.api
         .music(`/v1/catalog/{{storefrontId}}/songs/${id}`)
         .then(obj => {
-          if (!obj || !obj.data || !obj.data) {
+          if (!obj || !obj.data || !obj.data.data || !obj.data.data[0]) {
             throw new Error("Invalid response.");
           }
           let res = obj.data.data[0];
@@ -473,7 +473,12 @@ class Collection extends Component {
     }
 
     return (
-      <Dialog {...this.props} title={name} className="collection bp3-dark">
+      <Dialog
+        isOpen={this.props.isOpen}
+        onClose={this.props.onClose}
+        title={name}
+        className={`collection ${Classes.DARK}`}
+      >
         <div className={Classes.DIALOG_BODY}>
           {warning}
           {body}

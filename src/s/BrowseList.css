@@ -16,11 +16,20 @@ ol.browseList .item {
 ol.browseList .item .title {
   padding: 5px;
   height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* At most two lines, with an ellipsis, so long titles never get cut off. */
 ol.browseList .item .title span {
   font-weight: bold;
-  vertical-align: middle;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  text-align: center;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 ol.browseList .item .title span:hover {

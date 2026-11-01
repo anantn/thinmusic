@@ -1,6 +1,23 @@
-import firebase from "firebase/app";
-import "firebase/firestore";
-import "firebase/auth";
+import { initializeApp } from "firebase/app";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  fetchSignInMethodsForEmail,
+  linkWithPopup,
+  onAuthStateChanged,
+  signInAnonymously,
+  signInWithCredential,
+  signInWithPopup,
+  signOut
+} from "firebase/auth";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteField
+} from "firebase/firestore";
 
 const MusicKit = window.MusicKit;
 const Fetch = window.fetch;
@@ -9,29 +26,17 @@ const EUC = window.encodeURIComponent;
 class _Utils {
   constructor() {
     this.ICON_SIZE = 40;
-    this.MONTHS = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
-    ];
-    firebase.initializeApp({
-      apiKey: process.env.REACT_APP_FIREBASE_TOKEN,
+    this.busy = false; // true while we're signing MusicKit out ourselves
+    const app = initializeApp({
+      apiKey: import.meta.env.VITE_FIREBASE_KEY,
       authDomain: "apple-thinmusic.firebaseapp.com",
       projectId: "apple-thinmusic",
       storageBucket: "apple-thinmusic.appspot.com",
       messagingSenderId: "694059640396",
       appId: "1:694059640396:web:075505cc9e17a3a43f76e9"
     });
-    this.db = firebase.firestore();
+    this.auth = getAuth(app);
+    this.db = getFirestore(app);
   }
 
   icon(artwork, width, height) {
@@ -76,80 +81,61 @@ class _Utils {
   }
 
   formatDate(iso) {
-    let d = new Date(iso);
-    return (
-      this.MONTHS[d.getMonth()].slice(0, 3) +
-      " " +
-      d.getDate() +
-      ", " +
-      d.getFullYear()
-    );
+    return new Date(iso).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
   }
 
   loginMethods = email => {
-    return firebase.auth().fetchSignInMethodsForEmail(email);
+    return fetchSignInMethodsForEmail(this.auth, email);
   };
 
   login = (provider, cb) => {
-    let providerObj = null;
-    switch (provider) {
-      case "Google":
-        providerObj = new firebase.auth.GoogleAuthProvider();
-        providerObj.addScope("profile");
-        providerObj.addScope("email");
-        break;
-      case "Twitter":
-        providerObj = new firebase.auth.TwitterAuthProvider();
-        break;
-      case "Facebook":
-        providerObj = new firebase.auth.FacebookAuthProvider();
-        providerObj.addScope("public_profile");
-        providerObj.addScope("email");
-        break;
-      default:
-        break;
-    }
-    if (!providerObj) {
+    if (provider !== "Google") {
       cb(null, "Invalid provider");
       return;
     }
-
+    let providerObj = new GoogleAuthProvider();
+    providerObj.addScope("profile");
+    providerObj.addScope("email");
     providerObj.setCustomParameters({ display: "popup" });
 
-    let user = firebase.auth().currentUser;
+    let user = this.auth.currentUser;
     if (user && user.isAnonymous) {
-      user
-        .linkWithPopup(providerObj)
-        .then(result => {
-          window.location.reload();
+      linkWithPopup(user, providerObj)
+        .then(() => window.location.reload())
+        .catch(error => {
+          // This Google account already has a ThinMusic user: sign in to it.
+          let credential = GoogleAuthProvider.credentialFromError(error);
+          if (error.code === "auth/credential-already-in-use" && credential) {
+            return signInWithCredential(this.auth, credential).then(result => {
+              if (cb) cb(result, null);
+            });
+          }
+          throw error;
         })
         .catch(error => {
           if (cb) cb(null, error);
-          return false;
         });
     } else {
-      firebase
-        .auth()
-        .signInWithPopup(providerObj)
+      signInWithPopup(this.auth, providerObj)
         .then(result => {
           if (cb) cb(result, null);
-          return false;
         })
         .catch(error => {
           if (cb) cb(null, error);
-          return false;
         });
     }
   };
 
   loginAnonymously = () => {
-    return firebase.auth().signInAnonymously();
+    return signInAnonymously(this.auth);
   };
 
   logout = cb => {
-    firebase
-      .auth()
-      .signOut()
+    signOut(this.auth)
       .then(() => {
         if (cb) cb();
       })
@@ -185,13 +171,17 @@ class _Utils {
     if (start) {
       url += "&timestamp=" + EUC(start);
     }
-    Fetch(url);
+    return Fetch(url)
+      .then(resp => {
+        if (!resp.ok) throw new Error("Last.fm " + path + " failed: " + resp.status);
+      })
+      .catch(e => console.error(e));
   };
 
   connectLastFMToken = cb => {
     // Open popup now so it is on main thread.
     let win = window.open(
-      "https://auth.thinmusic.com/blank.html",
+      "about:blank",
       "window",
       "toolbar=no, menubar=no, resizable=yes, width=600, height=600"
     );
@@ -282,12 +272,6 @@ class _Utils {
       case "Google":
         window.open("https://myaccount.google.com/permissions");
         break;
-      case "Twitter":
-        window.open("https://twitter.com/settings/sessions");
-        break;
-      case "Facebook":
-        window.open("https://www.facebook.com/settings?tab=applications");
-        break;
       default:
         break;
     }
@@ -300,15 +284,16 @@ class _Utils {
 
     let ref = Utils.userRef();
     if (ref) {
-      ref
-        .update({
-          lastfm: firebase.firestore.FieldValue.delete()
-        })
+      updateDoc(ref, { lastfm: deleteField() })
         .then(() => {
+          if (cb) cb();
+        })
+        .catch(e => {
+          console.error("could not remove Last.fm session", e);
           if (cb) cb();
         });
     } else if (cb) {
-      process.nextTick(cb);
+      queueMicrotask(cb);
     }
   };
 
@@ -316,31 +301,47 @@ class _Utils {
     if (cb && typeof cb !== "function") {
       cb = null;
     }
+    // Also sign MusicKit out on this device. `busy` stops App's
+    // authorization listener from treating that as a second disconnect.
+    this.busy = true;
+    Promise.resolve(MusicKit.getInstance().unauthorize()).catch(e =>
+      console.error("unauthorize failed", e)
+    );
 
     let ref = Utils.userRef();
     if (ref) {
-      ref
-        .update({
-          apple: firebase.firestore.FieldValue.delete()
-        })
+      updateDoc(ref, { apple: deleteField() })
+        .catch(e => console.error("could not remove Apple Music token", e))
         .then(() => {
+          this.busy = false;
           if (cb) cb();
         });
-    } else if (cb) {
-      process.nextTick(cb);
+    } else {
+      this.busy = false;
+      if (cb) queueMicrotask(cb);
     }
   };
 
   userRef = () => {
-    let user = firebase.auth().currentUser;
+    let user = this.auth.currentUser;
     if (!user) {
       return null;
     }
-    return this.db.collection("users").doc(user.uid);
+    return doc(this.db, "users", user.uid);
+  };
+
+  // The signed-in user's saved settings ({} if none yet).
+  loadUser = async () => {
+    let ref = this.userRef();
+    if (!ref) {
+      return null;
+    }
+    let snap = await getDoc(ref);
+    return snap.exists() ? snap.data() || {} : {};
   };
 
   userName = () => {
-    let user = firebase.auth().currentUser;
+    let user = this.auth.currentUser;
     if (!user) {
       return null;
     }
@@ -352,7 +353,7 @@ class _Utils {
 
   userProvider = () => {
     let self = this;
-    let user = firebase.auth().currentUser;
+    let user = this.auth.currentUser;
     if (!user) {
       return null;
     }
@@ -380,20 +381,17 @@ class _Utils {
   };
 
   addAuthObserver = cb => {
-    return firebase.auth().onAuthStateChanged(cb);
+    return onAuthStateChanged(this.auth, cb);
   };
 
+  // Merge fields into the signed-in user's document (creates it if needed).
   setOrUpdate = obj => {
-    let self = this;
-    return this.userRef()
-      .get()
-      .then(doc => {
-        if (doc.exists) {
-          return self.userRef().update(obj);
-        } else {
-          return self.userRef().set(obj);
-        }
-      });
+    let ref = this.userRef();
+    if (!ref) {
+      return Promise.reject(new Error("Not signed in"));
+    }
+    // mergeFields replaces each given field whole (e.g. a new Last.fm session).
+    return setDoc(ref, obj, { mergeFields: Object.keys(obj) });
   };
 
   isSameTrack = (a, b) => {
@@ -435,12 +433,26 @@ class _Utils {
     return options;
   };
 
-  // Verify token by trying to fetch one.
+  // Check the Apple Music user token with a cheap request.
+  // Resolves true (valid), false (Apple rejected it) or null (couldn't tell:
+  // offline, rate limited, server error), so transient errors don't log people out.
   isReallyLoggedIn = music => {
     return music.api
-      .music("/v1/me/recommendations")
+      .music("/v1/me/storefront")
       .then(() => true)
-      .catch(() => false);
+      .catch(e => {
+        // MusicKit throws an MKError: errorCode, plus the Response in data.
+        let status = e && e.data && e.data.status;
+        let code = (e && e.errorCode) || "";
+        if (
+          status === 401 ||
+          status === 403 ||
+          ["UNAUTHORIZED_ERROR", "ACCESS_DENIED", "TOKEN_EXPIRED", "AUTHORIZATION_ERROR"].includes(code)
+        ) {
+          return false;
+        }
+        return null;
+      });
   };
 
   showAlbum = (item, show) => {

@@ -5,15 +5,16 @@ import {
   Divider,
   HTMLTable,
   Icon,
-  Popover,
+  PopoverNext,
+  Classes,
   Spinner,
   Alert,
-  Toaster,
   ButtonGroup
 } from "@blueprintjs/core";
 
 import "./s/Settings.css";
 import Utils from "./Utils";
+import { toast } from "./toaster";
 import Apple from "./i/Apple.png";
 import AppleSmall from "./i/AppleSmall.svg";
 import Google from "./i/Google.svg";
@@ -42,8 +43,6 @@ class Settings extends Component {
     if (this.authObserver) this.authObserver();
   }
 
-  componentDidUpdate(prevProps) { }
-
   cancel = () => {
     this.setState({ loginInProgress: false });
   };
@@ -53,7 +52,7 @@ class Settings extends Component {
   };
 
   errorToast = provider => {
-    Toaster.create().show({
+    toast({
       icon: "error",
       intent: "danger",
       timeout: 15000,
@@ -73,14 +72,20 @@ class Settings extends Component {
           err.code &&
           err.code === "auth/account-exists-with-different-credential"
         ) {
-          Utils.loginMethods(err.email)
+          let email = err.customData && err.customData.email;
+          if (!email) {
+            self.errorToast(provider);
+            self.setState({ loginInProgress: false });
+            return;
+          }
+          Utils.loginMethods(email)
             .then(methods => {
-              if (!methods || methods.length < 0) {
+              if (!methods || methods.length === 0) {
                 self.errorToast(provider);
                 self.setState({ loginInProgress: false });
                 return;
               }
-              Toaster.create().show({
+              toast({
                 icon: "error",
                 intent: "danger",
                 timeout: 15000,
@@ -102,10 +107,6 @@ class Settings extends Component {
           self.errorToast(provider);
           self.setState({ loginInProgress: false });
         }
-      } else {
-        try {
-          window.gtag("event", "login", { method: provider });
-        } catch (e) { }
       }
     });
   };
@@ -117,9 +118,6 @@ class Settings extends Component {
       if (err) {
         self.errorToast("Apple Music");
       } else {
-        try {
-          window.gtag("event", "login", { method: "Apple" });
-        } catch (e) { }
         self.props.userUpdate();
       }
       self.setState({ loginInProgress: false });
@@ -136,10 +134,12 @@ class Settings extends Component {
           .then(self.connectApple)
           .catch(e => {
             self.errorToast("Apple Music");
+            self.setState({ loginInProgress: false });
           });
       })
       .catch(e => {
         self.errorToast("Apple Music");
+        self.setState({ loginInProgress: false });
       });
   };
 
@@ -164,9 +164,6 @@ class Settings extends Component {
         if (err) {
           self.errorToast("Last.FM");
         } else {
-          try {
-            window.gtag("event", "login", { method: "LastFM" });
-          } catch (e) { }
           self.props.userUpdate();
         }
         self.setState({ loginInProgress: false });
@@ -188,10 +185,10 @@ class Settings extends Component {
   renderSocialLogin = () => {
     return (
       <ButtonGroup
-        large={true}
+        size="large"
         vertical={true}
         className="login"
-        alignText="left"
+        alignText="start"
       >
         <Button
           className="google"
@@ -211,13 +208,9 @@ class Settings extends Component {
         <div>
           Log in with any social account and seamlessly synchronize access to
           your music
-          <Popover isOpen={this.state.explain}>
-            <div style={{ marginBottom: "10px" }}>
-              &nbsp;(
-              <Icon className="help" icon="help" onClick={this.toggleExplain} />
-              )
-            </div>
-            <div>
+          <PopoverNext
+            isOpen={this.state.explain}
+            content={
               <Card style={{ maxWidth: "400px" }}>
                 <p>
                   <b>Why should I log in to ThinMusic?</b>
@@ -247,8 +240,14 @@ class Settings extends Component {
                   Ok
                 </Button>
               </Card>
-            </div>
-          </Popover>
+            }
+          >
+            <span style={{ marginBottom: "10px" }}>
+              &nbsp;(
+              <Icon className="help" icon="help" onClick={this.toggleExplain} />
+              )
+            </span>
+          </PopoverNext>
         </div>
       </div>
     );
@@ -299,7 +298,7 @@ class Settings extends Component {
       content = (
         <div>
           <Alert
-            className="bp3-dark"
+            className={Classes.DARK}
             cancelButtonText="Cancel"
             confirmButtonText="OK"
             intent="success"
@@ -397,26 +396,29 @@ class Settings extends Component {
             <a href="https://apple.co/2AA0rdx">Apple Music</a>
           </h2>
           <Card className="nux">
-            <div className="box">
-              <h3>New user?</h3>
-              <p>Sign in with your Apple ID to get started:</p>
+            <p>Sign in with your Apple ID to get started.</p>
+            <Button
+              size="large"
+              className="apple"
+              onClick={this.connectAppleAnonymous}
+            >
+              <img src={Apple} alt="" />
+              <span>Connect with Apple Music</span>
+            </Button>
+            <p className="trial">
+              No Apple Music account? Sign up for a{" "}
+              <a href="https://apple.co/2AA0rdx">free trial</a>!
+            </p>
+            <div className="altLogin">
+              <span>Signed in with Google before?</span>
               <Button
-                large={true}
-                className="apple"
-                onClick={this.connectAppleAnonymous}
+                size="small"
+                className="google"
+                onClick={this.connectSocial.bind(this, "Google")}
               >
-                <img src={Apple} alt="Log in with Apple" />
-                <span>Connect with Apple Music</span>
+                <img src={Google} alt="" />
+                <span>Log in with Google</span>
               </Button>
-              <p>
-                No Apple Music account? Sign up for a{" "}
-                <a href="https://apple.co/2AA0rdx">free trial</a>!
-              </p>
-            </div>
-            <Divider />
-            <div className="box">
-              <h3>Returning user?</h3>
-              {this.renderSocialLogin()}
             </div>
           </Card>
           <div>

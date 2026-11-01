@@ -3,34 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@blueprintjs/core": "^3.8.0",
-    "@types/react": "^16.7.5",
-    "@types/react-dom": "^16.0.9",
-    "async-es": "^2.6.1",
-    "firebase": "^7.24.0",
+    "@blueprintjs/core": "^6.21.0",
+    "@blueprintjs/icons": "^6.14.1",
+    "@hello-pangea/dnd": "^18.0.1",
+    "firebase": "^13.1.0",
     "normalize.css": "^8.0.1",
-    "react": "^16.6.0",
-    "react-beautiful-dnd": "^10.0.2",
-    "react-device-detect": "^1.6.1",
-    "react-dom": "^16.6.0",
-    "react-scripts": "^3.4.4",
-    "source-map-explorer": "^1.6.0"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "scripts": {
-    "analyze": "source-map-explorer build/static/js/main.*",
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "smoke": "tests/run-smoke.sh"
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "type": "module",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "playwright-core": "^1.64.1",
+    "vite": "^8.3.5"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
-  "homepage": "https://www.thinmusic.com"
+  "overrides": {
+    "@grpc/grpc-js": "^1.14.7"
+  }
 }

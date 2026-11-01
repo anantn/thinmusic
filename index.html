@@ -3,8 +3,8 @@
 
 <head>
   <meta charset="utf-8" />
-  <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
-  <link rel="apple-music-app-icon" href="%PUBLIC_URL%/logo.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-music-app-icon" href="/logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="theme-color" content="#394b59" />
 
@@ -21,13 +21,13 @@
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.thinmusic.com/" />
-  <meta property="og:image" content="%PUBLIC_URL%/logo.png" />
-  <meta name="twitter:image" content="%PUBLIC_URL%/logo.png" />
+  <meta property="og:image" content="https://www.thinmusic.com/logo.png" />
+  <meta name="twitter:image" content="https://www.thinmusic.com/logo.png" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:creator" content="@anantn" />
 
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js" data-web-components></script>
+  <link rel="manifest" href="/manifest.json" />
+  <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"></script>
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
     data-cf-beacon='{"token": "f0fa89b0f79c46ada87c50219b59950d"}'></script>
 </head>
@@ -39,14 +39,15 @@
   <main>
     <div id="loader"
       style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; text-align: center; color: #f5f8fa; background-color: #394b59; width: 100%; height: 2180px; margin: 0; padding: 0">
-      <img style="margin-top: 150px" src="%PUBLIC_URL%/logo.png" />
+      <img style="margin-top: 150px" src="/logo.png" />
       <p style="margin-top: 20px">
         ThinMusic is a web player for Apple Music.
       </p>
       <p>Please stand by while we prepare some tunes!</p>
     </div>
-    <div id="root" class="bp3-dark" role="main"></div>
+    <div id="root" class="bp6-dark" role="main"></div>
   </main>
+  <script type="module" src="/src/index.jsx"></script>
 </body>
 
 </html>
