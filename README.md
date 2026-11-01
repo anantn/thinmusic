@@ -27,6 +27,9 @@ developer token. Put it in `.env.local` as `VITE_MUSICKIT_TOKEN=<token>`, then:
     npm install
     npm run dev
 
+`npm run smoke` builds the site and runs a signed-out smoke test in headless
+Google Chrome (browse, search, preview playback, saved volume, queue drag and drop).
+
 ## Build
 
 `npm run build` writes the site to `dist/`.
