@@ -26,6 +26,7 @@ const EUC = window.encodeURIComponent;
 class _Utils {
   constructor() {
     this.ICON_SIZE = 40;
+    this.busy = false; // true while we're signing MusicKit out ourselves
     const app = initializeApp({
       apiKey: import.meta.env.VITE_FIREBASE_KEY,
       authDomain: "apple-thinmusic.firebaseapp.com",
@@ -180,7 +181,7 @@ class _Utils {
   connectLastFMToken = cb => {
     // Open popup now so it is on main thread.
     let win = window.open(
-      "https://auth.thinmusic.com/blank.html",
+      "about:blank",
       "window",
       "toolbar=no, menubar=no, resizable=yes, width=600, height=600"
     );
@@ -300,7 +301,9 @@ class _Utils {
     if (cb && typeof cb !== "function") {
       cb = null;
     }
-    // Also sign MusicKit out on this device, not just forget the saved token.
+    // Also sign MusicKit out on this device. `busy` stops App's
+    // authorization listener from treating that as a second disconnect.
+    this.busy = true;
     Promise.resolve(MusicKit.getInstance().unauthorize()).catch(e =>
       console.error("unauthorize failed", e)
     );
@@ -308,15 +311,14 @@ class _Utils {
     let ref = Utils.userRef();
     if (ref) {
       updateDoc(ref, { apple: deleteField() })
+        .catch(e => console.error("could not remove Apple Music token", e))
         .then(() => {
-          if (cb) cb();
-        })
-        .catch(e => {
-          console.error("could not remove Apple Music token", e);
+          this.busy = false;
           if (cb) cb();
         });
-    } else if (cb) {
-      queueMicrotask(cb);
+    } else {
+      this.busy = false;
+      if (cb) queueMicrotask(cb);
     }
   };
 
@@ -330,7 +332,11 @@ class _Utils {
 
   // The signed-in user's saved settings ({} if none yet).
   loadUser = async () => {
-    let snap = await getDoc(this.userRef());
+    let ref = this.userRef();
+    if (!ref) {
+      return null;
+    }
+    let snap = await getDoc(ref);
     return snap.exists() ? snap.data() || {} : {};
   };
 
@@ -384,7 +390,8 @@ class _Utils {
     if (!ref) {
       return Promise.reject(new Error("Not signed in"));
     }
-    return setDoc(ref, obj, { merge: true });
+    // mergeFields replaces each given field whole (e.g. a new Last.fm session).
+    return setDoc(ref, obj, { mergeFields: Object.keys(obj) });
   };
 
   isSameTrack = (a, b) => {
@@ -434,9 +441,14 @@ class _Utils {
       .music("/v1/me/storefront")
       .then(() => true)
       .catch(e => {
-        let status = e && (e.status || (e.response && e.response.status));
-        let code = String((e && (e.errorCode || e.name || e.message)) || "");
-        if (status === 401 || status === 403 || /unauthori[sz]ed|forbidden|token/i.test(code)) {
+        // MusicKit throws an MKError: errorCode, plus the Response in data.
+        let status = e && e.data && e.data.status;
+        let code = (e && e.errorCode) || "";
+        if (
+          status === 401 ||
+          status === 403 ||
+          ["UNAUTHORIZED_ERROR", "ACCESS_DENIED", "TOKEN_EXPIRED", "AUTHORIZATION_ERROR"].includes(code)
+        ) {
           return false;
         }
         return null;

@@ -10,9 +10,10 @@ export const isMobile =
   isAndroid ||
   isIOS ||
   /Mobi/i.test(ua);
-// Chromium-based desktop browsers. Web Audio routing of MusicKit's media
-// element is only known to work there; elsewhere it can silence playback.
+// Chromium-based browsers (Chrome, Edge, Brave, ...). Web Audio routing of
+// MusicKit's media element is only known to work there; elsewhere it can
+// silence playback.
 export const isChrome =
   !!(navigator.userAgentData &&
-    navigator.userAgentData.brands.some(b => /Chrom/.test(b.brand))) ||
-  (/Chrome\//.test(ua) && !/Edg\/|OPR\//.test(ua));
+    navigator.userAgentData.brands.some(b => /Chromium/.test(b.brand))) ||
+  /Chrome\//.test(ua);

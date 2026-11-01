@@ -21,7 +21,8 @@ const AUTH_UNKNOWN = 0;
 const AUTH_LOGGED_OUT = 1;
 const AUTH_LOGGED_IN = 2;
 
-// Clears this app's own keys, keeping the volume preference and MusicKit's keys.
+// Clears this app's own keys (including the v1-era token keys it writes),
+// keeping the volume preference and MusicKit v3's own storage.
 function clearAppStorage() {
   try {
     for (let key of Object.keys(LS)) {
@@ -111,8 +112,16 @@ class App extends Component {
     });
   };
 
+  // Apple Music was signed out from outside the app: forget the saved token.
+  // Ignored while we're signing out or disconnecting ourselves.
   authChange = status => {
-    if (status.authorizationStatus === 0 && Utils.userRef()) {
+    if (
+      status.authorizationStatus === 0 &&
+      !Utils.busy &&
+      this.state.user &&
+      this.state.user.apple &&
+      Utils.userRef()
+    ) {
       Utils.disconnectApple(this.userUpdate);
     }
   };
@@ -166,6 +175,9 @@ class App extends Component {
     let data = {};
     try {
       data = await Utils.loadUser();
+      if (data === null) {
+        return; // signed out meanwhile
+      }
     } catch (e) {
       console.error("could not load user profile", e);
       toast({
@@ -236,6 +248,7 @@ class App extends Component {
 
   signOut = async () => {
     let music = this.state.music;
+    Utils.busy = true; // logging out of this device keeps the saved Apple connection
     try {
       if (music.isPlaying) {
         await music.stop();
@@ -247,6 +260,7 @@ class App extends Component {
     }
     this.scrobble = null;
     Utils.logout(() => {
+      Utils.busy = false;
       clearAppStorage();
       this.setState({ authState: AUTH_LOGGED_OUT, user: null });
       this.signIn();

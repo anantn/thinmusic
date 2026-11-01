@@ -72,7 +72,13 @@ class Settings extends Component {
           err.code &&
           err.code === "auth/account-exists-with-different-credential"
         ) {
-          Utils.loginMethods(err.email)
+          let email = err.customData && err.customData.email;
+          if (!email) {
+            self.errorToast(provider);
+            self.setState({ loginInProgress: false });
+            return;
+          }
+          Utils.loginMethods(email)
             .then(methods => {
               if (!methods || methods.length === 0) {
                 self.errorToast(provider);
