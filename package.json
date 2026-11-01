@@ -22,5 +22,8 @@
     "@vitejs/plugin-react": "^6.1.2",
     "playwright-core": "^1.64.1",
     "vite": "^8.3.5"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "^1.14.7"
   }
 }
