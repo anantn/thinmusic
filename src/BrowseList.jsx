@@ -6,12 +6,9 @@ import BrowseIcon from "./BrowseIcon";
 
 class BrowseList extends Component {
   renderCard(item) {
-    let title = "";
+    // Long names are clamped to two lines in CSS; the full name is the tooltip.
     let name = item.attributes.name;
-    if (name.length > 32) {
-      title = name;
-      name = item.attributes.name.slice(0, 32) + "...";
-    }
+    let title = name;
 
     let card = (
       <Card className="item">

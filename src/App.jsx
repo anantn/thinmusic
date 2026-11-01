@@ -21,7 +21,7 @@ const AUTH_UNKNOWN = 0;
 const AUTH_LOGGED_OUT = 1;
 const AUTH_LOGGED_IN = 2;
 
-// Clears this app's own keys (including the v1-era token keys it writes),
+// Clears this app's own keys (including v1-era token keys older versions wrote),
 // keeping the volume preference and MusicKit v3's own storage.
 function clearAppStorage() {
   try {
@@ -194,10 +194,14 @@ class App extends Component {
       return;
     }
 
-    // Saved as connected to Apple Music, but not usable on this device.
+    // Saved as connected to Apple Music, but not signed in on this browser.
+    // The user reconnects with a click (Apple's popup needs a user gesture).
     let notOnThisDevice = () => {
       let { apple, ...rest } = data;
-      this.setState({ authState: AUTH_LOGGED_IN, user: rest });
+      this.setState({
+        authState: AUTH_LOGGED_IN,
+        user: { ...rest, appleElsewhere: true }
+      });
     };
 
     try {
@@ -209,7 +213,6 @@ class App extends Component {
           Utils.disconnectApple(() => window.location.reload());
           return;
         }
-        LS.setItem("sync-count", "0");
         let token = await music.authorize();
         if (token && token !== data.apple) {
           Utils.connectApple(music, (token, err) => {
@@ -223,17 +226,12 @@ class App extends Component {
           this.setState({ authState: AUTH_LOGGED_IN, user: data });
         }
       } else {
-        let count = Number(LS.getItem("sync-count") || "0");
-        LS.setItem("sync-count", String(count + 1));
-        LS.setItem(data.apple + ".r", "");
-        LS.setItem(data.apple + ".s", "");
-        LS.setItem("music.6fl6vvxxeh.u", data.apple);
-        if (count > 3) {
-          Utils.disconnectApple(this.userUpdate);
-        } else {
-          await music.authorize();
-          window.location.reload();
-        }
+        // Used to copy the token into MusicKit v1's storage keys and call
+        // authorize() here, without a click. MusicKit v3 ignores those keys,
+        // so that opened Apple's popup unprompted, and it ended up loading
+        // the app inside the popup. Ask the user to reconnect instead.
+        clearAppStorage();
+        notOnThisDevice();
       }
     } catch (e) {
       // authorize() can reject (popup blocked, user cancelled). Don't hang on the spinner.
@@ -291,8 +289,9 @@ class App extends Component {
       if (!this.state.user.apple) {
         callout = (
           <Callout style={{ marginBottom: "10px" }} intent="warning">
-            You haven't connected your Apple Music account, playback is limited
-            to 30 seconds.
+            {this.state.user.appleElsewhere
+              ? "Your Apple Music account isn't connected in this browser yet, playback is limited to 30 seconds."
+              : "You haven't connected your Apple Music account, playback is limited to 30 seconds."}
             <br />
             <span className="link" onClick={this.signIn}>
               Click here
