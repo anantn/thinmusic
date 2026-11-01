@@ -396,26 +396,29 @@ class Settings extends Component {
             <a href="https://apple.co/2AA0rdx">Apple Music</a>
           </h2>
           <Card className="nux">
-            <div className="box">
-              <h3>New user?</h3>
-              <p>Sign in with your Apple ID to get started:</p>
+            <p>Sign in with your Apple ID to get started.</p>
+            <Button
+              size="large"
+              className="apple"
+              onClick={this.connectAppleAnonymous}
+            >
+              <img src={Apple} alt="" />
+              <span>Connect with Apple Music</span>
+            </Button>
+            <p className="trial">
+              No Apple Music account? Sign up for a{" "}
+              <a href="https://apple.co/2AA0rdx">free trial</a>!
+            </p>
+            <div className="altLogin">
+              <span>Signed in with Google before?</span>
               <Button
-                size="large"
-                className="apple"
-                onClick={this.connectAppleAnonymous}
+                size="small"
+                className="google"
+                onClick={this.connectSocial.bind(this, "Google")}
               >
-                <img src={Apple} alt="Log in with Apple" />
-                <span>Connect with Apple Music</span>
+                <img src={Google} alt="" />
+                <span>Log in with Google</span>
               </Button>
-              <p>
-                No Apple Music account? Sign up for a{" "}
-                <a href="https://apple.co/2AA0rdx">free trial</a>!
-              </p>
-            </div>
-            <Divider />
-            <div className="box">
-              <h3>Returning user?</h3>
-              {this.renderSocialLogin()}
             </div>
           </Card>
           <div>
