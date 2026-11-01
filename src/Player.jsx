@@ -327,7 +327,7 @@ class Player extends Component {
       volume = (
         <div>
           <Icon
-            iconSize={10}
+            size={10}
             color={Colors.GRAY1}
             className="contentVolumeIcon"
             onClick={this.volumeToggle}
@@ -351,7 +351,7 @@ class Player extends Component {
           />
           <Icon
             className="contentVolumeIconRight"
-            iconSize={10}
+            size={10}
             icon="repeat"
             color={RM[this.state.repeatMode]}
             onClick={this.repeatChange}
@@ -384,14 +384,14 @@ class Player extends Component {
             }
             onChange={this.sliderChange}
             onRelease={this.sliderRelease}
-            labelRenderer={() => ""}
+            labelRenderer={false}
             labelStepSize={this.state.totalTime || 1}
             value={this.state.currentTime || 0}
           />
         </div>
         <div className="content">
           <div className="contentControls">
-            <ButtonGroup className="contentButtons" large={true}>
+            <ButtonGroup className="contentButtons" size="large">
               <Button
                 icon="fast-backward"
                 title="Previous Track"

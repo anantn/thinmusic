@@ -477,7 +477,7 @@ class Collection extends Component {
         isOpen={this.props.isOpen}
         onClose={this.props.onClose}
         title={name}
-        className="collection bp3-dark"
+        className={`collection ${Classes.DARK}`}
       >
         <div className={Classes.DIALOG_BODY}>
           {warning}

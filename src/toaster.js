@@ -1,11 +1,13 @@
-import { Toaster } from "@blueprintjs/core";
+import { OverlayToaster, Position } from "@blueprintjs/core";
 
-// One shared toaster for the whole app (creating one per toast leaks DOM roots).
+// One shared toaster for the whole app, created on first use.
 let instance = null;
 
 export function toast(props) {
   if (!instance) {
-    instance = Toaster.create();
+    instance = OverlayToaster.createAsync({ position: Position.TOP });
   }
-  return instance.show(props);
+  instance
+    .then(t => t.show(props))
+    .catch(e => console.error("toast failed", e));
 }

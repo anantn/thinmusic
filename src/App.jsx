@@ -7,7 +7,6 @@ import {
   Text,
   Spinner
 } from "@blueprintjs/core";
-import { isChrome } from "react-device-detect";
 
 import "./s/App.css";
 import Panel from "./Panel";
@@ -88,11 +87,12 @@ class App extends Component {
     }
     element.crossOrigin = "anonymous";
 
-    // The visualizer taps the audio element through Web Audio. Volume is set
-    // on MusicKit (see volume.js), never on the element.
+    // The visualizer taps the audio element through Web Audio (needs CORS,
+    // so only for signed-in playback). Volume is set on MusicKit (see
+    // volume.js), never on the element.
     let context = null;
     let source = null;
-    if (isChrome && this.state.music.isAuthorized) {
+    if (this.state.music.isAuthorized) {
       try {
         context = new (window.AudioContext || window.webkitAudioContext)();
         source = context.createMediaElementSource(element);

@@ -4,6 +4,7 @@ import {
   Icon,
   InputGroup,
   Tabs,
+  TabsExpander,
   Tab,
   NonIdealState
 } from "@blueprintjs/core";
@@ -319,7 +320,7 @@ class Panel extends Component {
         />
         <Tabs
           className="tabs"
-          large={true}
+          size="large"
           onChange={this.tab}
           selectedTabId={this.state.selected}
         >
@@ -359,11 +360,11 @@ class Panel extends Component {
             }
           />
           {search}
-          <Tabs.Expander />
+          <TabsExpander />
           <InputGroup
             className="searchBar"
             type="search"
-            large={true}
+            size="large"
             leftIcon="search"
             placeholder="Find songs, albums, playlists by name..."
             onChange={this.search}

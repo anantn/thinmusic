@@ -6,16 +6,16 @@
   margin-bottom: 20px;
 }
 
-.player .bp3-slider {
+.player .bp6-slider {
   height: 20px;
   margin-bottom: 5px;
 }
 
-.player .bp3-slider-label {
+.player .bp6-slider-label {
   display: none;
 }
 
-.player .bp3-popover-target {
+.player .bp6-popover-target {
   display: block;
 }
 
@@ -75,13 +75,13 @@
   min-width: 100px;
 }
 
-.player .content .contentVolume .bp3-slider-handle {
+.player .content .contentVolume .bp6-slider-handle {
   margin-top: 3px;
   width: 10px;
   height: 10px;
 }
 
-.player .content .contentVolume .bp3-intent-primary {
+.player .content .contentVolume .bp6-intent-primary {
   background-color: #8a9ba8;
 }
 
@@ -92,7 +92,7 @@
   display: inline-block;
 }
 
-.player .content .contentTrack .bp3-spinner {
+.player .content .contentTrack .bp6-spinner {
   margin-top: 10px;
 }
 

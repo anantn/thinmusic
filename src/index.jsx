@@ -1,10 +1,9 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import { isMobile, isAndroid, isIOS } from "react-device-detect";
+import { createRoot } from "react-dom/client";
+import { isMobile, isAndroid, isIOS } from "./device";
 import { FocusStyleManager } from "@blueprintjs/core";
 
 import "normalize.css/normalize.css";
-import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 
 import "./s/index.css";
@@ -32,6 +31,8 @@ function showLoadError() {
   }
 }
 
+const root = createRoot(document.getElementById("root"));
+
 async function main(rm) {
   FocusStyleManager.onlyShowFocusOnTabs();
   let MusicKit;
@@ -52,7 +53,7 @@ async function main(rm) {
   // Set the saved volume before anything can play, so tracks never start loud.
   applyVolume(MusicKit.getInstance(), loadVolume());
   const { default: App } = await import("./App");
-  ReactDOM.render(<App />, document.getElementById("root"));
+  root.render(<App />);
   if (rm) {
     remove();
   }
@@ -87,7 +88,7 @@ if (isMobile) {
       </a>
     );
   }
-  ReactDOM.render(
+  root.render(
     <div>
       <img
         alt="ThinMusic Preview"
@@ -105,7 +106,7 @@ if (isMobile) {
       <div>{badge}</div>
       <div>
         <p>
-          <span onClick={main.bind(this, false)} className="continue">
+          <span onClick={() => main(false)} className="continue">
             Continue Anyway
           </span>
         </p>
@@ -115,8 +116,7 @@ if (isMobile) {
         </p>
         <p>Some features may not work as intended.</p>
       </div>
-    </div>,
-    document.getElementById("root")
+    </div>
   );
   remove();
 } else {

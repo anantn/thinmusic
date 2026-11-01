@@ -1,39 +1,39 @@
-.collection.bp3-dialog {
+.collection.bp6-dialog {
   width: 680px;
   min-height: 600px;
 }
 
-.collection.bp3-dialog span.clickable {
+.collection.bp6-dialog span.clickable {
   cursor: pointer;
 }
 
-.collection.bp3-dialog .bp3-dialog-body .bp3-spinner {
+.collection.bp6-dialog .bp6-dialog-body .bp6-spinner {
   margin-top: 250px;
 }
 
-.collection.bp3-dialog .bp3-dialog-body .header {
+.collection.bp6-dialog .bp6-dialog-body .header {
   line-height: 1.8em;
   text-align: center;
   height: 180px;
   padding-bottom: 20px;
 }
 
-.collection.bp3-dialog .bp3-dialog-body .header .browseIcon {
+.collection.bp6-dialog .bp6-dialog-body .header .browseIcon {
   float: left;
 }
 
-.collection.bp3-dialog .bp3-dialog-body .header .metadata {
+.collection.bp6-dialog .bp6-dialog-body .header .metadata {
   padding-top: 0px;
   padding-left: 180px;
 }
 
-.collection.bp3-dialog .bp3-dialog-body .header .metadata .subtitle {
+.collection.bp6-dialog .bp6-dialog-body .header .metadata .subtitle {
   font-size: 16px;
   overflow: hidden;
   white-space: nowrap;
 }
 
-.collection.bp3-dialog .bp3-dialog-body .header .metadata .description {
+.collection.bp6-dialog .bp6-dialog-body .header .metadata .description {
   margin-top: 3px;
   font-size: 13px;
   line-height: 1.3em;
@@ -41,20 +41,20 @@
   height: 80px;
 }
 
-.collection.bp3-dialog ol.playlist li .item {
+.collection.bp6-dialog ol.playlist li .item {
   grid-template-columns: 0.5fr 3fr 2fr 2fr 0.5fr 1fr;
 }
 
-.collection.bp3-dialog ol.playlist li .itemActive {
+.collection.bp6-dialog ol.playlist li .itemActive {
   border-style: solid;
   border-width: 1px;
   border-color: rgb(19, 124, 189);
 }
 
-.collection.bp3-dialog ol.playlist.album li .item {
+.collection.bp6-dialog ol.playlist.album li .item {
   grid-template-columns: 0.5fr 4fr 3fr 0.5fr 1fr;
 }
 
-.collection.bp3-dialog ol.browseList {
+.collection.bp6-dialog ol.browseList {
   grid-column-gap: 3px;
 }

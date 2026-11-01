@@ -5,7 +5,8 @@ import {
   Divider,
   HTMLTable,
   Icon,
-  Popover,
+  PopoverNext,
+  Classes,
   Spinner,
   Alert,
   ButtonGroup
@@ -178,10 +179,10 @@ class Settings extends Component {
   renderSocialLogin = () => {
     return (
       <ButtonGroup
-        large={true}
+        size="large"
         vertical={true}
         className="login"
-        alignText="left"
+        alignText="start"
       >
         <Button
           className="google"
@@ -201,13 +202,9 @@ class Settings extends Component {
         <div>
           Log in with any social account and seamlessly synchronize access to
           your music
-          <Popover isOpen={this.state.explain}>
-            <div style={{ marginBottom: "10px" }}>
-              &nbsp;(
-              <Icon className="help" icon="help" onClick={this.toggleExplain} />
-              )
-            </div>
-            <div>
+          <PopoverNext
+            isOpen={this.state.explain}
+            content={
               <Card style={{ maxWidth: "400px" }}>
                 <p>
                   <b>Why should I log in to ThinMusic?</b>
@@ -237,8 +234,14 @@ class Settings extends Component {
                   Ok
                 </Button>
               </Card>
-            </div>
-          </Popover>
+            }
+          >
+            <span style={{ marginBottom: "10px" }}>
+              &nbsp;(
+              <Icon className="help" icon="help" onClick={this.toggleExplain} />
+              )
+            </span>
+          </PopoverNext>
         </div>
       </div>
     );
@@ -289,7 +292,7 @@ class Settings extends Component {
       content = (
         <div>
           <Alert
-            className="bp3-dark"
+            className={Classes.DARK}
             cancelButtonText="Cancel"
             confirmButtonText="OK"
             intent="success"
@@ -391,7 +394,7 @@ class Settings extends Component {
               <h3>New user?</h3>
               <p>Sign in with your Apple ID to get started:</p>
               <Button
-                large={true}
+                size="large"
                 className="apple"
                 onClick={this.connectAppleAnonymous}
               >

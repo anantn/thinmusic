@@ -6,5 +6,5 @@ export default defineConfig({
   // Port 3000 is allowed by the Last.fm function's CORS check.
   server: { port: 3000, strictPort: true },
   preview: { port: 3000, strictPort: true },
-  build: { outDir: "dist", sourcemap: false, cssMinify: false }
+  build: { outDir: "dist", sourcemap: false }
 });
