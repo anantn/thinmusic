@@ -328,7 +328,6 @@ class Player extends Component {
       volume = (
         <div>
           <Icon
-            size={10}
             color={C.GRAY1}
             className="contentVolumeIcon"
             onClick={this.volumeToggle}
@@ -352,7 +351,6 @@ class Player extends Component {
           />
           <Icon
             className="contentVolumeIconRight"
-            size={10}
             icon="repeat"
             color={RM[this.state.repeatMode]}
             onClick={this.repeatChange}
