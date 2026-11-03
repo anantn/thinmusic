@@ -10,3 +10,10 @@
 .panel .bp6-tab-panel {
   min-height: 555px;
 }
+
+/* Blueprint 6 centers tab icons with flexbox; Blueprint 3 aligned them to
+   the text bottom, which sat the gear ~2px lower, level with the tab labels. */
+.panel .tabs [data-tab-id="settings"] .bp6-icon {
+  position: relative;
+  top: 2px;
+}
